@@ -224,6 +224,7 @@ public class OrderManageController {
 		
 		logger.info("controller:メニュー画面表示処理 end");
 
+		
         return "menu";
 	}
 
