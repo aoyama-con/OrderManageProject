@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<script th:src="@{/js/common.js}"></script>
+<head>
+<meta charset="UTF-8">
+<title>メニュー画面</title>
+</head>
+<body>
+  <h1>メニュー画面</h1>
+  <form role="form" id="logout" th:action="@{/logout}" method="post">
+    <button type="submit">ログアウト</button>
+  </form>
+  <form th:action="@{/storeChoice}" method="post">
+    <p><input type="submit" value="発注する"></p>
+  </form>
+  <form th:action="@{/orderHistory}" method="post">
+    <p><input type="submit" value="発注履歴"></p>
+  </form>
+  
+  ---テスト用------------------------------------------------------------
+  <form th:action="@{/orderInput}" method="post">
+    <p><input type="submit" value="発注入力"></p>
+  </form>
+  <form th:action="@{/checkOrderConfirm}" method="post">
+    <p><input type="submit" value="発注確認"></p>
+  </form>
+  <form th:action="@{/orderConfirm}" method="post">
+    <p><input type="submit" value="発注確定"></p>
+  </form>
+  --------------------------------------------------------------------
+</body>
+</html>

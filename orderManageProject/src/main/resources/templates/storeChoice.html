@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<script th:src="@{/js/common.js}"></script>
+<head>
+<meta charset="UTF-8">
+<title>店舗選択</title>
+</head>
+<body>
+  <h1>店舗選択</h1>
+  <p>
+  <form role="form" id="logout" th:action="@{/logout}" method="post">
+    <button type="submit">ログアウト</button>
+  </form>
+  </p>
+  <table>
+    <tr th:if="${validationError}" th:each="error : ${validationError}">
+      <td style="color:red;" th:text="${error}"></td>
+    </tr>
+  </table>  
+  <form th:action="@{/orderInput}" th:method="post" th:object="${storeChoiceForm}">
+  店舗：
+    <select id="sotre_list" name="storeselect">
+    　　<option value="0" selected></option>
+    　　<option th:each="storeInfo:${storeInfos}" th:value="${storeInfo.key}" th:text="${storeInfo.value}" th:selected="${storeInfo.key == storeselect}">
+    　　</option>
+    </select>
+    <p>
+      発注日：<input type="date" name="orderDate" th:value="${orderDate}">
+      <input type="hidden" name="sysDate" th:value="${sysDate}">
+    </p>
+    <p><input type="submit" value="発注入力"></p>
+  </form>
+  <form method="post" th:action="@{/menu}">
+    <p><input type="submit" value="メニューに戻る"></p>
+  </form>
+</body>
+</html>

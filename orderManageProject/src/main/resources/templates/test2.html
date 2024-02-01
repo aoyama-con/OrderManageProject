@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>テスト２画面</title>
+</head>
+<body>
+  <h1>テスト２画面</h1>
+  <!-- 表示方法は複数 -->
+  テスト用　文字１：<p th:text="${user_id}"></p>
+  テスト用　文字２：<p>[[${password}]]</p>
+  
+  商品名：<p th:text="${productName}"></p>
+  商品名カナ：<p>[[${productKana}]]</p>
+</body>
+</html>

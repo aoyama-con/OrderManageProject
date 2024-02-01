@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<script th:src="@{/js/common.js}"></script>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+  <p th:text="${message}"></p>
+  <form th:action="@{/menu}" method="post">
+    <p>ユーザID：</p><p><input type="text" name="user_id"></p>
+    <p>パスワード：</p><p><input type="password" name="password"></p>
+    <p><input type="submit" value="ログイン"></p>
+  </form>
+</body>
+</html>
