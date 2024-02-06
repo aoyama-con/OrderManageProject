@@ -39,6 +39,7 @@ import com.orderManage.model.session.SmarejiUser;
  * 共通系のテスト用サービスクラス
  * スマレジAPIをテストするためのサービスクラス
  * 
+ * 
  */
 @Service
 public class UtilTestService extends OrderManageService {
