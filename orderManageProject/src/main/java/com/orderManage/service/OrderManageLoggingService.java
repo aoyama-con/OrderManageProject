@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrderManageLoggingService {
 
-	private static final Logger logger = LoggerFactory.getLogger(OrderManageLoggingService.class);
+//	private static final Logger logger = LoggerFactory.getLogger(OrderManageLoggingService.class);
+	private static final Logger logger = LoggerFactory.getLogger("appLogger");
 	 
 	public void trace(String msg) {
 	  logger.trace(msg);
