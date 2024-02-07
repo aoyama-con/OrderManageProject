@@ -1,6 +1,7 @@
 package com.orderManage.controller.object;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import com.orderManage.util.StringUtil;
 
@@ -22,7 +23,10 @@ public class StoreChoiceForm implements Serializable {
     /** システム日付 */
     private String sysDate;
     
-    /**
+    /** 店舗一覧 */
+    Map<String, String> storeInfos;
+    
+	/**
      * 
      * @return
      */
@@ -75,5 +79,13 @@ public class StoreChoiceForm implements Serializable {
 
 	public void setSysDate(String sysDate) {
 		this.sysDate = sysDate;
+	}
+
+	public Map<String, String> getStoreInfos() {
+		return storeInfos;
+	}
+
+	public void setStoreInfos(Map<String, String> storeInfos) {
+		this.storeInfos = storeInfos;
 	}
 }
