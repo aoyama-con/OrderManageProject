@@ -245,6 +245,8 @@ public class OrderManageController {
 		
 		logger.info("店舗選択画面遷移処理　開始");
 
+		StoreChoiceForm form = new StoreChoiceForm();
+
 		// 店舗一覧情報を取得する
 		Map<String, String> storesMap = new LinkedHashMap<String, String>();
 
@@ -252,17 +254,22 @@ public class OrderManageController {
 		storesMap = storeChoiceService.getStoresInfo(smarejiUser);
 
 		// 店舗一覧を店舗選択画面に設定する
-		model.addAttribute("storeInfos", storesMap);
+//		model.addAttribute("storeInfos", storesMap);
+		form.setStoreInfos(storesMap);
 		
 		// 発注日を設定
 		// テスト用に日付設定、本来は現在日付とする、また戻り時は設定された値が入る
-		String sysDate = DateUtil.getSysDateYyyyMmDd();	// TODO システム日付取得
+		String sysDate = DateUtil.getSysDateYyyyMmDd();
 		
-		model.addAttribute("sysDate", sysDate);
-		model.addAttribute("orderDate", sysDate);
+//		model.addAttribute("sysDate", sysDate);
+//		model.addAttribute("orderDate", sysDate);
+		form.setOrderDate(sysDate);
+		form.setSysDate(sysDate);
+		model.addAttribute("storeChoiceForm", form);
 
-		// 入力チェックエラーの場合にセッションに保持しておく TODO
-		smarejiSession.setAttribute("storeInfos", storesMap);
+		// 入力チェックエラーの場合にセッションに保持しておく
+//		smarejiSession.setAttribute("storeInfos", storesMap);
+		smarejiSession.setAttribute("storeChoiceForm", form);
 
 		logger.info("店舗選択画面遷移処理　終了");
 
@@ -283,6 +290,7 @@ public class OrderManageController {
 		
 		logger.info("発注入力画面遷移処理　開始");
 
+		// TODO OrderInputFormに設定してそれをmodelにaddすることになると思う
 		model.addAttribute("storeselect", object.getStoreselect());
 		model.addAttribute("orderDate", object.getOrderDate());
 		model.addAttribute("sysDate", object.getSysDate());
@@ -293,11 +301,13 @@ public class OrderManageController {
                 errorList.add(error.getDefaultMessage());
             }
             model.addAttribute("validationError", errorList);
-            model.addAttribute("storeInfos", smarejiSession.getAttribute("storeInfos"));
+//            model.addAttribute("storeInfos", smarejiSession.getAttribute("storeInfos"));
+            object.setStoreInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("storeInfos"));	// TODO objectの使い回しは微妙？
+            model.addAttribute("storeChoiceForm", object);
             return "storeChoice";
         }
  
-        // 選択した店舗情報をセッションに保持する	// TODO
+        // 選択した店舗情報をセッションに保持する	// TODO APIから取得
         StoreInfo storeInfo = storeChoiceService.getStoreInfo(smarejiUser);
         smarejiSession.setAttribute("storesInfo", storeInfo);
         
