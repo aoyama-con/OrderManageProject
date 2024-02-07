@@ -61,7 +61,7 @@
 								<select id="sotre_list" name="storeselect" class="form-select"
 									aria-label="Default select example">
 									<option value="0" selected></option>
-									<option th:each="storeInfo:${storeInfos}" th:value="${storeInfo.key}"
+									<option th:each="storeInfo:${storeChoiceForm.storeInfos}" th:value="${storeInfo.key}"
 										th:text="${storeInfo.value}" th:selected="${storeInfo.key == storeselect}">
 									</option>
 								</select>
@@ -70,8 +70,8 @@
 						<tr>
 							<td class="align-middle text-left">発注日</td>
 							<td class="align-middle text-left">
-								<input type="date" name="orderDate" id="dateFrom" th:value="${orderDate}">
-								<input type="hidden" name="sysDate" th:value="${sysDate}">
+								<input type="date" name="orderDate" id="dateFrom" th:value="${storeChoiceForm.orderDate}">
+								<input type="hidden" name="sysDate" th:value="${storeChoiceForm.sysDate}">
 							</td>
 						</tr>
 					</tbody>
