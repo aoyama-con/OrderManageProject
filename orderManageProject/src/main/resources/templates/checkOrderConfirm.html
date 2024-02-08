@@ -69,47 +69,11 @@
 						<td class="align-middle text-center" th:text="${order.orderStaff}"></td>
 						<td class="align-middle text-end" th:text="${order.orderCount} + '点'"></td>
 						<td class="align-middle text-end" th:text="${order.orderAmountSum} + '円'"></td>
-						<!--
-						<td class="align-middle text-center" th:text="${order.orderedDate}"></td>
-						<td class="align-middle text-center" th:text="${order.supplier}"></td>
-						<td class="align-middle text-center" th:text="${order.staff}"></td>
-						<td class="align-middle text-end" th:text="${order.quantity} + '点'"></td>
-						<td class="align-middle text-end" th:text="${order.amount} + '円'"></td>
-						-->
 						<td class="text-center">
 							<!--<button type="button" class="btn btn-primary" th:href="@{'/OrderConfirm/' + ${order.storageInfoId}}">　詳細　</button>-->
 							<button type="button" class="btn btn-primary" th:href="@{'/OrderConfirm/'}">　詳細　</button>
 						</td>
-					
 					</tr>
-					<!-- 
-					<tr>
-						<td class="align-middle text-center">
-							<div class="p-1 bg-warning">仮発注</div>
-						</td>
-						<td class="align-middle text-center">2023/12/28</td>
-						<td class="align-middle text-center">〇〇商事</td>
-						<td class="align-middle text-center">田中一郎</td>
-						<td class="align-middle text-end">4点</td>
-						<td class="align-middle text-end">35,000円</td>
-						<td class="text-center">
-							<button type="button" class="btn btn-primary">　詳細　</button>
-						</td>
-					</tr>
-					<tr>
-						<td class="align-middle text-center">
-							<div class="p-1 bg-warning">仮発注</div>
-						</td>
-						<td class="align-middle text-center">2023/12/28</td>
-						<td class="align-middle text-center">〇〇商事</td>
-						<td class="align-middle text-center">田中一郎</td>
-						<td class="align-middle text-end">4点</td>
-						<td class="align-middle text-end">35,000円</td>
-						<td class="text-center">
-							<button type="button" class="btn btn-primary">　詳細　</button>
-						</td>
-					</tr>
-					-->
 				</tbody>
 			</table>
 		</div>
