@@ -14,13 +14,6 @@
 <!-- 日本語化ファイル -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/i18n/jquery.ui.datepicker-ja.min.js"></script>
 
-<script>
-	$(function () {
-		$('#dateFrom').datepicker();
-		$('#dateTo').datepicker();
-	});
-</script>
-
 <head>
 	<meta charset="UTF-8">
 	<title>Insert title here</title>
@@ -67,6 +60,28 @@
 					</tr>
 				</thead>
 				<tbody>
+					<tr th:each="order : ${orderList}">
+						<td class="align-middle text-center">
+							<div class="p-1 bg-warning">仮発注</div>
+						</td>
+						<td class="align-middle text-center" th:text="${order.orderedDate}"></td>
+						<td class="align-middle text-center" th:text="${order.recipientOrderId}"></td>
+						<td class="align-middle text-center" th:text="${order.recipientOrderId}"></td>
+						<td class="align-middle text-end" th:text="${order.recipientOrderId} + '点'"></td>
+						<td class="align-middle text-end" th:text="${order.recipientOrderId} + '円'"></td>
+						<!--
+						<td class="align-middle text-center" th:text="${order.orderedDate}"></td>
+						<td class="align-middle text-center" th:text="${order.supplier}"></td>
+						<td class="align-middle text-center" th:text="${order.staff}"></td>
+						<td class="align-middle text-end" th:text="${order.quantity} + '点'"></td>
+						<td class="align-middle text-end" th:text="${order.amount} + '円'"></td>
+						-->
+						<td class="text-center">
+							<button type="button" class="btn btn-primary" th:href="@{'/OrderConfirm/' + ${order.storageInfoId}}">　詳細　</button>
+						</td>
+					
+					</tr>
+					<!-- 
 					<tr>
 						<td class="align-middle text-center">
 							<div class="p-1 bg-warning">仮発注</div>
@@ -93,6 +108,7 @@
 							<button type="button" class="btn btn-primary">　詳細　</button>
 						</td>
 					</tr>
+					-->
 				</tbody>
 			</table>
 		</div>
