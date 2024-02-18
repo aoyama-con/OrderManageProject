@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orderManage.model.ApplicationPropertyModel;
 import com.orderManage.model.api.AccessToken;
 import com.orderManage.model.api.CategorieInfo;
+import com.orderManage.model.api.ProductImageInfo;
 import com.orderManage.model.api.ProductsInfo;
 import com.orderManage.model.api.PurchaseOrdersInfo;
 import com.orderManage.model.api.PurchaseOrdersProductsInfo;
@@ -35,6 +36,7 @@ import com.orderManage.model.api.SuppliersProductsInfo;
 import com.orderManage.model.api.UserAccessToken;
 import com.orderManage.model.param.ParamCategorieInfo;
 import com.orderManage.model.param.ParamEntryPurchaseOrder;
+import com.orderManage.model.param.ParamProductImage;
 import com.orderManage.model.param.ParamProductInfo;
 import com.orderManage.model.param.ParamPurchaseOrderInfo;
 import com.orderManage.model.param.ParamPurchaseOrderProduct;
@@ -1208,5 +1210,66 @@ public class SmarejiApiAccess {
 		// 配列に格納して返却
 		StaffInfo[] staffInfo = response.getBody();
 		return Arrays.asList(staffInfo);
+	}
+	
+	/**
+	 * getProductsImage
+	 * 
+	 * 商品画像一覧取得を行う(GET)
+	 *
+	 * @param contractId アプリ契約ID
+	 * @param paramProductImage 商品画像一覧取得パラメータ
+	 * 
+	 * @return List 商品画像一覧情報
+	 */
+	public List<ProductImageInfo> getProductsImage(String contractId, ParamProductImage paramProductImage){
+
+		// アクセストークン取得 ※必須
+		AccessToken at = getAccessToken(contractId);
+		
+		// 商品画像一覧取得URL
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(app_properties.getUrlApi() + contractId + 
+				"/pos/products/images");
+		
+		// ヘッダー情報を作成
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + at.getAccess_token());
+		
+		// クエリパラメータ設定 設定されているものだけをパラメータに設定する
+		MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
+		
+		// パラメータをMapに設定
+		// 検索パラメータ
+		if (Objects.nonNull(paramProductImage.getFields())) {
+			paramMap.add("fields", String.join(",", paramProductImage.getFields()));
+		}
+		// ソート
+		if (StringUtils.hasLength(paramProductImage.getSort())) {
+			paramMap.add("sort", paramProductImage.getSort());
+		}
+		// 上限
+		if (paramProductImage.getLimit() != 0) {
+			paramMap.add("limit", String.valueOf(paramProductImage.getLimit()));
+		}
+		// ページ
+		if (paramProductImage.getPage() != 0) {
+			paramMap.add("page", String.valueOf(paramProductImage.getPage()));
+		}
+		// 商品ID
+		if (StringUtils.hasLength(paramProductImage.getProduct_id())) {
+			paramMap.add("product_id", paramProductImage.getProduct_id());
+		}
+
+		String uri = builder.queryParams(paramMap).toUriString();
+
+		// スマレジAPIにアクセス(GET) ////////////////////////////////////////////
+		RestTemplate restTemplate = new RestTemplate();	
+		RequestEntity<Void> request = RequestEntity.get(URI.create(uri)).headers(headers).build();
+
+		ResponseEntity<ProductImageInfo[]> response = restTemplate.exchange(request, ProductImageInfo[].class);
+		
+		// 配列に格納して返却
+		ProductImageInfo[] productImage = response.getBody();
+		return Arrays.asList(productImage);
 	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.orderManage.model.api.CategorieInfo;
+import com.orderManage.model.api.ProductImageInfo;
 import com.orderManage.model.api.ProductsInfo;
 import com.orderManage.model.api.PurchaseOrdersInfo;
 import com.orderManage.model.api.PurchaseOrdersProductsInfo;
@@ -20,6 +21,7 @@ import com.orderManage.model.param.ParamEntryPurchaseOrder;
 import com.orderManage.model.param.ParamEntryPurchaseOrderDeliveryStore;
 import com.orderManage.model.param.ParamEntryPurchaseOrderProduct;
 import com.orderManage.model.param.ParamEntryPurchaseOrderStore;
+import com.orderManage.model.param.ParamProductImage;
 import com.orderManage.model.param.ParamProductInfo;
 import com.orderManage.model.param.ParamPurchaseOrderInfo;
 import com.orderManage.model.param.ParamPurchaseOrderProduct;
@@ -156,7 +158,7 @@ public class UtilTestService extends OrderManageService {
 		ParamEntryPurchaseOrderDeliveryStore ds = new ParamEntryPurchaseOrderDeliveryStore();
 		ds.setStoreId("3");
 		// 発注数量
-		ds.setQuantity("0");
+		ds.setQuantity("5");
 //		ds.setQuantity("100");
 		dsList.add(ds);
 		op.setDeliveryStore(dsList);
@@ -428,4 +430,23 @@ public class UtilTestService extends OrderManageService {
 		
 		return StaffInfo;
 	}
+	
+	// 商品画像一覧取得
+	public List<ProductImageInfo> getProductsImage(SmarejiUser smarejiUser) {
+		
+		// 商品画像一覧を取得(API)
+		ParamProductImage paramProductImage = new ParamProductImage();
+
+		// 検索パラメータ
+		// 上限設定
+		paramProductImage.setLimit(10);
+		// 商品ID
+		paramProductImage.setProduct_id("8000010");
+
+		List<ProductImageInfo> productImage = smarejiApiAccess.getProductsImage(smarejiUser.getContract().getId(), 
+				paramProductImage);
+		
+		return productImage;
+	}
+
 }
