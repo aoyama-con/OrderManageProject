@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-	integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+
+<link th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css}" rel="stylesheet"  
+	integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"/>
+<script th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js}"
 	integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
 	crossorigin="anonymous"></script>
 <script th:src="@{/js/common.js}"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css">
+<link rel="stylesheet" th:href="@{https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css}"/>
 <!-- jQuery本体 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script th:src="@{https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js}"></script>
 <!-- jQuery UI -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script th:src="@{https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js}"></script>
 <!-- 日本語化ファイル -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/i18n/jquery.ui.datepicker-ja.min.js"></script>
+<script th:src="@{https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/i18n/jquery.ui.datepicker-ja.min.js}"></script>
+<!-- 検索モーダル制御 -->
+<script type="text/javascript" th:src="@{/js/modal.js}"></script>
 
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>発注入力</title>
 </head>
 
 <body>
@@ -35,12 +38,59 @@
 		<BR>
 		<div class="row">
 			<div class="col" align="left">
-				<button type="button" class="btn btn-primary">検索条件</button>
+				<!-- モーダル画面の呼び出し 20240211 -->
+				<!-- モーダルの制御がなぜかJavascriptでないと制御できない。時間があれば調べる　20240218 -->
+				<button type="button" id="openSerchModal" class="btn btn-primary">検索条件</button>
 			</div>
 		</div>
 	</div>
 	</div>
 	<BR>
+
+	<!-- 検索モーダル画面 --------------------------------------------------------------------------------- -->
+	<div class="modal fade" id="serchModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+    	<div class="modal-dialog">
+        	<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">検索</h5>
+				</div>
+				<div class="modal-body">
+            		<p>部門：<input type="text" name="category"></p>
+    				<p>属性：
+						<select name="">
+							<option value="0"></option>
+							<option value="1"></option>
+							<option value="2"></option>
+							<option value="3"></option>
+							<option value="4"></option>
+						</select>
+    				</p>
+    				<p>Gコード：<input type="text" name=""></p>
+    				<p>品番：<input type="text" name=""></p>
+    				<p>商品ID：<input type="text" name=""></p>
+    				<p>商品CD：<input type="text" name=""></p>
+    				<p>商品名：<input type="text" name=""></p>
+    				<p>PB区分：<input type="text" name=""></p>
+    				<p>販売金額：
+						<select name="">
+							<option value="0"></option>
+							<option value="1"></option>
+							<option value="2"></option>
+							<option value="3"></option>
+							<option value="4"></option>
+						</select>
+						</select><input type="text" name="">円以上
+					</p>
+    				
+            	</div>
+            	<div class="modal-footer">
+					<button type="button" id="modalClose" class="btn btn-primary">閉じる</button>
+					<button type="button" id="modalSerch" class="btn btn-primary">この条件で検索する</button>
+				</div>
+        	</div>
+    	</div>
+	</div>
+	<!-- ---------------------------------------------------------------------------------------------- -->
 
 	<div class="container">
 		<div class="row">
