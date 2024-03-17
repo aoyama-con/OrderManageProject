@@ -21,7 +21,6 @@ import com.orderManage.controller.object.CheckOrderConfirmForm;
 import com.orderManage.controller.object.StoreChoiceForm;
 import com.orderManage.model.ApplicationPropertyModel;
 import com.orderManage.model.api.StoreInfo;
-import com.orderManage.model.api.UserAccessToken;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.service.CheckOrderConfirmService;
 import com.orderManage.service.MenuService;
@@ -100,15 +99,15 @@ public class OrderManageController {
 
 		/** スマレジアクセス時にコメントをはずす*******************************************************************/
 		// 認可エンドポイントURLにリダイレクト
-		String redirectStr = "redirect:" + app_properties.getUrlId() + "authorize?response_type=code&client_id=" 
-			+ app_properties.getClientId() + "&scope=openid+email+offline_access";
-		return redirectStr;
+//		String redirectStr = "redirect:" + app_properties.getUrlId() + "authorize?response_type=code&client_id=" 
+//			+ app_properties.getClientId() + "&scope=openid+email+offline_access";
+//		return redirectStr;
 //		return "redirect:https://id.smaregi.dev/authorize?response_type=code&client_id=9b05282c38cbcc8d2faa18e4c81cb53b&scope=openid+email+offline_access";
 		/** *****************************************************************************************/
 		
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-//		model.addAttribute("message", "ログイン画面");
-//        return "login";
+		model.addAttribute("message", "ログイン画面");
+        return "login";
 		/***********************************************/
 	}
 
@@ -165,19 +164,19 @@ public class OrderManageController {
 		//str.toString();
 		/**************************/
 		
-		/** 認証関連 スマレジアクセス時にコメントをはずす*******************************************************************/
-		logger.debug("認可コード:code:" + code);
-		// authorization_code（code）を使用してユーザーアクセストークンをリクエストする
-		UserAccessToken uat = menuService.getUserAccessToken(code);
-		logger.debug("ユーザアクセストークン：" + uat.getAccess_token());
-
-		// ユーザーアクセストークンを使用してユーザー情報取得する
-		smarejiUser = menuService.getSmarejiUser(uat.getAccess_token());
-		logger.debug("契約ID：" + smarejiUser.getContract().getId());
-
-		// ユーザ情報をセッションに格納する
-		smarejiSession.setAttribute("s_smarejiUser", smarejiUser);
-		/****************************************************************************************************/
+//		/** 認証関連 スマレジアクセス時にコメントをはずす*******************************************************************/
+//		logger.debug("認可コード:code:" + code);
+//		// authorization_code（code）を使用してユーザーアクセストークンをリクエストする
+//		UserAccessToken uat = menuService.getUserAccessToken(code);
+//		logger.debug("ユーザアクセストークン：" + uat.getAccess_token());
+//
+//		// ユーザーアクセストークンを使用してユーザー情報取得する
+//		smarejiUser = menuService.getSmarejiUser(uat.getAccess_token());
+//		logger.debug("契約ID：" + smarejiUser.getContract().getId());
+//
+//		// ユーザ情報をセッションに格納する
+//		smarejiSession.setAttribute("s_smarejiUser", smarejiUser);
+//		/****************************************************************************************************/
 		
 		/* Util系テスト ******************************************************************/
 //		SmarejiUser suser = (SmarejiUser)smarejiSession.getAttribute("smarejiUser");
