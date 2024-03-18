@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.orderManage.model.api.CategorieInfo;
 import com.orderManage.model.api.OrderProducts;
+import com.orderManage.model.api.ProductImageInfo;
 import com.orderManage.model.api.ProductsInfo;
 import com.orderManage.model.api.PurchaseOrdersInfo;
 import com.orderManage.model.api.PurchaseOrdersProductsInfo;
@@ -16,7 +17,6 @@ import com.orderManage.model.api.StockInfo;
 import com.orderManage.model.api.StoreInfo;
 import com.orderManage.model.api.SuppliersInfo;
 import com.orderManage.model.api.SuppliersProductsInfo;
-import com.orderManage.model.param.ParamStaffInfo;
 
 /**
  * スマレジAPIを使用して情報を取得するクラス(Mock)
@@ -108,40 +108,39 @@ public class SmarejiApiAccessMock {
 	 * @param contractId 契約ID
 	 */
 	public PurchaseOrdersInfo getPurchaseOrderInfo(String contractId) {
-		
-		PurchaseOrdersInfo PurchaseOrdersInfo = new PurchaseOrdersInfo();
+		PurchaseOrdersInfo purchaseOrdersInfo = new PurchaseOrdersInfo();
 		ArrayList<OrderProducts> producList = new ArrayList<OrderProducts>();
 		
 		// テスト用の発注情報を設定
-		PurchaseOrdersInfo.setStorageInfoId(String.valueOf(1));			// 発注ID
-		PurchaseOrdersInfo.setRecipientOrderId(String.valueOf(1));		// 発注先ID
-		PurchaseOrdersInfo.setDivisionUnit("2");						// 分割単位（2：仕入先）
-		PurchaseOrdersInfo.setCategoryGroupId("001");					// 部門グループID
-		PurchaseOrdersInfo.setOrderedDate("2024-01-10");				// 発注日（YYYY-MM-DD）			
-		PurchaseOrdersInfo.setMemo("メモ");								// メモ
-		PurchaseOrdersInfo.setIdentificationNo("99999");				// 識別番号
-		PurchaseOrdersInfo.setRoundingDivision("0");					// 税丸め
-		PurchaseOrdersInfo.setStatus("5");								// ステータス（5：仮発注）
-		PurchaseOrdersInfo.setStaffId("1");						// スタッフID
-		PurchaseOrdersInfo.setInsDateTime("YYYY-MM-DDThh:mm:ssTZD");	// 作成日時
-		PurchaseOrdersInfo.setUpdDateTime("YYYY-MM-DDThh:mm:ssTZD");	// 更新日時
+		purchaseOrdersInfo.setStorageInfoId(String.valueOf(1));			// 発注ID
+		purchaseOrdersInfo.setRecipientOrderId(String.valueOf(1));		// 発注先ID
+		purchaseOrdersInfo.setDivisionUnit("2");						// 分割単位（2：仕入先）
+		purchaseOrdersInfo.setCategoryGroupId("001");					// 部門グループID
+		purchaseOrdersInfo.setOrderedDate("2024-01-10");				// 発注日（YYYY-MM-DD）			
+		purchaseOrdersInfo.setMemo("メモ");								// メモ
+		purchaseOrdersInfo.setIdentificationNo("99999");				// 識別番号
+		purchaseOrdersInfo.setRoundingDivision("0");					// 税丸め
+		purchaseOrdersInfo.setStatus("5");								// ステータス（5：仮発注）
+		purchaseOrdersInfo.setStaffId("1");						// スタッフID
+		purchaseOrdersInfo.setInsDateTime("YYYY-MM-DDThh:mm:ssTZD");	// 作成日時
+		purchaseOrdersInfo.setUpdDateTime("YYYY-MM-DDThh:mm:ssTZD");	// 更新日時
 		
 		// 発注対象商品情報
 		for (int i=0; i < 5; i++ ) {
 			OrderProducts oi = new OrderProducts();
 			
 			oi.setStorageInfoId(String.valueOf(i));		// 発注商品ID
-			oi.setStorageInfoProductId(PurchaseOrdersInfo.getStorageInfoId());	// 発注ID
+			oi.setStorageInfoProductId(purchaseOrdersInfo.getStorageInfoId());	// 発注ID
 			oi.setProductId(String.valueOf(i));			// 商品ID
 			oi.setCost(String.valueOf(i*150));			// 原価
 			oi.setQuantity(String.valueOf(i*100));		// 発注数量 
 
 			producList.add(oi);
 		}
-		PurchaseOrdersInfo.setProducts(producList);
+		purchaseOrdersInfo.setProducts(producList);
 		
 	
-		return PurchaseOrdersInfo;
+		return purchaseOrdersInfo;
 	}
 	
 	/**
@@ -193,6 +192,12 @@ public class SmarejiApiAccessMock {
 	public List<PurchaseOrdersProductsInfo> getPurchaseOrdersProductsInfo(String contractId) {
 		ArrayList<PurchaseOrdersProductsInfo> list = new ArrayList<PurchaseOrdersProductsInfo>();
 
+		for (int i=0; i < 5; i++ ) {
+			PurchaseOrdersProductsInfo popi = new PurchaseOrdersProductsInfo();
+			popi.setProductId("888888"+String.valueOf(i+1));
+			popi.setQuantity(String.valueOf(i+1));
+			list.add(popi);	
+		}
 		return list;
 	}
 	
@@ -252,8 +257,16 @@ public class SmarejiApiAccessMock {
 	 * 
 	 * @param contractId 契約ID
 	 */
-	public List<ProductsInfo> getProductsInfo(String contractId, ParamStaffInfo paramStaffInfo) {
+	public List<ProductsInfo> getProductsInfo(String contractId) {
 		ArrayList<ProductsInfo> list = new ArrayList<ProductsInfo>();
+
+		for (int i=0; i < 5; i++ ) {
+			ProductsInfo pi = new ProductsInfo();
+			pi.setProductCode("999999"+String.valueOf(i+1));
+			pi.setProductName("TEST_MERCHANDISE_"+String.valueOf(i+1));
+			pi.setGroupCode("XXXXXX"+String.valueOf(i+1));
+			list.add(pi);
+		}
 
 		return list;
 	}
@@ -280,6 +293,14 @@ public class SmarejiApiAccessMock {
 	 */
 	public List<CategorieInfo> getCategoriesInfo(String contractId) {
 		ArrayList<CategorieInfo> list = new ArrayList<CategorieInfo>();
+
+		for (int i=0; i < 5; i++ ) {
+			CategorieInfo ci = new CategorieInfo();
+			ci.setCategoryId(String.valueOf(i+1));
+			ci.setCategoryCode(String.valueOf(i+1));
+			ci.setCategoryName("TEST_DEPT_"+String.valueOf(i+1));
+			list.add(ci);
+		}
 
 		return list;
 	}
@@ -318,5 +339,23 @@ public class SmarejiApiAccessMock {
 		return list;
 
 	}
-	
+
+	/**
+	 * getCategorieInfo
+	 * 
+	 * ダミーの商品画像情報を取得する
+	 * 
+	 * @param contractId 契約ID
+	 */
+	public List<ProductImageInfo> getProductImageInfo(String ProductImageInfo) {
+		ArrayList<ProductImageInfo> list = new ArrayList<ProductImageInfo>();
+
+		for (int i=0; i < 5; i++ ) {
+			ProductImageInfo pii = new ProductImageInfo();
+			pii.setUrl("URL_"+String.valueOf(i+1));
+			list.add(pii);
+		}
+
+		return list;
+	}
 }
