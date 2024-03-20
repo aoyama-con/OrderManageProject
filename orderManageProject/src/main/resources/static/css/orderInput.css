@@ -1,0 +1,45 @@
+/* アコーディオン全体のスタイリング ※サンプルソースのため、不要なら削除する */
+.accordion {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+/* アコーディオンのヘッダー部分のスタイリング */
+.accordion-header {
+  padding: 10px;
+  background-color: #f7f7f7;
+  cursor: pointer;
+  outline: none;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+  /* 矢印を消すための追加スタイル */
+  list-style: none;
+}
+
+/* アコーディオンのコンテンツ部分のスタイリング */
+.accordion-content {
+  padding: 15px;
+  line-height: 1.5;
+  background-color: #fff;
+}
+
+/* アコーディオンが開いている時のヘッダー部分のスタイル */
+.accordion[open] .accordion-header {
+  background-color: #e7e7e7;
+}
+
+/* アコーディオンの矢印を非表示にするためのスタイリング */
+.accordion .accordion-header::-webkit-details-marker {
+  display: none;
+}
+
+.accordion .accordion-header::before {
+  content: '';
+}
+
+/* 以下のセレクタは将来的な互換性のためには必要ありませんが、
+   古いブラウザでは有効な場合があるので記述しています */
+.accordion .accordion-header::-moz-list-bullet {
+  display: none;
+}

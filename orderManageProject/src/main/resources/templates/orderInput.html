@@ -16,12 +16,11 @@
 <script th:src="@{https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/i18n/jquery.ui.datepicker-ja.min.js}"></script>
 <!-- 検索モーダル制御 -->
 <script type="text/javascript" th:src="@{/js/modal.js}"></script>
-
+<link th:href="@{/css/orderInput.css}" rel="stylesheet">
 <head>
 	<meta charset="UTF-8">
 	<title>発注入力</title>
 </head>
-
 <body>
 	<div class="container">
 		<BR>
@@ -38,59 +37,56 @@
 		<BR>
 		<div class="row">
 			<div class="col" align="left">
-				<!-- モーダル画面の呼び出し 20240211 -->
-				<!-- モーダルの制御がなぜかJavascriptでないと制御できない。時間があれば調べる　20240218 -->
-				<button type="button" id="openSerchModal" class="btn btn-primary">検索条件</button>
+			<!-- 検索条件アコーディオン -->
+				<details>
+					<summary class="btn btn-primary">検索条件 +</summary>
+					<div class="accordion-content">
+						<div class="modal-body">
+            				<p>
+								部門：
+            					<select name="">
+									<option value="0"></option>
+									<option value="1"></optio>
+									<option value="2"></option>
+									<option value="3"></option>
+									<option value="4"></option>
+								</select>
+								属性：
+								<select name="">
+									<option value="0"></option>
+									<option value="1"></optio>
+									<option value="2"></option>
+									<option value="3"></option>
+									<option value="4"></option>
+								</select>
+    							Gコード：<input type="text" name="">
+    						</p>
+    						<p>
+								品番：<input type="text" name="">
+    							商品ID：<input type="text" name="">
+    							商品CD：<input type="text" name="">
+    							商品名：<input type="text" name="">
+    						</p>
+    						<p>
+								PB区分：<input type="text" name="">
+    							販売金額：
+								<select name="">
+									<option value="0"></option>
+									<option value="1"></option>
+									<option value="2"></option>
+									<option value="3"></option>
+									<option value="4"></option>
+								</select>
+								<input type="text" name="">円以上
+							</p>
+            			</div> 
+  					</div>
+				</details>
 			</div>
 		</div>
 	</div>
 	</div>
 	<BR>
-
-	<!-- 検索モーダル画面 --------------------------------------------------------------------------------- -->
-	<div class="modal fade" id="serchModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
-    	<div class="modal-dialog">
-        	<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">検索</h5>
-				</div>
-				<div class="modal-body">
-            		<p>部門：<input type="text" name="category"></p>
-    				<p>属性：
-						<select name="">
-							<option value="0"></option>
-							<option value="1"></option>
-							<option value="2"></option>
-							<option value="3"></option>
-							<option value="4"></option>
-						</select>
-    				</p>
-    				<p>Gコード：<input type="text" name=""></p>
-    				<p>品番：<input type="text" name=""></p>
-    				<p>商品ID：<input type="text" name=""></p>
-    				<p>商品CD：<input type="text" name=""></p>
-    				<p>商品名：<input type="text" name=""></p>
-    				<p>PB区分：<input type="text" name=""></p>
-    				<p>販売金額：
-						<select name="">
-							<option value="0"></option>
-							<option value="1"></option>
-							<option value="2"></option>
-							<option value="3"></option>
-							<option value="4"></option>
-						</select>
-						</select><input type="text" name="">円以上
-					</p>
-    				
-            	</div>
-            	<div class="modal-footer">
-					<button type="button" id="modalClose" class="btn btn-primary">閉じる</button>
-					<button type="button" id="modalSerch" class="btn btn-primary">この条件で検索する</button>
-				</div>
-        	</div>
-    	</div>
-	</div>
-	<!-- ---------------------------------------------------------------------------------------------- -->
 
 	<div class="container">
 		<div class="row">
