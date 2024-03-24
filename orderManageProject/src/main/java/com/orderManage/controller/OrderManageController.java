@@ -20,12 +20,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.orderManage.controller.object.CheckOrderConfirmForm;
 import com.orderManage.controller.object.StoreChoiceForm;
 import com.orderManage.model.ApplicationPropertyModel;
+import com.orderManage.controller.object.OrderHistoryForm;
+import com.orderManage.model.api.PurchaseOrdersInfo;
+
 import com.orderManage.model.api.StoreInfo;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.service.CheckOrderConfirmService;
 import com.orderManage.service.MenuService;
 import com.orderManage.service.OrderManageLoggingService;
 import com.orderManage.service.StoreChoiceService;
+import com.orderManage.service.OrderHistoryService;
 import com.orderManage.service.UtilTestService;
 import com.orderManage.util.DateUtil;
 
@@ -73,6 +77,10 @@ public class OrderManageController {
 	/* 発注確認画面サービスクラス */
 	@Autowired
 	CheckOrderConfirmService checkOrderConfirmService;
+	
+	/* 発注履歴画面サービスクラス */
+	@Autowired
+	OrderHistoryService orderHistoryService;
 	/* *********************************************************/
 	
 	/**
@@ -370,8 +378,50 @@ public class OrderManageController {
 	 * @return　発注履歴画面
 	 */
 	@RequestMapping("/orderHistory")
-    public String orderHistory(@RequestHeader(value = "referer", required = false) final String referer,
-    		Model model) {
+    public String orderHistory(Model model,
+    		@ModelAttribute OrderHistoryForm orderHistoryForm,
+    		@RequestParam(required = false) String orderId,
+    		@RequestHeader(value = "referer", required = false) final String referer) {
+		
+		// セッション情報取得
+		OrderHistoryForm session = (OrderHistoryForm)smarejiSession
+				.getAttribute("orderHistorySession");
+		
+		// 絞り込み条件設定
+		orderHistoryForm = orderHistoryService.setCondition(orderHistoryForm,session);
+		// セッションに画面情報を格納
+		smarejiSession.setAttribute("orderHistorySession", orderHistoryForm);
+		
+		
+		// 仕入先一覧を取得(API使用）
+		Map<String, String> suppliersMap = new LinkedHashMap<String, String>();
+		suppliersMap = orderHistoryService.getSupplierInfo(smarejiUser);
+		
+		// スタッフ一覧取得(API使用）
+		Map<String, String> staffInfoMap = new LinkedHashMap<String, String>();
+		staffInfoMap = orderHistoryService.getStaffInfo(smarejiUser);
+		
+		// 発注一覧取得処理(API使用）
+		List<PurchaseOrdersInfo> purchaseOrderInfoList =orderHistoryService
+				.getPurchaseOrderInfoList(smarejiUser,orderHistoryForm);
+		
+		
+		// 絞り込み処理
+		orderHistoryService.filter(smarejiUser,purchaseOrderInfoList,orderHistoryForm);
+		
+		
+		// 名称設定
+		// 仕入先名設定
+		orderHistoryService.setSupplierName(orderHistoryForm, suppliersMap);
+		// スタッフ名設定
+		orderHistoryService.setStaffName(orderHistoryForm, staffInfoMap);
+		
+		// 発注対象商品取得（API使用）、発注点数・発注金額合計設定
+		orderHistoryService.getPurchaseOrderProduct(smarejiUser,orderHistoryForm);
+		
+		// 画面に設定する
+		model.addAttribute("suppliers", suppliersMap);
+		model.addAttribute("orderHistoryForm", orderHistoryForm);
         return "orderHistory";
 	}
 
