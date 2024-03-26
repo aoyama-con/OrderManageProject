@@ -14,7 +14,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/i18n/jquery.ui.datepicker-ja.min.js"></script>
 <script th:src="@{/js/common.js}"></script>
 <script>
-
+	var funcOrderInput = function() {
+		if (confirm("次に進みますか？")) {
+			document.form.submit();
+		} else {
+			return;
+		}
+	}
 </script>
 
 <head>
@@ -46,7 +52,7 @@
 	</div>
 
 	<div class="container-sm">
-		<form th:action="@{/orderInput}" th:method="post" th:object="${storeChoiceForm}">
+		<form th:action="@{/orderInput}" th:method="post" th:object="${storeChoiceForm}" name="form">
 			<div class="container-sm">
 				<table class="table table-bordered">
 					<thead class="table-info">
@@ -58,11 +64,11 @@
 						<tr>
 							<td class="align-middle text-left">店舗</td>
 							<td class="align-middle text-center">
-								<select id="sotre_list" name="storeselect" class="form-select"
+								<select id="sotre_list" name="storeId" class="form-select"
 									aria-label="Default select example">
 									<option value="0" selected></option>
 									<option th:each="storeInfo:${storeChoiceForm.storeInfos}" th:value="${storeInfo.key}"
-										th:text="${storeInfo.value}" th:selected="${storeInfo.key == storeselect}">
+										th:text="${storeInfo.value}" th:selected="${storeInfo.key == storeId}">
 									</option>
 								</select>
 							</td>
@@ -83,7 +89,9 @@
 				<table>
 					<tr>
 						<td>
-							<button type="submit" class="btn btn-primary">発注入力</button>
+
+<!--							<button type="submit" class="btn btn-primary">発注入力</button>-->
+							<button type="button" class="btn btn-primary" onclick="funcOrderInput()">発注入力</button>
 		</form>
 		</td>
 		<td>

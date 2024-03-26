@@ -13,17 +13,17 @@ public class StoreChoiceForm implements Serializable {
 	/** 店舗選択デフォルト値 */
 	private static String DEFAULT_STORESELECT = "0";
 	
-	/** 店舗 */
- 	private String storeselect;
+	/** 店舗ID */
+ 	private String storeId;
 
 	/** 発注日 */
-    @NotEmpty(message = "発注日付が正しくありません。")
+    @NotEmpty(message = "発注日が入力されていません。発注日を入力してください。")
 	private String orderDate;
 
     /** システム日付 */
     private String sysDate;
-    
-    /** 店舗一覧 */
+
+	/** 店舗一覧 */
     Map<String, String> storeInfos;
     
 	/**
@@ -34,7 +34,7 @@ public class StoreChoiceForm implements Serializable {
     public boolean isValidStoreselect() {
     	boolean result = true;
     	// 未指定（デフォルト値）の場合
-    	if (DEFAULT_STORESELECT.equals(this.storeselect)) {
+    	if (DEFAULT_STORESELECT.equals(this.storeId)) {
     		result = false;
     	}
     	return result;
@@ -47,22 +47,23 @@ public class StoreChoiceForm implements Serializable {
     @AssertTrue(message = "発注日付が正しくありません。")
     public boolean isValidOrderDate() {
     	boolean result = true;
-    	
+
     	if (!StringUtil.isEmpty(orderDate) && !StringUtil.isEmpty(sysDate)) {
         	// 過去日の場合
     		if (sysDate.compareTo(orderDate) > 0) {
     			result = false;
         	}
     	}
+	    	
     	return result;
     }
 
-	public String getStoreselect() {
-		return storeselect;
+	public String getStoreId() {
+		return storeId;
 	}
 
-	public void setStoreselect(String storeselect) {
-		this.storeselect = storeselect;
+	public void setStoreId(String storeId) {
+		this.storeId = storeId;
 	}
 
 	public String getOrderDate() {
