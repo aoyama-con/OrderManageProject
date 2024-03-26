@@ -18,18 +18,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.orderManage.controller.object.CheckOrderConfirmForm;
+import com.orderManage.controller.object.CheckOrderStatusSubForm;
+import com.orderManage.controller.object.OrderHistoryForm;
 import com.orderManage.controller.object.StoreChoiceForm;
 import com.orderManage.model.ApplicationPropertyModel;
-import com.orderManage.controller.object.OrderHistoryForm;
 import com.orderManage.model.api.PurchaseOrdersInfo;
-
 import com.orderManage.model.api.StoreInfo;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.service.CheckOrderConfirmService;
+import com.orderManage.service.CheckOrderStatusService;
 import com.orderManage.service.MenuService;
+import com.orderManage.service.OrderHistoryService;
 import com.orderManage.service.OrderManageLoggingService;
 import com.orderManage.service.StoreChoiceService;
-import com.orderManage.service.OrderHistoryService;
 import com.orderManage.service.UtilTestService;
 import com.orderManage.util.DateUtil;
 
@@ -81,6 +82,10 @@ public class OrderManageController {
 	/* 発注履歴画面サービスクラス */
 	@Autowired
 	OrderHistoryService orderHistoryService;
+	
+	/* 発注状況サービスクラス */
+	@Autowired
+	CheckOrderStatusService checkOrderStatusService;
 	/* *********************************************************/
 	
 	/**
@@ -433,7 +438,20 @@ public class OrderManageController {
 	 */
 	@RequestMapping("/checkOrderStatus")
     public String checkOrderStatus(@RequestHeader(value = "referer", required = false) final String referer,
+    		@RequestParam(required = false) String user_id,
+	        @RequestParam(required = false) String password,
     		Model model) {
+	    logger.info("発注状況画面表示");
+
+		//発注状況フィールドの値を仮設定
+	    model.addAttribute("storageInfoId", "test1234");
+		model.addAttribute("orderedDate", "20240317");
+		model.addAttribute("hatyusha", "木下総一郎");
+		model.addAttribute("supplierName","木下商事東京支店");
+		
+		List<CheckOrderStatusSubForm> matome = checkOrderStatusService.getMeisai(smarejiUser);
+		model.addAttribute("meisai",matome);
+		
         return "checkOrderStatus";
 	}
 
