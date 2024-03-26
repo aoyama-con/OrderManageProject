@@ -310,7 +310,7 @@ public class OrderManageController {
 		logger.info("controller:発注入力画面表示処理 start");
 
 		// TODO OrderInputFormに設定してそれをmodelにaddすることになると思う
-		model.addAttribute("storeselect", object.getStoreselect());
+		model.addAttribute("storeId", object.getStoreId());
 		model.addAttribute("orderDate", object.getOrderDate());
 		model.addAttribute("sysDate", object.getSysDate());
 		
@@ -329,8 +329,8 @@ public class OrderManageController {
         }
  
         // 選択した店舗情報をセッションに保持する	// TODO APIから取得
-        StoreInfo storeInfo = storeChoiceService.getStoreInfo(smarejiUser);
-        smarejiSession.setAttribute("storesInfo", storeInfo);
+        StoreInfo storeInfo = storeChoiceService.getStoreInfo(smarejiUser, object.getStoreId());
+        smarejiSession.setAttribute("s_StoresInfo", storeInfo);
         
         // 発注入力　初期表示
         
