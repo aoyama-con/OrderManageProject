@@ -36,52 +36,54 @@
 		</p>
 		<BR>
 		<div class="row">
-			<div class="col" align="left">
+			<div align="left">
 			<!-- 検索条件アコーディオン -->
-				<details>
-					<summary class="btn btn-primary">検索条件 +</summary>
-					<div class="accordion-content">
-						<div class="modal-body">
-            				<p>
-								部門：
-            					<select name="">
-									<option value="0"></option>
-									<option value="1"></optio>
-									<option value="2"></option>
-									<option value="3"></option>
-									<option value="4"></option>
-								</select>
-								属性：
-								<select name="">
-									<option value="0"></option>
-									<option value="1"></optio>
-									<option value="2"></option>
-									<option value="3"></option>
-									<option value="4"></option>
-								</select>
-    							Gコード：<input type="text" name="">
-    						</p>
-    						<p>
-								品番：<input type="text" name="">
-    							商品ID：<input type="text" name="">
-    							商品CD：<input type="text" name="">
-    							商品名：<input type="text" name="">
-    						</p>
-    						<p>
-								PB区分：<input type="text" name="">
-    							販売金額：
-								<select name="">
-									<option value="0"></option>
-									<option value="1"></option>
-									<option value="2"></option>
-									<option value="3"></option>
-									<option value="4"></option>
-								</select>
-								<input type="text" name="">円以上
-							</p>
-            			</div> 
-  					</div>
-				</details>
+			<details>
+				<summary class="btn btn-primary">検索条件 +</summary>
+				<div class="accordion-content">
+            		<p>
+						部門：
+            			<select name="">
+							<option value="0">全部門</option>
+							<option value="1">部門1</optio>
+							<option value="2">部門2</option>
+							<option value="3">部門3</option>
+							<option value="4">部門3</option>
+						</select>
+						属性：
+						<select name="">
+							<option value="0"></option>
+							<option value="1">属性1</optio>
+							<option value="2">属性2</option>
+							<option value="3">属性3</option>
+							<option value="4">属性4</option>
+						</select>
+    					Gコード：<input type="text" name="">
+    				</p>
+    				<p>
+						品番：<input type="text" name="">
+    					商品ID：<input type="text" name="">
+    					商品CD：<input type="text" name="">
+    					商品名：<input type="text" name="">
+    				</p>
+    				<p>
+						PB区分：<input type="text" name="">
+    					販売金額：
+						<select name="">
+							<option value="0"></option>
+							<option value="1"></option>
+							<option value="2"></option>
+							<option value="3"></option>
+							<option value="4"></option>
+						</select>
+						<input type="text" name="">円以上
+					</p>
+					<!-- 検索するボタン -->
+					<div align="right">
+						<button type="button" class="btn btn-primary">この条件で検索する</button>
+					</div> 
+  				</div>
+			</details>
 			</div>
 		</div>
 	</div>
@@ -105,7 +107,6 @@
 		<table class="table table-bordered">
 			<thead class="table-info">
 				<tr>
-					<th scope="col" class="align-middle text-center">状態<BR>区分</th>
 					<th scope="col" class="align-middle text-center">グループ<BR>コード</th>
 					<th scope="col" class="align-middle text-center">商品ID/商品CD/商品名</th>
 					<th scope="col" class="align-middle text-center">仕入先</th>
@@ -142,7 +143,6 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td class="align-middle text-center">通常</td>
 					<td class="align-middle text-center">2012236</td>
 					<td class="align-middle text-left">
 						<table width="100%" style="margin :0;">
@@ -166,10 +166,9 @@
 					<td class="align-middle text-center">999</td>
 					<td class="align-middle text-center">999</td>
 					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
+					<td class="align-middle text-center"><input type="text" name=""></td>
 				</tr>
 				<tr>
-					<td class="align-middle text-center">通常</td>
 					<td class="align-middle text-center">2012236</td>
 					<td class="align-middle text-left">
 						<table width="100%" style="margin :0;">
@@ -193,10 +192,9 @@
 					<td class="align-middle text-center">999</td>
 					<td class="align-middle text-center">999</td>
 					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
+					<td class="align-middle text-center"><input type="text" name=""></td>
 				</tr>
 				<tr>
-					<td class="align-middle text-center">通常</td>
 					<td class="align-middle text-center">2012236</td>
 					<td class="align-middle text-left">
 						<table width="100%" style="margin :0;">
@@ -220,10 +218,15 @@
 					<td class="align-middle text-center">999</td>
 					<td class="align-middle text-center">999</td>
 					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
+					<td class="align-middle text-center"><input type="text" name=""></td>
 				</tr>
 			</tbody>
 		</table>
+		<BR>
+		<div align="right">
+			<button type="button" class="btn btn-primary">戻る</button>
+			<button type="button" class="btn btn-primary">発注に進む</button>
+		</div>
 	</div>
 </body>
 
