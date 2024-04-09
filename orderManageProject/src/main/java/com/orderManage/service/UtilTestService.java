@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.orderManage.model.api.CategorieInfo;
+import com.orderManage.model.api.ProductAttributeInfo;
 import com.orderManage.model.api.ProductImageInfo;
 import com.orderManage.model.api.ProductsInfo;
 import com.orderManage.model.api.PurchaseOrdersInfo;
@@ -21,6 +22,7 @@ import com.orderManage.model.param.ParamEntryPurchaseOrder;
 import com.orderManage.model.param.ParamEntryPurchaseOrderDeliveryStore;
 import com.orderManage.model.param.ParamEntryPurchaseOrderProduct;
 import com.orderManage.model.param.ParamEntryPurchaseOrderStore;
+import com.orderManage.model.param.ParamProductAttributeInfo;
 import com.orderManage.model.param.ParamProductImage;
 import com.orderManage.model.param.ParamProductInfo;
 import com.orderManage.model.param.ParamPurchaseOrderInfo;
@@ -445,6 +447,32 @@ public class UtilTestService extends OrderManageService {
 
 		List<ProductImageInfo> productImage = smarejiApiAccess.getProductsImage(smarejiUser.getContract().getId(), 
 				paramProductImage);
+		
+		return productImage;
+	}
+	
+	// 商品属性一覧取得
+	public List<ProductAttributeInfo> getAttributesInfo(SmarejiUser smarejiUser) {
+		
+		// 商品画像一覧を取得(API)
+		ParamProductAttributeInfo paramProductAttributeInfo = new ParamProductAttributeInfo();
+
+		// 検索パラメータ
+		// 属性一覧取得のためのパラメータを設定
+		List<String> getParam = new ArrayList<String>();
+		getParam.add("no");
+		getParam.add("name");
+		// 取得パラメータ
+		paramProductAttributeInfo.setFields(getParam);
+		// ソート
+		paramProductAttributeInfo.setSort("no");
+		// 上限設定
+		paramProductAttributeInfo.setLimit(10);
+		// ページ
+		paramProductAttributeInfo.setPage(1);
+
+		List<ProductAttributeInfo> productImage = smarejiApiAccess.getProductAttributes(smarejiUser.getContract().getId(), 
+				paramProductAttributeInfo);
 		
 		return productImage;
 	}

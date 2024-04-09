@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.orderManage.controller.object.CheckOrderConfirmForm;
 import com.orderManage.controller.object.CheckOrderStatusSubForm;
@@ -24,6 +23,7 @@ import com.orderManage.controller.object.StoreChoiceForm;
 import com.orderManage.model.ApplicationPropertyModel;
 import com.orderManage.model.api.PurchaseOrdersInfo;
 import com.orderManage.model.api.StoreInfo;
+import com.orderManage.model.api.UserAccessToken;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.service.CheckOrderConfirmService;
 import com.orderManage.service.CheckOrderStatusService;
@@ -116,15 +116,14 @@ public class OrderManageController {
 
 		/** スマレジアクセス時にコメントをはずす*******************************************************************/
 		// 認可エンドポイントURLにリダイレクト
-//		String redirectStr = "redirect:" + app_properties.getUrlId() + "authorize?response_type=code&client_id=" 
-//			+ app_properties.getClientId() + "&scope=openid+email+offline_access";
-//		return redirectStr;
-//		return "redirect:https://id.smaregi.dev/authorize?response_type=code&client_id=9b05282c38cbcc8d2faa18e4c81cb53b&scope=openid+email+offline_access";
+		String redirectStr = "redirect:" + app_properties.getUrlId() + "authorize?response_type=code&client_id=" 
+			+ app_properties.getClientId() + "&scope=openid+email+offline_access";
+		return redirectStr;
 		/** *****************************************************************************************/
 		
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-		model.addAttribute("message", "ログイン画面");
-        return "login";
+//		model.addAttribute("message", "ログイン画面");
+//        return "login";
 		/***********************************************/
 	}
 
@@ -181,19 +180,19 @@ public class OrderManageController {
 		//str.toString();
 		/**************************/
 		
-//		/** 認証関連 スマレジアクセス時にコメントをはずす*******************************************************************/
-//		logger.debug("認可コード:code:" + code);
-//		// authorization_code（code）を使用してユーザーアクセストークンをリクエストする
-//		UserAccessToken uat = menuService.getUserAccessToken(code);
-//		logger.debug("ユーザアクセストークン：" + uat.getAccess_token());
-//
-//		// ユーザーアクセストークンを使用してユーザー情報取得する
-//		smarejiUser = menuService.getSmarejiUser(uat.getAccess_token());
-//		logger.debug("契約ID：" + smarejiUser.getContract().getId());
-//
-//		// ユーザ情報をセッションに格納する
-//		smarejiSession.setAttribute("s_smarejiUser", smarejiUser);
-//		/****************************************************************************************************/
+		/** 認証関連 スマレジアクセス時にコメントをはずす*******************************************************************/
+		logger.debug("認可コード:code:" + code);
+		// authorization_code（code）を使用してユーザーアクセストークンをリクエストする
+		UserAccessToken uat = menuService.getUserAccessToken(code);
+		logger.debug("ユーザアクセストークン：" + uat.getAccess_token());
+
+		// ユーザーアクセストークンを使用してユーザー情報取得する
+		smarejiUser = menuService.getSmarejiUser(uat.getAccess_token());
+		logger.debug("契約ID：" + smarejiUser.getContract().getId());
+
+		// ユーザ情報をセッションに格納する
+		smarejiSession.setAttribute("s_smarejiUser", smarejiUser);
+		/****************************************************************************************************/
 		
 		/* Util系テスト ******************************************************************/
 //		SmarejiUser suser = (SmarejiUser)smarejiSession.getAttribute("smarejiUser");
@@ -235,6 +234,8 @@ public class OrderManageController {
 //		// 商品画像一覧
 //		List<ProductImageInfo> productsImageList = utilTestService.getProductsImage(smarejiUser);
 //		model.addAttribute("image", productsImageList.get(0).getUrl());
+//		// 商品属性一覧
+//		List<ProductAttributeInfo> attributeList = utilTestService.getAttributesInfo(smarejiUser);
 		
 		/* ****************************************************************************/
 
@@ -509,17 +510,17 @@ public class OrderManageController {
         return "checkOrderStatus";
 	}
 
-	/**
-	 * 検索モーダルを制御するコントローラー
-	 * 
-	 * @param model　パラメータ受け渡し制御Model
-	 * @return　検索モーダル画面
-	 */
-	@RequestMapping("/orderSerch")
-	@ResponseBody
-    public String serch(@RequestHeader(value = "referer", required = false) final String referer,
-    		Model model) {
-        return "";
-	}
+//	/**
+//	 * 検索モーダルを制御するコントローラー ※使用しないためコメントアウト
+//	 * 
+//	 * @param model　パラメータ受け渡し制御Model
+//	 * @return　検索モーダル画面
+//	 */
+//	@RequestMapping("/orderSerch")
+//	@ResponseBody
+//    public String serch(@RequestHeader(value = "referer", required = false) final String referer,
+//    		Model model) {
+//        return "";
+//	}
 	/* ************************************************************************************/
 }
