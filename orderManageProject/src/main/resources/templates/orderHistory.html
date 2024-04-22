@@ -30,7 +30,9 @@
 	<div class="container">
 		<BR>
 		<div align="right">
-			<button type="button" class="btn btn-primary">ログアウト</button>
+			<form role="form" id="logout" th:action="@{/logout}" method="post">
+				<button type="submit" class="btn btn-primary">ログアウト</button>
+			</form>
 		</div>
 
 		<div align="center">
@@ -38,6 +40,13 @@
 		</div>
 	</div>
 	<BR>
+<!--	<div class="container">-->
+<!--		<table>-->
+<!--			<tr th:if="${validationError}" th:each="error : ${validationError}">-->
+<!--				<td style="color:red;" th:text="${error}"></td>-->
+<!--			</tr>-->
+<!--		</table>-->
+<!--	</div>-->
 
 	<div class="container">
 		<form th:action="@{/orderHistory}" th:object="${orderHistoryForm}"} method="post">
@@ -59,9 +68,9 @@
 					<tr>
 						<td class="align-middle text-left">仕入先</td>
 						<td class="align-middle text-center">
-							<select th:field="*{supplierCode}" class="form-select" aria-label="Default select example">
+							<select th:field="*{supplierId}" class="form-select" aria-label="Default select example">
 								<option value="" selected> </option>
-								<option th:each="store : ${stores}" th:value="${store.key}" th:text="${store.value}" ></option>
+								<option th:each="supplier : ${suppliers}" th:value="${supplier.key}" th:text="${supplier.value}" ></option>
 							</select>
 						</td>
 					</tr>
@@ -69,7 +78,7 @@
 						<td class="align-middle text-left">ステータス</td>
 						<td class="align-middle text-left">
 							<div class="form-check form-check-inline">
-								<input class="form-check-input" type="radio" th:field="*{status}"  value="0" >
+								<input class="form-check-input" type="radio" th:field="*{status}"  value="1" >
 								<label class="form-check-label" for="flexRadioDefault1">
 									すべて
 								</label>
@@ -93,7 +102,7 @@
 			<div align="right">
  				<p><input type="submit" class="btn btn-primary" value="絞り込む"></p>
 			</div>
-		
+		</form>
 
 			<BR>
 			<BR>
@@ -125,24 +134,51 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr th:each="order:*{displayList}" >
-							<td th:text="${order.status}"></td>
+						<tr th:each="order,stat :${orderHistoryForm.displayList}" >
+							<td class="align-middle text-center">
+								<th:block th:if="${order.status} == '2'">
+									<div class="p-1 bg-primary-subtle">発注済</div>
+								</th:block>
+								<th:block th:if="${order.status} == '5'">
+									<div class="p-1 bg-warning">仮発注</div>
+								</th:block>
+							</td>
 							<td th:text="${order.orderDate}"></td>
 							<td th:text="${order.supplierName}"></td>
 							<td th:text="${order.staffName}"></td>
 							<td th:text="${order.quantity}"></td>
 							<td th:text="${order.totalPrice}"></td>
 							<td class="text-center">
-								<button type="button" class="btn btn-primary">　詳細　</button>
-							　　
-								<button type="button" class="btn btn-primary">　取消　</button>
+								<div class="d-flex justify-content-around">
+<!--								<div style="display:inline-flex">-->
+<!--								ステータス５（仮発注）の時、詳細→発注確定画面に遷移。取り消し→発注履歴画面を再表示。-->
+								<th:block th:if="${order.status} == '5'">
+									<form th:action="@{/orderConfirm}"  method="post" th:id="shosai+${stat.index}">
+										<input type="submit" class="btn btn-primary" value="　詳細　" th:id="shosai+${stat.index}">
+										<input type="hidden" th:value="${orderHistoryForm.displayList[__${stat.index}__].orderId} " name="orderId" th:id="shosai+${stat.index}">
+									</form>
+									<form th:action="@{/orderHistory}"  method="post" th:id="shosai+${stat.index}">
+										<input type="submit" class="btn btn-primary" value="　取消　" th:id="shosai+${stat.index}">
+										<input type="hidden" th:value="${orderHistoryForm.displayList[__${stat.index}__].orderId} " name="orderId" th:id="shosai+${stat.index}">
+									</form>
+								</th:block>
+<!--								ステータス５以外の時、詳細→発注状況確認画面に遷移。取り消しは非活性。-->
+								<th:block th:if="${order.status} != '5'">
+									<form th:action="@{/checkOrderStatus}"  method="post" th:id="shosai+${stat.index}">
+										<input type="submit" class="btn btn-primary" value="　詳細　" th:id="shosai+${stat.index}">
+										<input type="hidden" th:value="${orderHistoryForm.displayList[__${stat.index}__].orderId} " name="orderId" th:id="shosai+${stat.index}">
+									</form>
+									<button type="button" class="btn btn-primary" disabled>　取消　</button>
+								</th:block>
+								</div>
+
 							</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
-		</form>
-
+		
 	</body>
+	
 
 </html>

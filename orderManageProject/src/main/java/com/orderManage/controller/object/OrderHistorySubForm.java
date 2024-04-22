@@ -12,15 +12,17 @@ public class OrderHistorySubForm {
 	/* 発注日（YYYY/MM/DD） */
 	private String orderDate;
 	/* 仕入先コード */
-	private String supplierCode;
+	private String supplierId;
 	/* 仕入先名 */
 	private String supplierName;
+	/* 発注者ID*/
+	private String staffId;
 	/* 発注者名*/
 	private String staffName;
 	/* 発注点数 */
-    private int quantity;
-	/* 発注金額合計 */
-    private int totalPrice;
+    private String quantity;
+	/* 発注金額合計(外税） */
+    private String totalPrice;
 
 
 	public String getOrderId() {
@@ -47,12 +49,12 @@ public class OrderHistorySubForm {
 		this.orderDate = orderDate;
 	}
 
-	public String getSupplierCode() {
-		return supplierCode;
+	public String getSupplierId() {
+		return supplierId;
 	}
 
-	public void setSupplierCode(String supplierCode) {
-		this.supplierCode = supplierCode;
+	public void setSupplierId(String supplierId) {
+		this.supplierId = supplierId;
 	}
 
 	public String getSupplierName() {
@@ -63,6 +65,14 @@ public class OrderHistorySubForm {
 		this.supplierName = supplierName;
 	}
 
+	public String getStaffId() {
+		return staffId;
+	}
+
+	public void setStaffId(String staffId) {
+		this.staffId = staffId;
+	}
+
 	public String getStaffName() {
 		return staffName;
 	}
@@ -71,19 +81,19 @@ public class OrderHistorySubForm {
 		this.staffName = staffName;
 	}
 
-	public int getQuantity() {
+	public String getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(int quantity) {
+	public void setQuantity(String quantity) {
 		this.quantity = quantity;
 	}
 
-	public int getTotalPrice() {
+	public String getTotalPrice() {
 		return totalPrice;
 	}
 
-	public void setTotalPrice(int totalPrice) {
+	public void setTotalPrice(String totalPrice) {
 		this.totalPrice = totalPrice;
 	}
 }

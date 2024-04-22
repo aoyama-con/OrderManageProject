@@ -49,7 +49,7 @@ public class StoreChoiceService extends OrderManageService {
 		//　ソート順
 		paramStoresInfo.setSort("storeId");
 		// 取得上限数
-		paramStoresInfo.setLimit(1);
+		paramStoresInfo.setLimit(3);
 		
 //		storeInfoList = smarejiApiAccess.getStoresInfo(smarejiUser.getContract().getId(), paramStoresInfo);
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
@@ -75,7 +75,7 @@ public class StoreChoiceService extends OrderManageService {
 	 * @param smarejiUser
 	 * @return
 	 */
-	public StoreInfo getStoreInfo(SmarejiUser smarejiUser) {
+	public StoreInfo getStoreInfo(SmarejiUser smarejiUser, String storeId) {
 
 		logger.info("getStoreNames:店舗名取得　処理開始");
 		
@@ -96,7 +96,7 @@ public class StoreChoiceService extends OrderManageService {
 		// 取得上限数
 		paramStoresInfo.setLimit(1);
 		
-//		storeInfoList = smarejiApiAccess.getStoreInfo(smarejiUser.getContract().getId(), paramStoresInfo);
+//		storeInfo = smarejiApiAccess.getStoreInfo(smarejiUser.getContract().getId(), storeId, paramStoresInfo);
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
 		// テスト用の店舗一覧取得
 		storeInfo = smarejiApiAccessMock.getStoreInfo("dummyid");

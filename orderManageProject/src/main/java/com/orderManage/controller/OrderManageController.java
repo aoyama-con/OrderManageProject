@@ -15,15 +15,20 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.orderManage.controller.object.CheckOrderConfirmForm;
+import com.orderManage.controller.object.CheckOrderStatusSubForm;
+import com.orderManage.controller.object.OrderHistoryForm;
 import com.orderManage.controller.object.StoreChoiceForm;
 import com.orderManage.model.ApplicationPropertyModel;
+import com.orderManage.model.api.PurchaseOrdersInfo;
 import com.orderManage.model.api.StoreInfo;
+import com.orderManage.model.api.UserAccessToken;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.service.CheckOrderConfirmService;
+import com.orderManage.service.CheckOrderStatusService;
 import com.orderManage.service.MenuService;
+import com.orderManage.service.OrderHistoryService;
 import com.orderManage.service.OrderManageLoggingService;
 import com.orderManage.service.StoreChoiceService;
 import com.orderManage.service.UtilTestService;
@@ -73,6 +78,18 @@ public class OrderManageController {
 	/* 発注確認画面サービスクラス */
 	@Autowired
 	CheckOrderConfirmService checkOrderConfirmService;
+	
+	/* 発注確定画面サービスクラス */
+//	@Autowired
+//	OrderConfirmService orderConfirmService;
+	
+	/* 発注履歴画面サービスクラス */
+	@Autowired
+	OrderHistoryService orderHistoryService;
+	
+	/* 発注状況サービスクラス */
+	@Autowired
+	CheckOrderStatusService checkOrderStatusService;
 	/* *********************************************************/
 	
 	/**
@@ -99,15 +116,14 @@ public class OrderManageController {
 
 		/** スマレジアクセス時にコメントをはずす*******************************************************************/
 		// 認可エンドポイントURLにリダイレクト
-//		String redirectStr = "redirect:" + app_properties.getUrlId() + "authorize?response_type=code&client_id=" 
-//			+ app_properties.getClientId() + "&scope=openid+email+offline_access";
-//		return redirectStr;
-//		return "redirect:https://id.smaregi.dev/authorize?response_type=code&client_id=9b05282c38cbcc8d2faa18e4c81cb53b&scope=openid+email+offline_access";
+		String redirectStr = "redirect:" + app_properties.getUrlId() + "authorize?response_type=code&client_id=" 
+			+ app_properties.getClientId() + "&scope=openid+email+offline_access";
+		return redirectStr;
 		/** *****************************************************************************************/
 		
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-		model.addAttribute("message", "ログイン画面");
-        return "login";
+//		model.addAttribute("message", "ログイン画面");
+//        return "login";
 		/***********************************************/
 	}
 
@@ -164,19 +180,19 @@ public class OrderManageController {
 		//str.toString();
 		/**************************/
 		
-//		/** 認証関連 スマレジアクセス時にコメントをはずす*******************************************************************/
-//		logger.debug("認可コード:code:" + code);
-//		// authorization_code（code）を使用してユーザーアクセストークンをリクエストする
-//		UserAccessToken uat = menuService.getUserAccessToken(code);
-//		logger.debug("ユーザアクセストークン：" + uat.getAccess_token());
-//
-//		// ユーザーアクセストークンを使用してユーザー情報取得する
-//		smarejiUser = menuService.getSmarejiUser(uat.getAccess_token());
-//		logger.debug("契約ID：" + smarejiUser.getContract().getId());
-//
-//		// ユーザ情報をセッションに格納する
-//		smarejiSession.setAttribute("s_smarejiUser", smarejiUser);
-//		/****************************************************************************************************/
+		/** 認証関連 スマレジアクセス時にコメントをはずす*******************************************************************/
+		logger.debug("認可コード:code:" + code);
+		// authorization_code（code）を使用してユーザーアクセストークンをリクエストする
+		UserAccessToken uat = menuService.getUserAccessToken(code);
+		logger.debug("ユーザアクセストークン：" + uat.getAccess_token());
+
+		// ユーザーアクセストークンを使用してユーザー情報取得する
+		smarejiUser = menuService.getSmarejiUser(uat.getAccess_token());
+		logger.debug("契約ID：" + smarejiUser.getContract().getId());
+
+		// ユーザ情報をセッションに格納する
+		smarejiSession.setAttribute("s_smarejiUser", smarejiUser);
+		/****************************************************************************************************/
 		
 		/* Util系テスト ******************************************************************/
 //		SmarejiUser suser = (SmarejiUser)smarejiSession.getAttribute("smarejiUser");
@@ -218,6 +234,8 @@ public class OrderManageController {
 //		// 商品画像一覧
 //		List<ProductImageInfo> productsImageList = utilTestService.getProductsImage(smarejiUser);
 //		model.addAttribute("image", productsImageList.get(0).getUrl());
+//		// 商品属性一覧
+//		List<ProductAttributeInfo> attributeList = utilTestService.getAttributesInfo(smarejiUser);
 		
 		/* ****************************************************************************/
 
@@ -293,7 +311,7 @@ public class OrderManageController {
 		logger.info("controller:発注入力画面表示処理 start");
 
 		// TODO OrderInputFormに設定してそれをmodelにaddすることになると思う
-		model.addAttribute("storeselect", object.getStoreselect());
+		model.addAttribute("storeId", object.getStoreId());
 		model.addAttribute("orderDate", object.getOrderDate());
 		model.addAttribute("sysDate", object.getSysDate());
 		
@@ -312,8 +330,8 @@ public class OrderManageController {
         }
  
         // 選択した店舗情報をセッションに保持する	// TODO APIから取得
-        StoreInfo storeInfo = storeChoiceService.getStoreInfo(smarejiUser);
-        smarejiSession.setAttribute("storesInfo", storeInfo);
+        StoreInfo storeInfo = storeChoiceService.getStoreInfo(smarejiUser, object.getStoreId());
+        smarejiSession.setAttribute("s_StoresInfo", storeInfo);
         
         // 発注入力　初期表示
         
@@ -360,6 +378,56 @@ public class OrderManageController {
 	@RequestMapping("/orderConfirm")
     public String orderConfirm(@RequestHeader(value = "referer", required = false) final String referer,
     		Model model) {
+//		// 初期化
+//		OrderConfirmForm form = new OrderConfirmForm();
+//		List<OrderConfirmSubForm> displayList = new ArrayList<OrderConfirmSubForm>();
+//		List<String> productIdList = new ArrayList<String>();
+//		Map<String, String> stockAmountMap = new HashMap<>(); 
+//		
+//		// 発注ID取得
+//		productIdList = orderConfirmService.getOrderInfo(smarejiUser, "dummyid");
+//		// 在庫数取得
+//		// TODO 在庫数
+//		stockAmountMap = orderConfirmService.getStockAmountList(smarejiUser, "dummyid");
+//		
+//		// 発注IDでループ
+//		for (String productId: productIdList) {
+//			// 初期化
+//			OrderConfirmSubForm subForm = new OrderConfirmSubForm();
+//			ProductsInfo productsInfo = new ProductsInfo();
+//			
+//			// 商品情報を取得
+//			productsInfo = orderConfirmService.getProductsInfo(smarejiUser, productId);
+//			
+//			// グループCD設定
+//			subForm.setGroupCode(productsInfo.getGroupCode());
+//			// 商品ID設定
+//			subForm.setProductId(productsInfo.getProductId());
+//			// 商品CD設定
+//			subForm.setProductCd(productsInfo.getProductCode());
+//			// 商品名設定
+//			subForm.setProductName(productsInfo.getProductName());
+//			// 部門名設定
+//			subForm.setCategoryName(orderConfirmService.getCategoryName(smarejiUser, productsInfo.getCategoryId()));
+//			// 画像取得
+//			subForm.setImgUrl(orderConfirmService.getProductImageInfo(smarejiUser, productId));
+//			// 仕入れ先取得　→課題待ち
+//			subForm.setSupplierName("テスト仕入れ先");
+//
+//			// 在庫点数設定
+//			subForm.setStockAmount(Integer.parseInt(stockAmountMap.get(productsInfo.getProductId())));
+//			// TODO
+//			// 在庫日数　計算して取得する？
+//			subForm.setStockDays(999);
+//			subForm.setConditionSection("test");
+//			displayList.add(subForm);
+//		}
+//		// 
+//
+//		form.setDisplayList(displayList);
+//		// 画面に返す
+//		model.addAttribute("orderConfirmForm", form);
+		
         return "orderConfirm";
 	}
 
@@ -370,8 +438,50 @@ public class OrderManageController {
 	 * @return　発注履歴画面
 	 */
 	@RequestMapping("/orderHistory")
-    public String orderHistory(@RequestHeader(value = "referer", required = false) final String referer,
-    		Model model) {
+    public String orderHistory(Model model,
+    		@ModelAttribute OrderHistoryForm orderHistoryForm,
+    		@RequestParam(required = false) String orderId,
+    		@RequestHeader(value = "referer", required = false) final String referer) {
+		
+		// セッション情報取得
+		OrderHistoryForm session = (OrderHistoryForm)smarejiSession
+				.getAttribute("orderHistorySession");
+		
+		// 絞り込み条件設定
+		orderHistoryForm = orderHistoryService.setCondition(orderHistoryForm,session);
+		// セッションに画面情報を格納
+		smarejiSession.setAttribute("orderHistorySession", orderHistoryForm);
+		
+		
+		// 仕入先一覧を取得(API使用）
+		Map<String, String> suppliersMap = new LinkedHashMap<String, String>();
+		suppliersMap = orderHistoryService.getSupplierInfo(smarejiUser);
+		
+		// スタッフ一覧取得(API使用）
+		Map<String, String> staffInfoMap = new LinkedHashMap<String, String>();
+		staffInfoMap = orderHistoryService.getStaffInfo(smarejiUser);
+		
+		// 発注一覧取得処理(API使用）
+		List<PurchaseOrdersInfo> purchaseOrderInfoList =orderHistoryService
+				.getPurchaseOrderInfoList(smarejiUser,orderHistoryForm);
+		
+		
+		// 絞り込み処理
+		orderHistoryService.filter(smarejiUser,purchaseOrderInfoList,orderHistoryForm);
+		
+		
+		// 名称設定
+		// 仕入先名設定
+		orderHistoryService.setSupplierName(orderHistoryForm, suppliersMap);
+		// スタッフ名設定
+		orderHistoryService.setStaffName(orderHistoryForm, staffInfoMap);
+		
+		// 発注対象商品取得（API使用）、発注点数・発注金額合計設定
+		orderHistoryService.getPurchaseOrderProduct(smarejiUser,orderHistoryForm);
+		
+		// 画面に設定する
+		model.addAttribute("suppliers", suppliersMap);
+		model.addAttribute("orderHistoryForm", orderHistoryForm);
         return "orderHistory";
 	}
 
@@ -383,21 +493,34 @@ public class OrderManageController {
 	 */
 	@RequestMapping("/checkOrderStatus")
     public String checkOrderStatus(@RequestHeader(value = "referer", required = false) final String referer,
+    		@RequestParam(required = false) String user_id,
+	        @RequestParam(required = false) String password,
     		Model model) {
+	    logger.info("発注状況画面表示");
+
+		//発注状況フィールドの値を仮設定
+	    model.addAttribute("storageInfoId", "test1234");
+		model.addAttribute("orderedDate", "20240317");
+		model.addAttribute("hatyusha", "木下総一郎");
+		model.addAttribute("supplierName","木下商事東京支店");
+		
+		List<CheckOrderStatusSubForm> matome = checkOrderStatusService.getMeisai(smarejiUser);
+		model.addAttribute("meisai",matome);
+		
         return "checkOrderStatus";
 	}
 
-	/**
-	 * 検索モーダルを制御するコントローラー
-	 * 
-	 * @param model　パラメータ受け渡し制御Model
-	 * @return　検索モーダル画面
-	 */
-	@RequestMapping("/orderSerch")
-	@ResponseBody
-    public String serch(@RequestHeader(value = "referer", required = false) final String referer,
-    		Model model) {
-        return "";
-	}
+//	/**
+//	 * 検索モーダルを制御するコントローラー ※使用しないためコメントアウト
+//	 * 
+//	 * @param model　パラメータ受け渡し制御Model
+//	 * @return　検索モーダル画面
+//	 */
+//	@RequestMapping("/orderSerch")
+//	@ResponseBody
+//    public String serch(@RequestHeader(value = "referer", required = false) final String referer,
+//    		Model model) {
+//        return "";
+//	}
 	/* ************************************************************************************/
 }

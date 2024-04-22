@@ -28,6 +28,8 @@ public class OrderManageErrorController implements ErrorController {
 	   * @param req リクエスト情報
 	   * @param mav レスポンス情報
 	   * @return HTML レスポンス用の ModelAndView オブジェクト
+	   * 
+	   * @version 20240324 HTTPステータス=429の対応
 	   */
 	@RequestMapping(produces = MediaType.TEXT_HTML_VALUE)
 	public ModelAndView myErrorHtml(HttpServletRequest req, ModelAndView mav) {
@@ -49,8 +51,11 @@ public class OrderManageErrorController implements ErrorController {
 		if (status == HttpStatus.NOT_FOUND) {
 			// 404 Not Found
 			mav.addObject("message", "ページが見つかりません。");
+		} else if (status == HttpStatus.TOO_MANY_REQUESTS) {
+			// 429 Many Request
+			mav.addObject("message", "送信したリクエストが超過しています。時間をおいて再度操作してください。");
 		} else {
-			// 404 以外は500 Internal Server Error とする
+			// 404,429 以外は500 Internal Server Error とする
 			mav.addObject("message", "システムエラーが発生しました。システム管理者にお問い合わせ下さい。");
 		}
 
@@ -112,10 +117,11 @@ public class OrderManageErrorController implements ErrorController {
 	 */
 	private static HttpStatus getHttpStatus(HttpServletRequest req) {
 		// HTTP ステータスを決める
-		// ここでは 404 以外は全部 500 にする
+		// ここでは 404、429 以外は全部 500 にする
 		Object statusCode = req.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
 		HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-		if (statusCode != null && statusCode.toString().equals("404")) {
+		if (statusCode != null && 
+				(statusCode.toString().equals("404") || statusCode.toString().equals("429"))) {
 			status = HttpStatus.NOT_FOUND;
 		}
 		return status;
