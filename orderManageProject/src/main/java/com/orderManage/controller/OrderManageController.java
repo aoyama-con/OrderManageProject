@@ -356,11 +356,8 @@ public class OrderManageController {
 		
 		logger.info("発注確認画面遷移処理　開始");
 		
-		// スマレジユーザ取得
-		SmarejiUser suser = (SmarejiUser)smarejiSession.getAttribute("smarejiUser");
-		
 		// 画面表示情報取得
-		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(suser);
+		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser);
 	
 		model.addAttribute("checkOrderConfirmForm", form);
 		
