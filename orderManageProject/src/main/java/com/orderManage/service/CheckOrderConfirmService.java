@@ -24,6 +24,7 @@ import com.orderManage.model.param.ParamSupplierInfo;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.util.SmarejiApiAccess;
 import com.orderManage.util.SmarejiApiAccessMock;
+import com.orderManage.util.StringUtil;
 
 /**
  * 発注内容確認画面画面サービスクラス
@@ -74,10 +75,10 @@ public class CheckOrderConfirmService extends OrderManageService {
 		param.setFields(getParam);
 		
 		// 仕入先一覧を取得(API)
-//		supplierInfoList = smarejiApiAccess.getSuppliersInfo(smarejiUser.getContract().getId(), paramSuppliersInfo);
+		supplierInfoList = smarejiApiAccess.getSuppliersInfo(smarejiUser.getContract().getId(), param);
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
 		// テスト用の仕入先一覧取得
-		supplierInfoList = smarejiApiAccessMock.getSuppliersInfo("dummyid");
+		//supplierInfoList = smarejiApiAccessMock.getSuppliersInfo("dummyid");
 		/***********************************************/
 		
 		Iterator<SuppliersInfo> it = supplierInfoList.iterator();
@@ -111,22 +112,22 @@ public class CheckOrderConfirmService extends OrderManageService {
 		ParamStaffInfo param = new ParamStaffInfo();		
 		
 		// 取得条件
-		//String staffId = smarejiUser.getContract().getUser_id(); TODO smarejiUserがNULLになってしまうので確認
-		//if (!StringUtil.isEmpty(staffId)) {			
-		//	param.setStaff_id(Integer.parseInt(staffId));	// スタッフIDが取得できた場合のみ条件に設定
-		//}		
+		String staffId = smarejiUser.getContract().getUser_id();
+		if (!StringUtil.isEmpty(staffId)) {			
+			param.setStaff_id(Integer.parseInt(staffId));	// スタッフIDが取得できた場合のみ条件に設定
+		}		
 		
 		// 取得項目
 		List<String> getParam = new ArrayList<String>();
-		getParam.add("supplierId");
-		getParam.add("supplierName");
+		getParam.add("staffId");
+		getParam.add("staffName");
 		param.setFields(getParam);
 		
 		// スタッフ一覧を取得(API)
-//		supplierInfoList = smarejiApiAccess.getStaffInfo(smarejiUser.getContract().getId(), paramSuppliersInfo);
+		staffInfoList = smarejiApiAccess.getStaffsInfo(smarejiUser.getContract().getId(), param);
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
 		// テスト用のスタッフ一覧取得
-		staffInfoList = smarejiApiAccessMock.getStaffInfo("dummyid");
+		//staffInfoList = smarejiApiAccessMock.getStaffInfo("dummyid");
 		/***********************************************/
 		
 		Iterator<StaffInfo> it = staffInfoList.iterator();
@@ -170,16 +171,16 @@ public class CheckOrderConfirmService extends OrderManageService {
 		param.setFields(getParam);
 		
 		// 発注一覧を取得(API)
-//		supplierInfoList = smarejiApiAccess.getPurchaseOrdersInfo(smarejiUser.getContract().getId(), paramSuppliersInfo);
+		purchaseOrdersInfoList = smarejiApiAccess.getPurchaseOrdersInfo(smarejiUser.getContract().getId(), param);
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
 		// テスト用の発注一覧取得
-		purchaseOrdersInfoList = smarejiApiAccessMock.getPurchaseOrdersInfo("dummyid");
+		//purchaseOrdersInfoList = smarejiApiAccessMock.getPurchaseOrdersInfo("dummyid");
 		/***********************************************/
 		
-		// パラメータの識別番号と一致するデータのみに絞り込み
+		// パラメータの識別番号と一致するデータのみに絞り込み		
 		List<PurchaseOrdersInfo> resultList = new ArrayList<PurchaseOrdersInfo>();
 		for(PurchaseOrdersInfo orderInfo : purchaseOrdersInfoList) {
-			if (identificationNo.equals(orderInfo.getIdentificationNo())) {
+			if (!identificationNo.equals(orderInfo.getIdentificationNo())) {
 				continue;
 			}
 
@@ -223,10 +224,10 @@ public class CheckOrderConfirmService extends OrderManageService {
 		param.setFields(getParam);
 		
 		// 発注情報を取得(API)	  
-//		supplierInfoList = smarejiApiAccess.getPurchaseOrdersInfo(smarejiUser.getContract().getId(), storageInfoId, paramSuppliersInfo);
+		purchaseOrdersInfo = smarejiApiAccess.getPurchaseOrderInfo(smarejiUser.getContract().getId(), storageInfoId, param);
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
 		// テスト用の発注情報取得		
-		purchaseOrdersInfo = smarejiApiAccessMock.getPurchaseOrderInfo("dummyid");
+		//purchaseOrdersInfo = smarejiApiAccessMock.getPurchaseOrderInfo("dummyid");
 		/***********************************************/
 		/* TODO APIのResponsesコードを判定する　ステータスコード=429の場合｢Retry-After｣に待機時間(秒数)が返されるのでその間待機し再度クエリーを行うようにする(☞ステータスチェックと待機・リトライは汎用部品化することが望ましい)。
 		if (終了条件) {
@@ -264,11 +265,10 @@ public class CheckOrderConfirmService extends OrderManageService {
 		Map<String, String> staffMap = getStaffInfo(smarejiUser);
 		
 		// 発注一覧取得API（取得条件：契約ID、ステータス"5：仮発注"、発注識別番号）
-		String identificationNo = ""; //TODO
+		String identificationNo = "999"; //TODO 動作確認用に発注識別番号を設定（本来は呼び出し元から受け渡しされる）
 		List<PurchaseOrdersInfo> purchaseOrdersInfoList = getPurchaseOrdersInfoList(smarejiUser, identificationNo);
 		
 		// 発注一覧の取得件数分、以下の処理を実施
-		CheckOrderConfirmSubForm subForm = new CheckOrderConfirmSubForm();
 		for (PurchaseOrdersInfo order : purchaseOrdersInfoList){
 
 			// 発注情報取得API（取得条件：発注ID）
@@ -290,12 +290,13 @@ public class CheckOrderConfirmService extends OrderManageService {
 			String staffName = staffMap.get(purchaseOrdersInfo.getStaffId());
 			
 			// 画面表示用Formに情報を設定
-			DecimalFormat decimalFormat = new DecimalFormat("#,###");		
+			DecimalFormat decimalFormat = new DecimalFormat("#,###.#");		
+			CheckOrderConfirmSubForm subForm = new CheckOrderConfirmSubForm();
 			subForm.setOrderedDate(purchaseOrdersInfo.getOrderedDate());	// 発注日		
 			subForm.setSupplierName(supplierName);							// 仕入先名		
 			subForm.setOrderStaffName(staffName);							// 発注者名
 			subForm.setOrderCount(decimalFormat.format(countSum));			// 発注点数
-			subForm.setOrderAmountSum(decimalFormat.format(amountSum.setScale(2, RoundingMode.HALF_UP))); // 発注金額合計（小数点以下第二位を四捨五入）
+			subForm.setOrderAmountSum(decimalFormat.format(amountSum.setScale(1, RoundingMode.HALF_UP))); // 発注金額合計（小数点以下第二位を四捨五入）
 			displayList.add(subForm);
 		}
 
