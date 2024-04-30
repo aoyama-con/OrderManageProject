@@ -13,13 +13,16 @@
 <!-- 日本語化ファイル -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/i18n/jquery.ui.datepicker-ja.min.js"></script>
 <script th:src="@{/js/common.js}"></script>
+
+
 <script>
 	var funcOrderInput = function() {
-		if (confirm("次に進みますか？")) {
+		//20240430 店舗選択⇛発注入力遷移でのポップアップはないため削除
+		//if (confirm("次に進みますか？")) {
 			document.form.submit();
-		} else {
-			return;
-		}
+		//} else {
+		//	return;
+		//}
 	}
 </script>
 
@@ -28,13 +31,12 @@
 	<title>店舗選択</title>
 </head>
 
-
 <body>
 	<div class="container">
 		<BR>
 		<div align="right">
-			<form role="form" id="logout" th:action="@{/logout}" method="post">
-				<button type="button" class="btn btn-primary">ログアウト</button>
+			<form method="post" th:action="@{/logout}" >
+				<input type="submit" class="btn btn-primary" value="ログアウト">
 			</form>
 		</div>
 
@@ -73,6 +75,7 @@
 								</select>
 							</td>
 						</tr>
+						<!-- 発注日は削除されたためコメントアウト　20240430
 						<tr>
 							<td class="align-middle text-left">発注日</td>
 							<td class="align-middle text-left">
@@ -80,6 +83,7 @@
 								<input type="hidden" name="sysDate" th:value="${storeChoiceForm.sysDate}">
 							</td>
 						</tr>
+						-->
 					</tbody>
 				</table>
 			</div>

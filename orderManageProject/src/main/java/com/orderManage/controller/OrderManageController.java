@@ -283,7 +283,10 @@ public class OrderManageController {
 		
 //		model.addAttribute("sysDate", sysDate);
 //		model.addAttribute("orderDate", sysDate);
-		form.setOrderDate(sysDate);
+
+// 20240430 発注日が削除されたためコメントアウト
+//		form.setOrderDate(sysDate);
+
 		form.setSysDate(sysDate);
 		model.addAttribute("storeChoiceForm", form);
 
@@ -312,7 +315,9 @@ public class OrderManageController {
 
 		// TODO OrderInputFormに設定してそれをmodelにaddすることになると思う
 		model.addAttribute("storeId", object.getStoreId());
-		model.addAttribute("orderDate", object.getOrderDate());
+// 20240430 発注日が削除されたためコメントアウト
+//		model.addAttribute("orderDate", object.getOrderDate());
+
 		model.addAttribute("sysDate", object.getSysDate());
 		
 		// バリデートチェック
