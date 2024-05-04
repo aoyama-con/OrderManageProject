@@ -34,6 +34,7 @@ import com.orderManage.model.api.StockInfo;
 import com.orderManage.model.api.StoreInfo;
 import com.orderManage.model.api.SuppliersInfo;
 import com.orderManage.model.api.SuppliersProductsInfo;
+import com.orderManage.model.api.TransactionsInfo;
 import com.orderManage.model.api.UserAccessToken;
 import com.orderManage.model.param.ParamCategorieInfo;
 import com.orderManage.model.param.ParamEntryPurchaseOrder;
@@ -48,6 +49,7 @@ import com.orderManage.model.param.ParamStockInfo;
 import com.orderManage.model.param.ParamStoreInfo;
 import com.orderManage.model.param.ParamSupplierInfo;
 import com.orderManage.model.param.ParamSupplierProduct;
+import com.orderManage.model.param.ParamTransactionInfo;
 import com.orderManage.model.param.ParamUpdatePurchaseOrder;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.service.OrderManageLoggingService;
@@ -1331,5 +1333,153 @@ public class SmarejiApiAccess {
 		// 配列に格納して返却
 		ProductAttributeInfo[] productAttribute = response.getBody();
 		return Arrays.asList(productAttribute);
+	}
+	
+	/**
+	 * getStoreInfo
+	 * 
+	 * 発注情報(個別)を取得する(GET)
+	 *
+	 * @param contractId アプリ契約ID
+	 * @param productId 商品ID
+	 * @param paramProductInfo 商品取得パラメータ
+	 * 
+	 * @return ProductsInfo 商品情報
+	 */
+	public ProductsInfo getProductInfo(String contractId, 
+			String productId, ParamProductInfo paramProductInfo) {
+
+		// アクセストークン取得 ※必須
+		AccessToken at = getAccessToken(contractId);
+		
+		// 商品取得URL
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(app_properties.getUrlApi() 
+				+ contractId 
+				+ "/pos/products/" + productId);
+		
+		// ヘッダー情報を作成
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + at.getAccess_token());
+		
+		// クエリパラメータ設定 設定されているものだけをパラメータに設定する
+		MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
+		
+		// パラメータをMapに設定
+		if (Objects.nonNull(paramProductInfo.getFields())) {
+			// 検索パラメータ
+			paramMap.add("fields", String.join(",", paramProductInfo.getFields()));
+		}
+		if (StringUtils.hasLength(paramProductInfo.getWith_prices())) {
+			// 商品価格情報を付加
+			paramMap.add("with_prices", String.join(",", paramProductInfo.getWith_prices()));
+		}
+		if (StringUtils.hasLength(paramProductInfo.getWith_reserve_items())) {
+			// 商品自由項目情報を付加
+			paramMap.add("with_reserve_items", String.join(",", paramProductInfo.getWith_reserve_items()));
+		}
+		if (StringUtils.hasLength(paramProductInfo.getWith_stores())) {
+			// 店舗情報を付加
+			paramMap.add("with_stores", String.join(",", paramProductInfo.getWith_stores()));
+		}
+		if (StringUtils.hasLength(paramProductInfo.getWith_inventory_reservations())) {
+			// 在庫引当情報を付加す
+			paramMap.add("with_inventory_reservations", String.join(",", paramProductInfo.getWith_inventory_reservations()));
+		}
+		if (StringUtils.hasLength(paramProductInfo.getWith_attribute_items())) {
+			// 商品属性項目情報を付加
+			paramMap.add("with_attribute_items", String.join(",", paramProductInfo.getWith_attribute_items()));
+		}
+		if (StringUtils.hasLength(paramProductInfo.getWith_order_setting())) {
+			// 発注設定情報を付加
+			paramMap.add("with_order_setting", String.join(",", paramProductInfo.getWith_order_setting()));
+		}
+
+		String uri = builder.queryParams(paramMap).toUriString();
+
+		// スマレジAPIにアクセス(GET) ////////////////////////////////////////////
+		RestTemplate restTemplate = new RestTemplate();	
+		RequestEntity<Void> request = RequestEntity.get(URI.create(uri)).headers(headers).build();
+
+		ResponseEntity<ProductsInfo> response = restTemplate.exchange(request, ProductsInfo.class);
+
+		return response.getBody();
+	}
+	
+	/**
+	 * getTransactionsInfo
+	 * 
+	 * 取引一覧取得を行う(GET)
+	 *
+	 * @param contractId アプリ契約ID
+	 * @param paramTransactionInfo 取引一覧取得パラメータ
+	 * 
+	 * @return List 取引一覧情報
+	 */
+	public List<TransactionsInfo> getTransactionsInfo(String contractId, ParamTransactionInfo paramTransactionInfo){
+
+		// アクセストークン取得 ※必須
+		AccessToken at = getAccessToken(contractId);
+		
+		// 商品画像一覧取得URL
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(app_properties.getUrlApi() + contractId + 
+				"/pos/transactions");
+		
+		// ヘッダー情報を作成
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + at.getAccess_token());
+		
+		// クエリパラメータ設定 設定されているものだけをパラメータに設定する
+		MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
+		
+		// パラメータをMapに設定
+		// 検索パラメータ
+		if (Objects.nonNull(paramTransactionInfo.getFields())) {
+			paramMap.add("fields", String.join(",", paramTransactionInfo.getFields()));
+		}
+		// ソート
+		if (StringUtils.hasLength(paramTransactionInfo.getSort())) {
+			paramMap.add("sort", paramTransactionInfo.getSort());
+		}
+		// 上限
+		if (paramTransactionInfo.getLimit() != 0) {
+			paramMap.add("limit", String.valueOf(paramTransactionInfo.getLimit()));
+		}
+		// ページ
+		if (paramTransactionInfo.getPage() != 0) {
+			paramMap.add("page", String.valueOf(paramTransactionInfo.getPage()));
+		}
+
+		// 取引一覧取得に設定するパラメータは今回使用するものに限定する（数が多いため。必要な場合に追加）
+		// 店舗ID
+		if (paramTransactionInfo.getStore_id() != 0) {
+			paramMap.add("store_id", String.valueOf(paramTransactionInfo.getStore_id()));
+		}
+		// 取引明細情報を付加
+		if (StringUtils.hasLength(paramTransactionInfo.getWith_details())) {
+			paramMap.add("with_details", paramTransactionInfo.getWith_details());
+		}
+		// 取引日時(From)
+		if (StringUtils.hasLength(paramTransactionInfo.getTransaction_date_time_from())) {
+			paramMap.add("transaction_date_time-from", paramTransactionInfo.getTransaction_date_time_from());
+		}
+		// 取引日時(To)
+		if (StringUtils.hasLength(paramTransactionInfo.getTransaction_date_time_to())) {
+			paramMap.add("transaction_date_time-to", paramTransactionInfo.getTransaction_date_time_to());
+		}
+
+		String uri = builder.queryParams(paramMap).toUriString();
+		
+		// タイムスタンプ指定があるるため「+」をエンコーディング エンコーディングは共通化予定 TODO
+		uri = StringUtils.replace(uri, "+", "%2B");
+
+		// スマレジAPIにアクセス(GET) ////////////////////////////////////////////
+		RestTemplate restTemplate = new RestTemplate();	
+		RequestEntity<Void> request = RequestEntity.get(URI.create(uri)).headers(headers).build();
+
+		ResponseEntity<TransactionsInfo[]> response = restTemplate.exchange(request, TransactionsInfo[].class);
+		
+		// 配列に格納して返却
+		TransactionsInfo[] transactionsInfo = response.getBody();
+		return Arrays.asList(transactionsInfo);
 	}
 }

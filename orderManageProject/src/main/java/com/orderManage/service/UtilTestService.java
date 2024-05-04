@@ -17,6 +17,7 @@ import com.orderManage.model.api.StockInfo;
 import com.orderManage.model.api.StoreInfo;
 import com.orderManage.model.api.SuppliersInfo;
 import com.orderManage.model.api.SuppliersProductsInfo;
+import com.orderManage.model.api.TransactionsInfo;
 import com.orderManage.model.param.ParamCategorieInfo;
 import com.orderManage.model.param.ParamEntryPurchaseOrder;
 import com.orderManage.model.param.ParamEntryPurchaseOrderDeliveryStore;
@@ -33,6 +34,7 @@ import com.orderManage.model.param.ParamStockInfo;
 import com.orderManage.model.param.ParamStoreInfo;
 import com.orderManage.model.param.ParamSupplierInfo;
 import com.orderManage.model.param.ParamSupplierProduct;
+import com.orderManage.model.param.ParamTransactionInfo;
 import com.orderManage.model.param.ParamUpdatePurchasOrderDeliveryStore;
 import com.orderManage.model.param.ParamUpdatePurchaseOrder;
 import com.orderManage.model.param.ParamUpdatePurchaseOrderProduct;
@@ -475,6 +477,63 @@ public class UtilTestService extends OrderManageService {
 				paramProductAttributeInfo);
 		
 		return productImage;
+	}
+	
+	// 商品取得
+	public ProductsInfo getProductInfo(SmarejiUser smarejiUser, String id) {
+		ProductsInfo productsInfo = new ProductsInfo();
+
+		// 商品取得パラメータ設定
+		ParamProductInfo paramProductInfo = new ParamProductInfo();
+		paramProductInfo.setWith_prices("all");
+		paramProductInfo.setWith_reserve_items("all");
+		paramProductInfo.setWith_stores("all");
+		paramProductInfo.setWith_inventory_reservations("all");
+		paramProductInfo.setWith_attribute_items("all");
+		paramProductInfo.setWith_order_setting("none");
+
+		productsInfo = smarejiApiAccess.getProductInfo(smarejiUser.getContract().getId(), id, paramProductInfo);
+		
+		return productsInfo;
+	}
+	
+	// 取引一覧取得
+	public List<TransactionsInfo> getTransactionsInfo(SmarejiUser smarejiUser) {
+		
+		// 商品画像一覧を取得(API)
+		ParamTransactionInfo paramTransactionsInfo = new ParamTransactionInfo();
+
+		// 検索パラメータ
+		// 取引一覧取得のためのパラメータを設定
+		List<String> getParam = new ArrayList<String>();
+		getParam.add("transactionHeadId");
+		getParam.add("transactionDateTime");
+		getParam.add("storeId");
+		// 指定できない↓APIアクセスでエラー、もし詳細が取得できないようであれば、検索パラメータ指定しない。スマレジに確認する（20240504）
+		//getParam.add("details");
+		// [transaction_date_time-from,transaction_date_time-to],
+		// [terminal_tran_date_time-from,terminal_tran_date_time-to],
+		// [sum_date-from,sum_date-to],
+		// [upd_date_time-from,upd_date_time-to]のうちいずれかが必須です。
+		// 取得パラメータ
+		paramTransactionsInfo.setFields(getParam);
+		// ソート
+		paramTransactionsInfo.setSort("transactionHeadId");
+		// 上限設定
+		paramTransactionsInfo.setLimit(10);
+		// ページ
+		paramTransactionsInfo.setPage(1);
+		// 取引明細情報を付加
+		paramTransactionsInfo.setWith_details("all");
+		// 取引日時(From) フォーマット：[YYYY-MM-DDThh:mm:ssTZD]　「+」はエンコードが必要
+		paramTransactionsInfo.setTransaction_date_time_from("2023-12-01T00:00:00+09:00");
+		// 取引日時(To)　フォーマット：[YYYY-MM-DDThh:mm:ssTZD]　「+」はエンコードが必要
+		paramTransactionsInfo.setTransaction_date_time_to("2023-12-31T00:00:00+09:00");
+
+		List<TransactionsInfo> transactionsInfo = smarejiApiAccess.getTransactionsInfo(smarejiUser.getContract().getId(), 
+				paramTransactionsInfo);
+		
+		return transactionsInfo;
 	}
 
 }

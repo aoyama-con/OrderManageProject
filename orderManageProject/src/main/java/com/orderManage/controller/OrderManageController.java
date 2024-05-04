@@ -23,6 +23,7 @@ import com.orderManage.controller.object.StoreChoiceForm;
 import com.orderManage.model.ApplicationPropertyModel;
 import com.orderManage.model.api.PurchaseOrdersInfo;
 import com.orderManage.model.api.StoreInfo;
+import com.orderManage.model.api.TransactionsInfo;
 import com.orderManage.model.api.UserAccessToken;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.service.CheckOrderConfirmService;
@@ -236,6 +237,10 @@ public class OrderManageController {
 //		model.addAttribute("image", productsImageList.get(0).getUrl());
 //		// 商品属性一覧
 //		List<ProductAttributeInfo> attributeList = utilTestService.getAttributesInfo(smarejiUser);
+//		// 商品取得
+//		ProductsInfo productsInfo = utilTestService.getProductInfo(smarejiUser, "8000010");
+		// 取引一覧取得
+		List<TransactionsInfo> transactionsInfoList = utilTestService.getTransactionsInfo(smarejiUser);
 		
 		/* ****************************************************************************/
 
