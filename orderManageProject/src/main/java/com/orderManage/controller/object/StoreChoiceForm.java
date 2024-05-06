@@ -33,7 +33,6 @@ public class StoreChoiceForm implements Serializable {
     	// 未指定（デフォルト値）の場合
     	if (DEFAULT_STORESELECT.equals(this.storeId)) {
     		result = false;
-    		// TODO 20240430 バリデートエラー後に、セレクトボックスに値再設定が必要
     	}
     	return result;
     }

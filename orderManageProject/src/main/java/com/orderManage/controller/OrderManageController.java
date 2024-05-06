@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -181,17 +182,20 @@ public class OrderManageController {
 		/**************************/
 		
 		/** 認証関連 スマレジアクセス時にコメントをはずす*******************************************************************/
-		logger.debug("認可コード:code:" + code);
-		// authorization_code（code）を使用してユーザーアクセストークンをリクエストする
-		UserAccessToken uat = menuService.getUserAccessToken(code);
-		logger.debug("ユーザアクセストークン：" + uat.getAccess_token());
+		// 20240506 追加 スマレジユーザが取得されている場合は認証処理を行わない(メニューに戻る対応)
+		if (Objects.isNull(smarejiUser.getSub())) {
+			logger.debug("認可コード:code:" + code);
+			// authorization_code（code）を使用してユーザーアクセストークンをリクエストする
+			UserAccessToken uat = menuService.getUserAccessToken(code);
+			logger.debug("ユーザアクセストークン：" + uat.getAccess_token());
 
-		// ユーザーアクセストークンを使用してユーザー情報取得する
-		smarejiUser = menuService.getSmarejiUser(uat.getAccess_token());
-		logger.debug("契約ID：" + smarejiUser.getContract().getId());
+			// ユーザーアクセストークンを使用してユーザー情報取得する
+			smarejiUser = menuService.getSmarejiUser(uat.getAccess_token());
+			logger.debug("契約ID：" + smarejiUser.getContract().getId());
 
-		// ユーザ情報をセッションに格納する
-		smarejiSession.setAttribute("s_smarejiUser", smarejiUser);
+			// ユーザ情報をセッションに格納する
+			smarejiSession.setAttribute("s_smarejiUser", smarejiUser);			
+		}
 		/****************************************************************************************************/
 		
 		/* Util系テスト ******************************************************************/
@@ -333,8 +337,12 @@ public class OrderManageController {
             }
             model.addAttribute("validationError", errorList);
 //            model.addAttribute("storeInfos", smarejiSession.getAttribute("storeInfos"));
-            object.setStoreInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("storeInfos"));	// TODO objectの使い回しは微妙？
-            model.addAttribute("storeChoiceForm", object);
+// 20240506 コメント            object.setStoreInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("storeInfos"));	// TODO objectの使い回しは微妙？
+            
+//            model.addAttribute("storeChoiceForm", object);
+            // 20240506 バリデートエラー時にプルダウン値値再設定
+            model.addAttribute("storeChoiceForm", smarejiSession.getAttribute("storeChoiceForm"));
+            
             return "storeChoice";
         }
  
