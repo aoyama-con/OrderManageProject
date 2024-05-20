@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -181,17 +182,20 @@ public class OrderManageController {
 		/**************************/
 		
 		/** 認証関連 スマレジアクセス時にコメントをはずす*******************************************************************/
-		logger.debug("認可コード:code:" + code);
-		// authorization_code（code）を使用してユーザーアクセストークンをリクエストする
-		UserAccessToken uat = menuService.getUserAccessToken(code);
-		logger.debug("ユーザアクセストークン：" + uat.getAccess_token());
+		// 20240506 追加 スマレジユーザが取得されている場合は認証処理を行わない(メニューに戻る対応)
+		if (Objects.isNull(smarejiUser.getSub())) {
+			logger.debug("認可コード:code:" + code);
+			// authorization_code（code）を使用してユーザーアクセストークンをリクエストする
+			UserAccessToken uat = menuService.getUserAccessToken(code);
+			logger.debug("ユーザアクセストークン：" + uat.getAccess_token());
 
-		// ユーザーアクセストークンを使用してユーザー情報取得する
-		smarejiUser = menuService.getSmarejiUser(uat.getAccess_token());
-		logger.debug("契約ID：" + smarejiUser.getContract().getId());
+			// ユーザーアクセストークンを使用してユーザー情報取得する
+			smarejiUser = menuService.getSmarejiUser(uat.getAccess_token());
+			logger.debug("契約ID：" + smarejiUser.getContract().getId());
 
-		// ユーザ情報をセッションに格納する
-		smarejiSession.setAttribute("s_smarejiUser", smarejiUser);
+			// ユーザ情報をセッションに格納する
+			smarejiSession.setAttribute("s_smarejiUser", smarejiUser);			
+		}
 		/****************************************************************************************************/
 		
 		/* Util系テスト ******************************************************************/
@@ -236,6 +240,10 @@ public class OrderManageController {
 //		model.addAttribute("image", productsImageList.get(0).getUrl());
 //		// 商品属性一覧
 //		List<ProductAttributeInfo> attributeList = utilTestService.getAttributesInfo(smarejiUser);
+//		// 商品取得
+//		ProductsInfo productsInfo = utilTestService.getProductInfo(smarejiUser, "8000010");
+//		// 取引一覧取得
+//		List<TransactionsInfo> transactionsInfoList = utilTestService.getTransactionsInfo(smarejiUser);
 		
 		/* ****************************************************************************/
 
@@ -283,7 +291,10 @@ public class OrderManageController {
 		
 //		model.addAttribute("sysDate", sysDate);
 //		model.addAttribute("orderDate", sysDate);
-		form.setOrderDate(sysDate);
+
+// 20240430 発注日が削除されたためコメントアウト
+//		form.setOrderDate(sysDate);
+
 		form.setSysDate(sysDate);
 		model.addAttribute("storeChoiceForm", form);
 
@@ -312,7 +323,9 @@ public class OrderManageController {
 
 		// TODO OrderInputFormに設定してそれをmodelにaddすることになると思う
 		model.addAttribute("storeId", object.getStoreId());
-		model.addAttribute("orderDate", object.getOrderDate());
+// 20240430 発注日が削除されたためコメントアウト
+//		model.addAttribute("orderDate", object.getOrderDate());
+
 		model.addAttribute("sysDate", object.getSysDate());
 		
 		// バリデートチェック
@@ -324,8 +337,12 @@ public class OrderManageController {
             }
             model.addAttribute("validationError", errorList);
 //            model.addAttribute("storeInfos", smarejiSession.getAttribute("storeInfos"));
-            object.setStoreInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("storeInfos"));	// TODO objectの使い回しは微妙？
-            model.addAttribute("storeChoiceForm", object);
+// 20240506 コメント            object.setStoreInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("storeInfos"));	// TODO objectの使い回しは微妙？
+            
+//            model.addAttribute("storeChoiceForm", object);
+            // 20240506 バリデートエラー時にプルダウン値値再設定
+            model.addAttribute("storeChoiceForm", smarejiSession.getAttribute("storeChoiceForm"));
+            
             return "storeChoice";
         }
  
@@ -356,11 +373,8 @@ public class OrderManageController {
 		
 		logger.info("発注確認画面遷移処理　開始");
 		
-		// スマレジユーザ取得
-		SmarejiUser suser = (SmarejiUser)smarejiSession.getAttribute("smarejiUser");
-		
 		// 画面表示情報取得
-		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(suser);
+		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser);
 	
 		model.addAttribute("checkOrderConfirmForm", form);
 		

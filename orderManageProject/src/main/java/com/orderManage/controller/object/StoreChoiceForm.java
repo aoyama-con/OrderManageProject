@@ -3,10 +3,7 @@ package com.orderManage.controller.object;
 import java.io.Serializable;
 import java.util.Map;
 
-import com.orderManage.util.StringUtil;
-
 import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotEmpty;
 
 public class StoreChoiceForm implements Serializable {
 
@@ -17,15 +14,15 @@ public class StoreChoiceForm implements Serializable {
  	private String storeId;
 
 	/** 発注日 */
-    @NotEmpty(message = "発注日が入力されていません。発注日を入力してください。")
-	private String orderDate;
+    // @NotEmpty(message = "発注日が入力されていません。発注日を入力してください。") 20240430 発注日が削除されたためコメントアウト
+	// private String orderDate;
 
     /** システム日付 */
     private String sysDate;
 
 	/** 店舗一覧 */
     Map<String, String> storeInfos;
-    
+
 	/**
      * 
      * @return
@@ -44,19 +41,20 @@ public class StoreChoiceForm implements Serializable {
      * 
      * @return
      */
-    @AssertTrue(message = "発注日付が正しくありません。")
-    public boolean isValidOrderDate() {
-    	boolean result = true;
-
-    	if (!StringUtil.isEmpty(orderDate) && !StringUtil.isEmpty(sysDate)) {
-        	// 過去日の場合
-    		if (sysDate.compareTo(orderDate) > 0) {
-    			result = false;
-        	}
-    	}
-	    	
-    	return result;
-    }
+//20240430 発注日が削除されたためコメントアウト
+//    @AssertTrue(message = "発注日付が正しくありません。")
+//    public boolean isValidOrderDate() {
+//    	boolean result = true;
+//
+//    	if (!StringUtil.isEmpty(orderDate) && !StringUtil.isEmpty(sysDate)) {
+//        	// 過去日の場合
+//    		if (sysDate.compareTo(orderDate) > 0) {
+//    			result = false;
+//        	}
+//    	}
+//	    	
+//    	return result;
+//    }
 
 	public String getStoreId() {
 		return storeId;
@@ -66,13 +64,13 @@ public class StoreChoiceForm implements Serializable {
 		this.storeId = storeId;
 	}
 
-	public String getOrderDate() {
-		return orderDate;
-	}
+//	public String getOrderDate() {
+//		return orderDate;
+//	}
 
-	public void setOrderDate(String orderDate) {
-		this.orderDate = orderDate;
-	}
+//	public void setOrderDate(String orderDate) {
+//		this.orderDate = orderDate;
+//	}
 
 	public String getSysDate() {
 		return sysDate;

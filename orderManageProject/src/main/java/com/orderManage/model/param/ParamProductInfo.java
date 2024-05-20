@@ -3,7 +3,7 @@ package com.orderManage.model.param;
 import java.util.List;
 
 /**
- * 商品一覧取得APIにリクエストする際に設定するパラメータ情報クラス
+ * 商品取得APIにリクエストする際に設定するパラメータ情報クラス
  * サービスクラスで設定され、APIに渡す
  * 
  */
@@ -50,6 +50,24 @@ public class ParamProductInfo {
 	
 	/* 更新日時(To)：登録時・更新時の日時。[YYYY-MM-DDThh:mm:ssTZD] */
 	private String upd_date_time_to;
+	
+	/* 商品価格情報を付加するか(付加する場合はall, しない場合はnone) */
+	private String with_prices;
+	
+	/* 商品自由項目情報を付加するか(付加する場合はall, しない場合はnone) */
+	private String with_reserve_items;
+	
+	/* 店舗情報を付加するか(付加する場合はall, しない場合はnone) */
+	private String with_stores;
+	
+	/* 在庫引当情報を付加するか(付加する場合はall, しない場合はnone) */
+	private String with_inventory_reservations;
+	
+	/* 商品属性項目情報を付加するか(付加する場合はall, しない場合はnone) */
+	private String with_attribute_items;
+	
+	/* 発注設定情報を付加するか(付加する場合はall, しない場合はnone) */
+	private String with_order_setting;
 	
 	public List<String> getFields() {
 		return fields;
@@ -163,6 +181,51 @@ public class ParamProductInfo {
 		this.upd_date_time_to = upd_date_time_to;
 	}
 
+	public String getWith_prices() {
+		return with_prices;
+	}
 
+	public void setWith_prices(String with_prices) {
+		this.with_prices = with_prices;
+	}
 
+	public String getWith_reserve_items() {
+		return with_reserve_items;
+	}
+
+	public void setWith_reserve_items(String with_reserve_items) {
+		this.with_reserve_items = with_reserve_items;
+	}
+
+	public String getWith_stores() {
+		return with_stores;
+	}
+
+	public void setWith_stores(String with_stores) {
+		this.with_stores = with_stores;
+	}
+
+	public String getWith_inventory_reservations() {
+		return with_inventory_reservations;
+	}
+
+	public void setWith_inventory_reservations(String with_inventory_reservations) {
+		this.with_inventory_reservations = with_inventory_reservations;
+	}
+
+	public String getWith_attribute_items() {
+		return with_attribute_items;
+	}
+
+	public void setWith_attribute_items(String with_attribute_items) {
+		this.with_attribute_items = with_attribute_items;
+	}
+
+	public String getWith_order_setting() {
+		return with_order_setting;
+	}
+
+	public void setWith_order_setting(String with_order_setting) {
+		this.with_order_setting = with_order_setting;
+	}
 }
