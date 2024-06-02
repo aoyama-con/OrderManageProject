@@ -36,7 +36,6 @@
 		<table class="table">
 			<thead class="table-info">
 				<tr>
-					<th scope="col" class="align-middle text-center">状態<BR>区分</th>
 					<th scope="col" class="align-middle text-center">グループ<BR>コード</th>
 					<th scope="col" class="align-middle text-center">商品ID/商品CD/商品名</th>
 					<th scope="col" class="align-middle text-center">仕入先</th>
@@ -63,85 +62,30 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
-					<td class="align-middle text-center">通常</td>
-					<td class="align-middle text-center">2012236</td>
+				<tr th:each="order : ${orderConfirmForm.displayList}">
+					<td class="align-middle text-center" th:text="${order.groupCode}"></td>
 					<td class="align-middle text-left">
 						<table width="100%" style="margin :0;">
 							<thead>
 								<tr>
 									<td rowspan="2" class="table-info align-middle text-center"><img src="aaa" /></td>
-									<td class="table-info align-middle text-left">4751349617238-123456789</td>
+									<td class="table-info align-middle text-left" th:text="${order.productId}-${order.productCd}"></td>
 								</tr>
 								<tr>
-									<td class="table-info align-middle text-left">スマレジキャップ</td>
+									<td class="table-info align-middle text-left" th:text="${order.productName}"></td>
 								</tr>
 							</thead>
 						</table>
 					</td>
-					<td class="align-middle text-center">〇〇商事</td>
-					<td class="align-middle text-center">アパレル部門</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center"><input type="text" name="orderCnt1" id="orderCnt1" /></td>
-				</tr>
-				<tr>
-					<td class="align-middle text-center">通常</td>
-					<td class="align-middle text-center">2012236</td>
-					<td class="align-middle text-left">
-						<table width="100%" style="margin :0;">
-							<thead>
-								<tr>
-									<td rowspan="2" class="table-info align-middle text-center"><img src="aaa" /></td>
-									<td class="table-info align-middle text-left">4751349617238-123456789</td>
-								</tr>
-								<tr>
-									<td class="table-info align-middle text-left">スマレジキャップ</td>
-								</tr>
-							</thead>
-						</table>
-					</td>
-					<td class="align-middle text-center">〇〇商事</td>
-					<td class="align-middle text-center">アパレル部門</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center"><input type="text" name="orderCnt1" id="orderCnt1" /></td>
-				</tr>
-				<tr>
-					<td class="align-middle text-center">通常</td>
-					<td class="align-middle text-center">2012236</td>
-					<td class="align-middle text-left">
-						<table width="100%" style="margin :0;">
-							<thead>
-								<tr>
-									<td rowspan="2" class="table-info align-middle text-center"><img src="aaa" /></td>
-									<td class="table-info align-middle text-left">4751349617238-123456789</td>
-								</tr>
-								<tr>
-									<td class="table-info align-middle text-left">スマレジキャップ</td>
-								</tr>
-							</thead>
-						</table>
-					</td>
-					<td class="align-middle text-center">〇〇商事</td>
-					<td class="align-middle text-center">アパレル部門</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
+					<td class="align-middle text-center" th:text="${order.supplierName}"></td>
+					<td class="align-middle text-center" th:text="${order.categoryName}"></td>
+					<td class="align-middle text-center" th:text="${order.fourWeekNumberSales}"></td>
+					<td class="align-middle text-center" th:text="${order.threeWeekNumberSales}"></td>
+					<td class="align-middle text-center" th:text="${order.towWeekNumberSales}"></td>
+					<td class="align-middle text-center" th:text="${order.oneWeekNumberSales}"></td>
+					<td class="align-middle text-center" th:text="${order.thisWeekNumberSales}"></td>
+					<td class="align-middle text-center" th:text="${order.stockAmount}"></td>
+					<td class="align-middle text-center" th:text="${order.stockDays}"></td>
 					<td class="align-middle text-center"><input type="text" name="orderCnt1" id="orderCnt1" /></td>
 				</tr>
 			</tbody>

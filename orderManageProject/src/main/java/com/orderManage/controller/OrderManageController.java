@@ -1,6 +1,7 @@
 package com.orderManage.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.orderManage.controller.object.CheckOrderConfirmForm;
 import com.orderManage.controller.object.CheckOrderStatusSubForm;
+import com.orderManage.controller.object.OrderConfirmForm;
+import com.orderManage.controller.object.OrderConfirmSubForm;
 import com.orderManage.controller.object.OrderHistoryForm;
 import com.orderManage.controller.object.StoreChoiceForm;
 import com.orderManage.model.ApplicationPropertyModel;
+import com.orderManage.model.api.ProductsInfo;
 import com.orderManage.model.api.PurchaseOrdersInfo;
 import com.orderManage.model.api.StoreInfo;
 import com.orderManage.model.api.UserAccessToken;
@@ -29,6 +33,7 @@ import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.service.CheckOrderConfirmService;
 import com.orderManage.service.CheckOrderStatusService;
 import com.orderManage.service.MenuService;
+import com.orderManage.service.OrderConfirmService;
 import com.orderManage.service.OrderHistoryService;
 import com.orderManage.service.OrderManageLoggingService;
 import com.orderManage.service.StoreChoiceService;
@@ -81,8 +86,8 @@ public class OrderManageController {
 	CheckOrderConfirmService checkOrderConfirmService;
 	
 	/* 発注確定画面サービスクラス */
-//	@Autowired
-//	OrderConfirmService orderConfirmService;
+	@Autowired
+	OrderConfirmService orderConfirmService;
 	
 	/* 発注履歴画面サービスクラス */
 	@Autowired
@@ -392,55 +397,54 @@ public class OrderManageController {
 	@RequestMapping("/orderConfirm")
     public String orderConfirm(@RequestHeader(value = "referer", required = false) final String referer,
     		Model model) {
-//		// 初期化
-//		OrderConfirmForm form = new OrderConfirmForm();
-//		List<OrderConfirmSubForm> displayList = new ArrayList<OrderConfirmSubForm>();
-//		List<String> productIdList = new ArrayList<String>();
-//		Map<String, String> stockAmountMap = new HashMap<>(); 
-//		
-//		// 発注ID取得
-//		productIdList = orderConfirmService.getOrderInfo(smarejiUser, "dummyid");
-//		// 在庫数取得
-//		// TODO 在庫数
-//		stockAmountMap = orderConfirmService.getStockAmountList(smarejiUser, "dummyid");
-//		
-//		// 発注IDでループ
-//		for (String productId: productIdList) {
-//			// 初期化
-//			OrderConfirmSubForm subForm = new OrderConfirmSubForm();
-//			ProductsInfo productsInfo = new ProductsInfo();
-//			
-//			// 商品情報を取得
-//			productsInfo = orderConfirmService.getProductsInfo(smarejiUser, productId);
-//			
-//			// グループCD設定
-//			subForm.setGroupCode(productsInfo.getGroupCode());
-//			// 商品ID設定
-//			subForm.setProductId(productsInfo.getProductId());
-//			// 商品CD設定
-//			subForm.setProductCd(productsInfo.getProductCode());
-//			// 商品名設定
-//			subForm.setProductName(productsInfo.getProductName());
-//			// 部門名設定
-//			subForm.setCategoryName(orderConfirmService.getCategoryName(smarejiUser, productsInfo.getCategoryId()));
-//			// 画像取得
-//			subForm.setImgUrl(orderConfirmService.getProductImageInfo(smarejiUser, productId));
-//			// 仕入れ先取得　→課題待ち
-//			subForm.setSupplierName("テスト仕入れ先");
-//
-//			// 在庫点数設定
-//			subForm.setStockAmount(Integer.parseInt(stockAmountMap.get(productsInfo.getProductId())));
-//			// TODO
-//			// 在庫日数　計算して取得する？
-//			subForm.setStockDays(999);
-//			subForm.setConditionSection("test");
-//			displayList.add(subForm);
-//		}
-//		// 
-//
-//		form.setDisplayList(displayList);
-//		// 画面に返す
-//		model.addAttribute("orderConfirmForm", form);
+		// 初期化
+		OrderConfirmForm form = new OrderConfirmForm();
+		List<OrderConfirmSubForm> displayList = new ArrayList<OrderConfirmSubForm>();
+		List<String> productIdList = new ArrayList<String>();
+		Map<String, String> stockAmountMap = new HashMap<>(); 
+		
+		// 発注ID取得
+		productIdList = orderConfirmService.getOrderInfo(smarejiUser, "dummyid");
+		// 在庫数取得
+		// TODO 在庫数
+		stockAmountMap = orderConfirmService.getStockAmountList(smarejiUser, "dummyid");
+		
+		// 発注IDでループ
+		for (String productId: productIdList) {
+			// 初期化
+			OrderConfirmSubForm subForm = new OrderConfirmSubForm();
+			ProductsInfo productsInfo = new ProductsInfo();
+			
+			// 商品情報を取得
+			productsInfo = orderConfirmService.getProductsInfo(smarejiUser, productId);
+			
+			// グループCD設定
+			subForm.setGroupCode(productsInfo.getGroupCode());
+			// 商品ID設定
+			subForm.setProductId(productsInfo.getProductId());
+			// 商品CD設定
+			subForm.setProductCd(productsInfo.getProductCode());
+			// 商品名設定
+			subForm.setProductName(productsInfo.getProductName());
+			// 部門名設定
+			subForm.setCategoryName(orderConfirmService.getCategoryName(smarejiUser, productsInfo.getCategoryId()));
+			// 画像取得
+			subForm.setImgUrl(orderConfirmService.getProductImageInfo(smarejiUser, productId));
+			// 仕入れ先取得　→課題待ち
+			subForm.setSupplierName("テスト仕入れ先");
+
+			// 在庫点数設定
+			subForm.setStockAmount(Integer.parseInt(stockAmountMap.get(productsInfo.getProductId())));
+			// TODO
+			// 在庫日数　計算して取得する？
+			subForm.setStockDays(999);
+			subForm.setConditionSection("test");
+			displayList.add(subForm);
+		}
+
+		form.setDisplayList(displayList);
+		// 画面に返す
+		model.addAttribute("orderConfirmForm", form);
 		
         return "orderConfirm";
 	}
