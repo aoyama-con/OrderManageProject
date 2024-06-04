@@ -250,6 +250,8 @@ public class OrderManageController {
 //		// 取引一覧取得
 //		List<TransactionsInfo> transactionsInfoList = utilTestService.getTransactionsInfo(smarejiUser);
 		
+		// no image画像の設定
+		model.addAttribute("image", "/img/no_image.png");
 		/* ****************************************************************************/
 
 		// ログに出力すべき情報も出力
