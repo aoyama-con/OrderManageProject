@@ -467,6 +467,12 @@ public class OrderManageController {
 		OrderHistoryForm session = (OrderHistoryForm)smarejiSession
 				.getAttribute("orderHistorySession");
 		
+		// 発注IDが連携された場合、削除
+		if(!Objects.isNull(orderId)&& orderId !="") {
+			// 発注削除（API使用）
+			orderHistoryService.deleteOrder(smarejiUser,orderId);
+		}
+		
 		// 絞り込み条件設定
 		orderHistoryForm = orderHistoryService.setCondition(orderHistoryForm,session);
 		// セッションに画面情報を格納

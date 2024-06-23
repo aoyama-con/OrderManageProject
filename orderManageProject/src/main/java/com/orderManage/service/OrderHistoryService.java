@@ -252,6 +252,9 @@ public class OrderHistoryService {
 			// 発注日FROMが設定されている場合
 			if (dateFromFlg) {
 				Date orderedDate = null;
+				if(Objects.isNull(orderInfo.getOrderedDate())) {
+					continue;
+				}
 				try {
 					// 日付がyyyy-MM-ddの形である想定で、Date型に変換
 					orderedDate = new SimpleDateFormat("yyyy-MM-dd")
@@ -262,12 +265,16 @@ public class OrderHistoryService {
 				// 発注日がdateFrom(検索条件)より前の日付の場合、検索条件を満たさないため次の発注情報へ
 				if (orderedDate.compareTo(dateFrom)<0) {
 					continue;
-				};
+				}
+				
 			}
 
 			// 発注日TOが設定されている場合
 			if (dateToFlg) {
 				Date orderedDate = null;
+				if(Objects.isNull(orderInfo.getOrderedDate())) {
+					continue;
+				}
 				try {
 					// 日付がyyyy-MM-ddの形である想定で、Date型に変換
 					orderedDate = new SimpleDateFormat("yyyy-MM-dd").parse(orderInfo.getOrderedDate());
@@ -495,11 +502,11 @@ public class OrderHistoryService {
 	 * 発注点数を計算する。
 	 * 
 	 * @param orderProductList 発注対象商品一覧
-	 * @return int 発注点数合計
+	 * @return BigDecimal 発注点数合計
 	 */
 	private BigDecimal calcQuantity (List<PurchaseOrdersProductsInfo> orderProductList) {
 		logger.info("calcQuantity:発注点数計算　処理開始");
-		
+
 		BigDecimal totalQuantity = new BigDecimal("0");
 		
 		for (PurchaseOrdersProductsInfo orderPuroduct : orderProductList) {
@@ -520,7 +527,7 @@ public class OrderHistoryService {
 	 * 発注合計金額を計算する。
 	 * 
 	 * @param orderProductList 発注対象商品一覧
-	 * @return int 発注合計金額
+	 * @return BigDecimal 発注合計金額
 	 */
 	private BigDecimal calcCost (List<PurchaseOrdersProductsInfo> orderProductList) {
 		logger.info("calcCost:発注合計金額計算　処理開始");
@@ -542,6 +549,29 @@ public class OrderHistoryService {
 		logger.info("calcCost:発注合計金額計算　処理終了");
 		
 		return result;
+	
+	}
+	
+	/**
+	 * 発注削除
+	 * 
+	 * 発注IDを指定して、1件の発注を削除する。
+	 * 
+	 * @param orderId 発注ID
+	 * @return 
+	 * @return int 結果
+	 */
+	public void deleteOrder (SmarejiUser smarejiUser,String orderId) {
+		logger.info("deleteOrder:発注削除　処理開始");
+		
+		try {
+		//SmarejiApiAccess.deletePurchaseOrder(smarejiUser.getContract().getId(),orderId);
+		}catch (Exception e){
+			logger.error("発注削除処理でエラーが発生しました。");
+		}
+		logger.info("deleteOrder:発注削除　処理終了");
+		
+		return ;
 	
 	}
 }
