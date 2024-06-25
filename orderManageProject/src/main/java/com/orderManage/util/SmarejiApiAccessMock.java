@@ -27,6 +27,8 @@ import com.orderManage.model.api.SuppliersProductsInfo;
  * 同じにしなければならない
  * 
  * @author aocon-mac
+ * @version 20240317 真壁さん・宮本さん分同期
+ * 
  */
 @RestController
 public class SmarejiApiAccessMock {
@@ -267,8 +269,26 @@ public class SmarejiApiAccessMock {
 			pi.setGroupCode("XXXXXX"+String.valueOf(i+1));
 			list.add(pi);
 		}
-
 		return list;
+	}
+	
+		/**
+	 * getProductsInfo
+	 * 
+	 * ダミーの商品情報を取得する
+	 * 
+	 * @param contractId 契約ID
+	 */
+	public ProductsInfo getProductInfo(String contractId) {
+		
+		// テスト用の店舗一覧を設定
+		// 1~5のテスト店舗情報を作成してリストに格納している
+			ProductsInfo productsInfo = new ProductsInfo();
+			productsInfo.setProductId("654321");
+			productsInfo.setGroupCode("123456");
+			productsInfo.setProductCode("789123");
+			productsInfo.setProductName("テスト商品");
+		return productsInfo;
 	}
 	
 	/**
@@ -281,6 +301,13 @@ public class SmarejiApiAccessMock {
 	public List<StockInfo> getStockInfo(String contractId) {
 		ArrayList<StockInfo> list = new ArrayList<StockInfo>();
 
+		StockInfo stockInfo = new StockInfo();
+		
+		stockInfo.setProductId("654321");
+		stockInfo.setStockAmount("10");
+		
+		list.add(stockInfo);
+		
 		return list;
 	}
 	

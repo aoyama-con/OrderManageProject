@@ -29,10 +29,11 @@
 <body>
 	<div class="container">
 		<BR>
-		<div align="right">
-			<button type="button" class="btn btn-primary">ログアウト</button>
-		</div>
-
+		　<div align="right">
+			<form role="form" id="logout" th:action="@{/logout}" method="post">
+				<button type="submit" class="btn btn-primary">ログアウト</button>
+			</form>
+		　</div>
 		<div align="center">
 			<h2>発注状況</h2>
 		</div>
@@ -76,7 +77,6 @@
 			<table class="table table-bordered">
 				<thead class="table-info">
 					<tr>
-						<th scope="col" class="align-middle text-center">状態<BR>区分</th>
 						<th scope="col" class="align-middle text-center">グループ<BR>コード</th>
 						<th colspan="2" scope="col" class="align-middle text-center">商品ID/商品CD/商品名</th>
 						<th scope="col" class="align-middle text-center">部門名</th>
@@ -85,14 +85,15 @@
 				</thead>
 				    <tbody>
         </tdcolspan="2">
-						<tr th:inline="text" th:each="m1:${meisai}" > 
+						<tr th:inline="text" th:each="m1:${meisai}" >
 							<td style=vertical-align:middle>[[${m1.GroupCode}]]</td>
-							<td style=vertical-align:middle>[[${m1.GroupCode}]]</td>
-							<td style=vertical-align:middle>[[${m1.url}]]</td>
+							<td style=vertical-align:middle>
+								<img th:src="${m1.url}" width="50" height="50">
+							</td>
 							<td style=vertical-align:middle>[[${m1.ProductId}]]-[[${m1.ProductCode}]]<br>[[${m1.ProductName}]]</td>
 							<td style=vertical-align:middle>[[${m1.CategoryName}]]</td>
 							<td style=vertical-align:middle>[[${m1.Quantity}]]</td>
-						 <tr> 
+						<tr> 
 				    </tbody>
 			</table>
 			<div class="row">
@@ -109,6 +110,13 @@
 				</div>
 			</div>
 		</div>
+		　<td>
+			<div align="right">
+			　<form method="post" th:action="@{/orderHistory}">
+				　<input type="submit" class="btn btn-primary" value="発注履歴に戻る">
+			　</form>
+			</div>
+		　</td>
 </body>
 
 </html>
