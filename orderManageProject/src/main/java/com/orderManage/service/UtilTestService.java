@@ -329,6 +329,12 @@ public class UtilTestService extends OrderManageService {
 		// 検索パラメータ
 		// 上限設定
 		paramSupplierProduct.setLimit(10);
+		
+		// カテゴリー(部門)ID
+//		paramSupplierProduct.setCategory_id("8000001");
+		
+		// 商品ID
+		paramSupplierProduct.setProduct_id("8000001");
 
 		List<SuppliersProductsInfo> supplierList = smarejiApiAccess.getSuppliersProductsInfo(smarejiUser.getContract().getId(), 
 				id, paramSupplierProduct);
@@ -368,7 +374,7 @@ public class UtilTestService extends OrderManageService {
 		// 上限設定
 		paramStockInfo.setLimit(10);
 //		// 店舗ID
-//		paramStockInfo.setStore_id(3);
+		paramStockInfo.setStore_id(1);
 //		// 商品ID
 //		paramStockInfo.setProduct_id("1");
 
@@ -526,9 +532,11 @@ public class UtilTestService extends OrderManageService {
 		// 取引明細情報を付加
 		paramTransactionsInfo.setWith_details("all");
 		// 取引日時(From) フォーマット：[YYYY-MM-DDThh:mm:ssTZD]　「+」はエンコードが必要
-		paramTransactionsInfo.setTransaction_date_time_from("2023-12-01T00:00:00+09:00");
+//		paramTransactionsInfo.setTransaction_date_time_from("2024-05-01T00:00:00+09:00");
+		paramTransactionsInfo.setTransaction_date_time_from("2024-05-12T00:00:00+09:00");
 		// 取引日時(To)　フォーマット：[YYYY-MM-DDThh:mm:ssTZD]　「+」はエンコードが必要
-		paramTransactionsInfo.setTransaction_date_time_to("2023-12-31T00:00:00+09:00");
+//		paramTransactionsInfo.setTransaction_date_time_to("2024-05-15T00:00:00+09:00");
+		paramTransactionsInfo.setTransaction_date_time_to("2024-05-13T00:00:00+09:00");
 
 		List<TransactionsInfo> transactionsInfo = smarejiApiAccess.getTransactionsInfo(smarejiUser.getContract().getId(), 
 				paramTransactionsInfo);

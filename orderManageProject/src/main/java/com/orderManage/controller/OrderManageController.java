@@ -23,6 +23,7 @@ import com.orderManage.controller.object.CheckOrderStatusSubForm;
 import com.orderManage.controller.object.OrderConfirmForm;
 import com.orderManage.controller.object.OrderConfirmSubForm;
 import com.orderManage.controller.object.OrderHistoryForm;
+import com.orderManage.controller.object.OrderHistorySubForm;
 import com.orderManage.controller.object.StoreChoiceForm;
 import com.orderManage.model.ApplicationPropertyModel;
 import com.orderManage.model.api.ProductsInfo;
@@ -521,19 +522,40 @@ public class OrderManageController {
     public String checkOrderStatus(@RequestHeader(value = "referer", required = false) final String referer,
     		@RequestParam(required = false) String user_id,
 	        @RequestParam(required = false) String password,
+	        @RequestParam(required = false) String orderId,
     		Model model) {
-	    logger.info("発注状況画面表示");
+		
+		    logger.info("発注状況画面表示");
+		    
+		    //セッション情報取得
+		    OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession
+					.getAttribute("orderHistorySession");
+		    
+		    String orderId1 = orderId;
+		  
+		    List<OrderHistorySubForm> display = session1.getDisplayList();
+		    
+		    OrderHistorySubForm displayTrue = new OrderHistorySubForm();
+		    
+		    for (int i=0; i<display.size(); i++){
+		    	if (display.get(i).getOrderId().equals(orderId1)) {
+		    		displayTrue.setOrderId(display.get(i).getOrderId());
+		    		displayTrue.setOrderDate(display.get(i).getOrderDate());
+		    		displayTrue.setStaffName(display.get(i).getStaffName());
+		    		displayTrue.setSupplierName(display.get(i).getSupplierName());
+		    	}
+		    }
+		    
+		    
+			model.addAttribute("orderedDate", displayTrue.getOrderDate());
+			model.addAttribute("hatyusha", displayTrue.getStaffName());
+			model.addAttribute("supplierName",displayTrue.getSupplierName());
 
-		//発注状況フィールドの値を仮設定
-	    model.addAttribute("storageInfoId", "test1234");
-		model.addAttribute("orderedDate", "20240317");
-		model.addAttribute("hatyusha", "木下総一郎");
-		model.addAttribute("supplierName","木下商事東京支店");
-		
-		List<CheckOrderStatusSubForm> matome = checkOrderStatusService.getMeisai(smarejiUser);
-		model.addAttribute("meisai",matome);
-		
-        return "checkOrderStatus";
+			
+			List<CheckOrderStatusSubForm> matome = checkOrderStatusService.getMeisai(smarejiUser, orderId);
+			model.addAttribute("meisai",matome);
+			
+			return "checkOrderStatus";
 	}
 
 //	/**
