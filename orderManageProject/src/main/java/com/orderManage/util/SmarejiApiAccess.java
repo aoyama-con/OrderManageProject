@@ -1338,7 +1338,7 @@ public class SmarejiApiAccess {
 	/**
 	 * getStoreInfo
 	 * 
-	 * 発注情報(個別)を取得する(GET)
+	 * 商品情報(個別)を取得する(GET)
 	 *
 	 * @param contractId アプリ契約ID
 	 * @param productId 商品ID
