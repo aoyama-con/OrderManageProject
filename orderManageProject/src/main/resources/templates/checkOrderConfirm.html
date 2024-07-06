@@ -45,6 +45,21 @@
 							<li class="page-item"><a class="page-link" href="#">Next</a></li>
 						</ul>
 					</nav>
+					<!-- add ページング処理 -->
+					<!--
+					<nav aria-label="Page navigation example">
+						<ul class="pagination justify-content-end">
+							<div th:if="${page.totalPages > 0}" th:each="pageNumber : ${pageNumbers}">
+    							<li class="page-item">
+    								<a th:href="@{/checkOrderConfirm(size=${page.size}, page=${pageNumber})}"
+        								th:text=${pageNumber}
+    	   								th:class=page-link "${pageNumber==page.number + 1} ? active"></a>
+								</li>
+							</div>
+						</ul>
+					</nav>
+					-->
+					<!-- end -->
 				</div>
 			</div>
 			<table class="table table-bordered">
@@ -60,7 +75,8 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr th:each="order : ${checkOrderConfirmForm.displayList}">
+					<tr th:if="${!#lists.isEmpty(checkOrderConfirmForm.displayList)}" th:each="order,detail : ${checkOrderConfirmForm.displayList}">
+					<!--<tr th:each="order,detail : ${checkOrderConfirmForm.displayList}">-->
 						<td class="align-middle text-center">
 							<div class="p-1 bg-warning">仮発注</div>
 						</td>
@@ -69,9 +85,14 @@
 						<td class="align-middle text-center" th:text="${order.orderStaffName}"></td>
 						<td class="align-middle text-end" th:text="${order.orderCount} + '点'"></td>
 						<td class="align-middle text-end" th:text="${order.orderAmountSum} + '円'"></td>
+						
 						<td class="text-center">
-							<!--<button type="button" class="btn btn-primary" th:href="@{'/OrderConfirm/' + ${order.storageInfoId}}">　詳細　</button>-->
-							<button type="button" class="btn btn-primary" th:href="@{/OrderConfirm/}">　詳細　</button>
+							<div class="d-flex justify-content-around">
+								<form th:action="@{/orderConfirm}"  method="post" th:id="detail+${detail.index}">
+									<input type="submit" class="btn btn-primary" value="　詳細　" th:id="detail+${detail.index}">
+									<input type="hidden" th:value="${checkOrderConfirmForm.displayList[__${detail.index}__].orderId} " name="orderId" th:id="detail+${detail.index}">
+								</form>
+							</div>
 						</td>
 					</tr>
 				</tbody>

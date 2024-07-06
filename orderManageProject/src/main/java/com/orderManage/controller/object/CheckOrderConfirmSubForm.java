@@ -8,6 +8,8 @@ package com.orderManage.controller.object;
  */
 public class CheckOrderConfirmSubForm {
 
+	/* 発注ID */
+	private String orderId;
 	/* 発注日 */
     private String orderedDate;
 	/* 仕入先名 */
@@ -19,6 +21,12 @@ public class CheckOrderConfirmSubForm {
     /* 発注金額合計 */
     private String orderAmountSum;
     
+	public String getOrderId() {
+		return orderId;
+	}
+	public void setOrderId(String orderId) {
+		this.orderId = orderId;
+	}
 	public String getOrderedDate() {
 		return orderedDate;
 	}

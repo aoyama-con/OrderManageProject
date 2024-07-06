@@ -30,6 +30,7 @@ import com.orderManage.model.api.ProductsInfo;
 import com.orderManage.model.api.PurchaseOrdersInfo;
 import com.orderManage.model.api.StoreInfo;
 import com.orderManage.model.api.UserAccessToken;
+import com.orderManage.model.session.OrderSessionInfo;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.service.CheckOrderConfirmService;
 import com.orderManage.service.CheckOrderStatusService;
@@ -377,13 +378,49 @@ public class OrderManageController {
 	 */
 	@RequestMapping("/checkOrderConfirm")
     public String checkOrderConfirm(@RequestHeader(value = "referer", required = false) final String referer,
+    		@RequestParam(required = false) String orderId,
     		Model model) {
-		
+	/*
+	public String checkOrderConfirm(@RequestHeader(value = "referer", required = false) final String referer,
+		@RequestParam(required = false) String orderId,
+		@RequestParam("page") int page,
+		@RequestParam("size") int size,
+		Model model) {
+	*/   	
+	    
 		logger.info("発注確認画面遷移処理　開始");
+
+		/*
+		int currentPage = page;
+		int pageSize= size;
+		*/
+
+		// セッションから情報を取得
+		// 発注入力画面で設定した情報
+		OrderSessionInfo sOrderInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
+		
+		//TODO sOrderInfoがNULLになるので動作確認用に発注管理番号を設定（本来は呼び出し元から受け渡しされる）
+		// String orderControlNumber = sOrderInfo.getOrderControlNumber(); // 
+		String orderControlNumber = "999"; 
 		
 		// 画面表示情報取得
-		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser);
-	
+		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, orderControlNumber);
+
+		/*
+		// ページング処理
+		Page<CheckOrderConfirmSubForm> pageable =checkOrderConfirmService
+				.test(PageRequest.of(currentPage - 1, pageSize), form);
+		
+		model.addAttribute("page", pageable);
+		
+		int totalPages = pageable.getTotalPages();
+		if(totalPages > 0) {
+			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+			model.addAttribute("pageNumbers", pageNumbers);
+		}
+		*/
+		
+		// 画面に設定する
 		model.addAttribute("checkOrderConfirmForm", form);
 		
 		logger.info("発注確認画面遷移処理　終了");
