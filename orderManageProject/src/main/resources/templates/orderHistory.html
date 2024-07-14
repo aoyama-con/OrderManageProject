@@ -16,8 +16,12 @@
 
 <script>
 	$(function () {
-		$('#dateFrom').datepicker();
-		$('#dateTo').datepicker();
+		$('#dateFrom').datepicker({
+        dateFormat: 'yy-mm-dd'
+    	});
+		$('#dateTo').datepicker({
+        dateFormat: 'yy-mm-dd'
+    	});
 	});
 </script>
 
@@ -146,8 +150,8 @@
 							<td th:text="${order.orderDate}"></td>
 							<td th:text="${order.supplierName}"></td>
 							<td th:text="${order.staffName}"></td>
-							<td th:text="${order.quantity}"></td>
-							<td th:text="${order.totalPrice}"></td>
+							<td align="right" th:text="${order.quantity}"></td>
+							<td align="right" th:text="${order.totalPrice}"></td>
 							<td class="text-center">
 								<div class="d-flex justify-content-around">
 <!--								<div style="display:inline-flex">-->
