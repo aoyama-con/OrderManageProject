@@ -88,13 +88,7 @@ public class MenuService extends OrderManageService {
 		if (!StringUtil.isEmpty(staffId)) {			
 			param.setStaff_id(Integer.parseInt(staffId));	// スタッフIDが取得できた場合のみ条件に設定
 		}		
-		
-		// 取得項目
-		List<String> getParam = new ArrayList<String>();
-		getParam.add("staffId");
-		getParam.add("staffName");
-		param.setFields(getParam);
-		
+
 		// スタッフ一覧を取得(API)
 		staffInfoList = smarejiApiAccess.getStaffsInfo(smarejiUser.getContract().getId(), param);
 		
