@@ -28,6 +28,7 @@ import com.orderManage.controller.object.StoreChoiceForm;
 import com.orderManage.model.ApplicationPropertyModel;
 import com.orderManage.model.api.ProductsInfo;
 import com.orderManage.model.api.PurchaseOrdersInfo;
+import com.orderManage.model.api.StaffInfo;
 import com.orderManage.model.api.StoreInfo;
 import com.orderManage.model.api.UserAccessToken;
 import com.orderManage.model.session.OrderSessionInfo;
@@ -182,13 +183,8 @@ public class OrderManageController {
     		Model model) {
 
 		logger.info("controller:メニュー画面表示処理 start");
-		
-		/** テスト用　Exception発生 ****/
-		//String str = null;
-		//str.toString();
-		/**************************/
-		
-		/** 認証関連 スマレジアクセス時にコメントをはずす*******************************************************************/
+
+		/** 認証関連 *******************************************************************/
 		// 20240506 追加 スマレジユーザが取得されている場合は認証処理を行わない(メニューに戻る対応)
 		if (Objects.isNull(smarejiUser.getSub())) {
 			logger.debug("認可コード:code:" + code);
@@ -201,9 +197,13 @@ public class OrderManageController {
 			logger.debug("契約ID：" + smarejiUser.getContract().getId());
 
 			// ユーザ情報をセッションに格納する
-			smarejiSession.setAttribute("s_smarejiUser", smarejiUser);			
+			smarejiSession.setAttribute("s_smarejiUser", smarejiUser);
 		}
-		/****************************************************************************************************/
+		/******************************************************************************/
+		
+		// 取得したスタッフ情報はセッションに格納しておく　20240715 add 
+		StaffInfo staffInfo = menuService.getStaffInfo(smarejiUser);
+		smarejiSession.setAttribute("s_StaffInfo", staffInfo);
 		
 		/* Util系テスト ******************************************************************/
 //		SmarejiUser suser = (SmarejiUser)smarejiSession.getAttribute("smarejiUser");
@@ -211,28 +211,27 @@ public class OrderManageController {
 //		List<StoreInfo> storeInfoList = utilTestService.getStoresInfo(suser);
 //		// セッションに格納
 //		smarejiSession.setAttribute("storesInfoList", storeInfoList);
-		
-		// 店舗情報取得
+//		// 店舗情報取得
 //		StoreInfo si = utilTestService.getStoreInfo(smarejiUser);
-		// 発注一覧取得
+//		// 発注一覧取得
 //		List<PurchaseOrdersInfo> poiList = utilTestService.getPurchaseOrdersInfo(smarejiUser);
-		// 発注情報取得
+//		// 発注情報取得
 //		PurchaseOrdersInfo poi = utilTestService.getPurchaseOrderInfo(smarejiUser);
-		// 発注登録
+//		// 発注登録
 //		PurchaseOrdersInfo poientry = utilTestService.entryPurchaseOrder(smarejiUser);
-		// 発注更新
+//		// 発注更新
 //		PurchaseOrdersInfo poiupdate = utilTestService.updatePurchaseOrder(smarejiUser, "18");
-		// 発注削除
+//		// 発注削除
 //		utilTestService.deletePurchaseOrder(smarejiUser, "12");
-		// 発注対象商品取得
+//		// 発注対象商品取得
 //		List<PurchaseOrdersProductsInfo> popiList = utilTestService.getPurchaseOrdersProductInfo(smarejiUser, "22");
-		// 発注対象店舗取得
+//		// 発注対象店舗取得
 //		List<PurchaseOrdersStoresInfo> posiList = utilTestService.getPurchaseOrdersStoreInfo(smarejiUser, "15");
-		// 仕入先一覧取得
+//		// 仕入先一覧取得
 //		List<SuppliersInfo> suppliesList = utilTestService.getSuppliersInfo(smarejiUser);
-		// 仕入先商品一覧取得
+//		// 仕入先商品一覧取得
 //		List<SuppliersProductsInfo> suplierProductList = utilTestService.getSuppliersProductsInfo(smarejiUser, "1");
-		// 商品一覧取得
+//		// 商品一覧取得
 //		List<ProductsInfo> productsInfoList = utilTestService.getProductsInfo(smarejiUser);
 //		// 在庫一覧取得
 //		List<StockInfo> stockInfoList = utilTestService.getStockInfo(smarejiUser);
@@ -252,8 +251,8 @@ public class OrderManageController {
 //		// 取引一覧取得
 //		List<TransactionsInfo> transactionsInfoList = utilTestService.getTransactionsInfo(smarejiUser);
 		
-		// no image画像の設定
-		model.addAttribute("image", "/img/no_image.png");
+//		// no image画像の設定
+//		model.addAttribute("image", "/img/no_image.png");
 		/* ****************************************************************************/
 
 		// ログに出力すべき情報も出力
@@ -261,7 +260,6 @@ public class OrderManageController {
 		
 		logger.info("controller:メニュー画面表示処理 end");
 
-		
         return "menu";
 	}
 
