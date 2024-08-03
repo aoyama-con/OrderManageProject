@@ -1,5 +1,7 @@
 package com.orderManage.controller.object;
 
+import java.math.BigDecimal;
+
 /**
  * 発注確定画面　一覧項目設定用SubForm
  */
@@ -22,15 +24,15 @@ public class OrderConfirmSubForm {
 	/* 部門名 */
 	private String categoryName;
 	/* 販売点数 4週 */
-	private int fourWeekNumberSales;
+	private BigDecimal fourWeekNumberSales;
 	/* 販売点数 3週 */
-	private int threeWeekNumberSales;
+	private BigDecimal threeWeekNumberSales;
 	/* 販売点数 2週 */
-	private int towWeekNumberSales;
+	private BigDecimal towWeekNumberSales;
 	/* 販売点数 前週 */
-	private int oneWeekNumberSales;
+	private BigDecimal oneWeekNumberSales;
 	/* 販売点数 当週 */
-	private int thisWeekNumberSales;
+	private BigDecimal thisWeekNumberSales;
 	/* 在庫点数 */
 	private int stockAmount;
 	/* 在庫日数 */
@@ -86,35 +88,35 @@ public class OrderConfirmSubForm {
 	public void setCategoryName(String categoryName) {
 		this.categoryName = categoryName;
 	}
-	public int getFourWeekNumberSales() {
+	public BigDecimal getFourWeekNumberSales() {
 		return fourWeekNumberSales;
 	}
-	public void setFourWeekNumberSales(int fourWeekNumberSales) {
-		this.fourWeekNumberSales = fourWeekNumberSales;
+	public void setFourWeekNumberSales(BigDecimal fourAmount) {
+		this.fourWeekNumberSales = fourAmount;
 	}
-	public int getThreeWeekNumberSales() {
+	public BigDecimal getThreeWeekNumberSales() {
 		return threeWeekNumberSales;
 	}
-	public void setThreeWeekNumberSales(int threeWeekNumberSales) {
-		this.threeWeekNumberSales = threeWeekNumberSales;
+	public void setThreeWeekNumberSales(BigDecimal threeAmount) {
+		this.threeWeekNumberSales = threeAmount;
 	}
-	public int getTowWeekNumberSales() {
+	public BigDecimal getTowWeekNumberSales() {
 		return towWeekNumberSales;
 	}
-	public void setTowWeekNumberSales(int towWeekNumberSales) {
-		this.towWeekNumberSales = towWeekNumberSales;
+	public void setTowWeekNumberSales(BigDecimal twoAmount) {
+		this.towWeekNumberSales = twoAmount;
 	}
-	public int getOneWeekNumberSales() {
+	public BigDecimal getOneWeekNumberSales() {
 		return oneWeekNumberSales;
 	}
-	public void setOneWeekNumberSales(int oneWeekNumberSales) {
-		this.oneWeekNumberSales = oneWeekNumberSales;
+	public void setOneWeekNumberSales(BigDecimal twoAmount) {
+		this.oneWeekNumberSales = twoAmount;
 	}
-	public int getThisWeekNumberSales() {
+	public BigDecimal getThisWeekNumberSales() {
 		return thisWeekNumberSales;
 	}
-	public void setThisWeekNumberSales(int thisWeekNumberSales) {
-		this.thisWeekNumberSales = thisWeekNumberSales;
+	public void setThisWeekNumberSales(BigDecimal amount) {
+		this.thisWeekNumberSales = amount;
 	}
 	public int getStockAmount() {
 		return stockAmount;
