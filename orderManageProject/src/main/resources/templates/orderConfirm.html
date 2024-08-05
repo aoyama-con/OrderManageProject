@@ -69,7 +69,8 @@
 							<thead>
 								<tr>
 									<td rowspan="2" class="table-info align-middle text-center"><img src="aaa" /></td>
-									<td class="table-info align-middle text-left" th:text="${order.productId}-${order.productCd}"></td>
+									<td class="table-info align-middle text-left" th:text="${order.productId} + '-' + ${order.productCd}"></td>
+									<!--<td class="table-info align-middle text-left" th:text="8000011-makabe_001"></td>-->
 								</tr>
 								<tr>
 									<td class="table-info align-middle text-left" th:text="${order.productName}"></td>
