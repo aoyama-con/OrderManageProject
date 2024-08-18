@@ -440,24 +440,7 @@ public class OrderManageController {
 		// 画面表示情報取得
 		OrderConfirmForm form = orderConfirmService.getDisplayInfo(smarejiUser, orderId);
 
-		// TODO 在庫数
-//		stockAmountMap = orderConfirmService.getStockAmountList(smarejiUser, "8000021");
-		
-//
-//			// 仕入れ先取得　→課題待ち
-//			subForm.setSupplierName("テスト仕入れ先");
-//
-//			// 在庫点数設定
-//			subForm.setStockAmount(Integer.parseInt(stockAmountMap.get(productsInfo.getProductId())));
-//			// TODO
-//			// 在庫日数　計算して取得する？
-//			subForm.setStockDays(999);
-//			subForm.setConditionSection("test");
-//			displayList.add(subForm);
-//		}
-//
-//		form.setDisplayList(displayList);
-//		// 画面に返す
+		// 画面に返す
 		model.addAttribute("orderConfirmForm", form);
 		
         return "orderConfirm";

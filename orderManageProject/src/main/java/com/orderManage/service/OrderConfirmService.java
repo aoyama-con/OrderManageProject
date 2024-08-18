@@ -1,14 +1,7 @@
 package com.orderManage.service;
 
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,20 +9,18 @@ import org.springframework.stereotype.Service;
 import com.orderManage.controller.object.OrderConfirmForm;
 import com.orderManage.controller.object.OrderConfirmSubForm;
 import com.orderManage.model.api.CategorieInfo;
-import com.orderManage.model.api.Details;
 import com.orderManage.model.api.OrderProducts;
 import com.orderManage.model.api.ProductImageInfo;
 import com.orderManage.model.api.ProductsInfo;
 import com.orderManage.model.api.PurchaseOrdersInfo;
 import com.orderManage.model.api.StockInfo;
 import com.orderManage.model.api.SuppliersInfo;
-import com.orderManage.model.api.TransactionsInfo;
 import com.orderManage.model.param.ParamCategorieInfo;
 import com.orderManage.model.param.ParamProductImage;
 import com.orderManage.model.param.ParamProductInfo;
 import com.orderManage.model.param.ParamPurchaseOrderInfo;
+import com.orderManage.model.param.ParamStockInfo;
 import com.orderManage.model.param.ParamSupplierInfo;
-import com.orderManage.model.param.ParamTransactionInfo;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.util.SmarejiApiAccess;
 import com.orderManage.util.SmarejiApiAccessMock;
@@ -56,8 +47,9 @@ public class OrderConfirmService extends OrderManageService {
 	@Autowired
 	SmarejiApiAccessMock smarejiApiAccessMock;
 
+	//2024/08/05 機能削減のためコメントアウト
 	/* 一週間の日数*/
-	private final int WEEK_DAYS = 7;
+//	private final int WEEK_DAYS = 7;
 	/**
 	 * 発注確定画面初期表示情報を取得
 	 * 
@@ -86,25 +78,30 @@ public class OrderConfirmService extends OrderManageService {
 		// 画像取得API
 		List<ProductImageInfo> productImageInfoList = getProductImageInfo(smarejiUser, orderId);
 
+		// 在庫一覧API
+		List<StockInfo> stockInfoList = getStockAmountList(smarejiUser);
+
+		//2024/08/05 機能削減のためコメントアウト
 		// システム日付取得
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");        
-        GregorianCalendar gc = new GregorianCalendar();
-        String sysDate = sdf.format(gc.getTime()); 
-		
-		// 今週取引一覧取得API
-		List<TransactionsInfo> transactionsInfoList = getTransactionsInfo(smarejiUser, getFromDate(1), sysDate);
-		
-		// 前週取引一覧取得API
-		List<TransactionsInfo> oneTransactionsInfoList = getTransactionsInfo(smarejiUser, getFromDate(2), getToDate(1));
-		
-		// 2週取引一覧取得API
-		List<TransactionsInfo> twoTransactionsInfoList = getTransactionsInfo(smarejiUser, getFromDate(3), getToDate(2));
-		
-		// 3週取引一覧取得API
-		List<TransactionsInfo> threeTransactionsInfoList = getTransactionsInfo(smarejiUser, getFromDate(4), getToDate(3));
-		
-		// 4週取引一覧取得API
-		List<TransactionsInfo> fourTransactionsInfoList = getTransactionsInfo(smarejiUser, getFromDate(5), getToDate(4));
+//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");        
+//        GregorianCalendar gc = new GregorianCalendar();
+//        String sysDate = sdf.format(gc.getTime()); 
+//		
+//		// 今週取引一覧取得API
+//		List<TransactionsInfo> transactionsInfoList = getTransactionsInfo(smarejiUser, getFromDate(1), sysDate);
+//		
+//		// 前週取引一覧取得API
+//		List<TransactionsInfo> oneTransactionsInfoList = getTransactionsInfo(smarejiUser, getFromDate(2), getToDate(1));
+//		
+//		// 2週取引一覧取得API
+//		List<TransactionsInfo> twoTransactionsInfoList = getTransactionsInfo(smarejiUser, getFromDate(3), getToDate(2));
+//		
+//		// 3週取引一覧取得API
+//		List<TransactionsInfo> threeTransactionsInfoList = getTransactionsInfo(smarejiUser, getFromDate(4), getToDate(3));
+//		
+//		// 4週取引一覧取得API
+//		List<TransactionsInfo> fourTransactionsInfoList = getTransactionsInfo(smarejiUser, getFromDate(5), getToDate(4));
+
 		
 		// 発注対象商品
 		for (OrderProducts product : purchaseOrdersInfo.getProducts()){
@@ -124,7 +121,7 @@ public class OrderConfirmService extends OrderManageService {
 				}
 			}
 
-			// 商品ID設定 商品情報から商品IDがとれない　商品IDは発注情報でとった商品IDを使う？
+			// TODO 商品ID設定 商品情報から商品IDがとれない　商品IDは発注情報でとった商品IDを使う？
 //			subForm.setProductId(productsInfo.getProductId());
 			// 商品ID設定
 			subForm.setProductId(product.getProductId());
@@ -138,7 +135,7 @@ public class OrderConfirmService extends OrderManageService {
 			// 仕入れ先名取得
 			for (SuppliersInfo suppliersInfo : suppliersInfoList) {
 				if (suppliersInfo.getSupplierId().equals(purchaseOrdersInfo.getRecipientOrderId())) {
-					subForm.setImgUrl(suppliersInfo.getSupplierName());
+					subForm.setSupplierName(suppliersInfo.getSupplierName());
 				}
 			}
 
@@ -148,62 +145,58 @@ public class OrderConfirmService extends OrderManageService {
 			// 部門名設定
 			subForm.setCategoryName(categorieInfo.getCategoryName());
 
-			// 販売点数(4週)
-			BigDecimal fourAmount = new BigDecimal("0");
-			
-			// 販売点数(3週)
-			BigDecimal threeAmount = new BigDecimal("0");
-			
-			// 販売点数(2週)
-			BigDecimal twoAmount = new BigDecimal("0");
-			
-			// 販売点数(前週)
-			BigDecimal oneAmount = new BigDecimal("0");
-			
-			// 販売点数(当週)
-			BigDecimal amount = new BigDecimal("0");
-			
-			// 販売点数(4週)取得
-			fourAmount.add(getAmount(fourTransactionsInfoList, product.getProductId()));
-
-			// 販売点数(4週)設定
-			subForm.setFourWeekNumberSales(fourAmount);
-			
-			// 販売点数(3週)取得
-			fourAmount.add(getAmount(threeTransactionsInfoList, product.getProductId()));
-
-			// 販売点数(3週)設定
-			subForm.setThreeWeekNumberSales(threeAmount);
-			
-			// 販売点数(2週)取得
-			fourAmount.add(getAmount(twoTransactionsInfoList, product.getProductId()));
-
-			// 販売点数(2週)設定
-			subForm.setTowWeekNumberSales(twoAmount);
-			
-			// 販売点数(前週)取得
-			fourAmount.add(getAmount(oneTransactionsInfoList, product.getProductId()));
-
-			// 販売点数(前週)設定
-			subForm.setOneWeekNumberSales(twoAmount);
-			
-			// 販売点数(当週)取得
-			fourAmount.add(getAmount(transactionsInfoList, product.getProductId()));
-
-			// 販売点数(当週)設定
-			subForm.setThisWeekNumberSales(amount);
-
-			
-			// 入荷予定数設定　　質問するの忘れてた
-			
-			
-//			// 在庫点数設定
-//			subForm.setStockAmount(Integer.parseInt(stockAmountMap.get(productsInfo.getProductId())));
-			subForm.setStockAmount(0);
-			// TODO
-			// 在庫日数　計算して取得する？
-			subForm.setStockDays(999);
-			subForm.setConditionSection("test");
+			//2024/08/05 機能削減のためコメントアウト
+//			// 販売点数(4週)
+//			BigDecimal fourAmount = new BigDecimal("0");
+//			
+//			// 販売点数(3週)
+//			BigDecimal threeAmount = new BigDecimal("0");
+//			
+//			// 販売点数(2週)
+//			BigDecimal twoAmount = new BigDecimal("0");
+//			
+//			// 販売点数(前週)
+//			BigDecimal oneAmount = new BigDecimal("0");
+//			
+//			// 販売点数(当週)
+//			BigDecimal amount = new BigDecimal("0");
+//			
+//			// 販売点数(4週)取得
+//			fourAmount.add(getAmount(fourTransactionsInfoList, product.getProductId()));
+//
+//			// 販売点数(4週)設定
+//			subForm.setFourWeekNumberSales(fourAmount);
+//			
+//			// 販売点数(3週)取得
+//			fourAmount.add(getAmount(threeTransactionsInfoList, product.getProductId()));
+//
+//			// 販売点数(3週)設定
+//			subForm.setThreeWeekNumberSales(threeAmount);
+//			
+//			// 販売点数(2週)取得
+//			fourAmount.add(getAmount(twoTransactionsInfoList, product.getProductId()));
+//
+//			// 販売点数(2週)設定
+//			subForm.setTowWeekNumberSales(twoAmount);
+//			
+//			// 販売点数(前週)取得
+//			fourAmount.add(getAmount(oneTransactionsInfoList, product.getProductId()));
+//
+//			// 販売点数(前週)設定
+//			subForm.setOneWeekNumberSales(twoAmount);
+//			
+//			// 販売点数(当週)取得
+//			fourAmount.add(getAmount(transactionsInfoList, product.getProductId()));
+//
+//			// 販売点数(当週)設定
+//			subForm.setThisWeekNumberSales(amount);
+//
+			// 在庫点数設定
+			for (StockInfo stockInfo : stockInfoList) {
+				if (stockInfo.getProductId().equals(product.getProductId())) {
+					subForm.setStockAmount(Integer.parseInt(stockInfo.getLayawayStockAmount()));
+				}
+			}
 			
 			displayList.add(subForm);
 		}
@@ -213,61 +206,62 @@ public class OrderConfirmService extends OrderManageService {
 		return orderConfirmForm;
 	}
 
-	private BigDecimal getAmount(List<TransactionsInfo> transactionsInfoList, String productId) {
-		BigDecimal traAmount = new BigDecimal("0");
-		// 販売点数
-		for (TransactionsInfo transactionsInfo : transactionsInfoList) {
-			List<Details> traDetailsList = transactionsInfo.getDetails();
-			for (Details traDetails : traDetailsList) {
-				if (traDetails.getProductId().equals(productId)) {
-					traAmount.add(new BigDecimal(transactionsInfo.getAmount())) ;
-				}
-			}
-		}
-		return traAmount;
-	}
+	//2024/08/05 機能削減のためコメントアウト
+//	private BigDecimal getAmount(List<TransactionsInfo> transactionsInfoList, String productId) {
+//		BigDecimal traAmount = new BigDecimal("0");
+//		// 販売点数
+//		for (TransactionsInfo transactionsInfo : transactionsInfoList) {
+//			List<Details> traDetailsList = transactionsInfo.getDetails();
+//			for (Details traDetails : traDetailsList) {
+//				if (traDetails.getProductId().equals(productId)) {
+//					traAmount.add(new BigDecimal(transactionsInfo.getAmount())) ;
+//				}
+//			}
+//		}
+//		return traAmount;
+//	}
 
-	/**
-	 * システム日付-n週間前 Fromを取得
-	 * 
-	 * システム日付-n週間前 Fromを計算する
-	 * 
-	 * @param int 日数
-	 * @return String システム日付 - 日数(YYYY-MM-DD)
-	 */
-	private String getToDate(int week) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");        
-        GregorianCalendar gc = new GregorianCalendar();
-        gc.add(Calendar.DAY_OF_MONTH, - (WEEK_DAYS * week));
-        String dateString = sdf.format(gc.getTime());
-//		Calendar calendar = Calendar.getInstance();
-//		calendar.add(Calendar.DAY_OF_MONTH, - (WEEK_DAYS * week));
-//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssTZD");
-//		String date = sdf.format(calendar.getTime());
-		return dateString;
-	}
+//	/**
+//	 * システム日付-n週間前 Fromを取得
+//	 * 
+//	 * システム日付-n週間前 Fromを計算する
+//	 * 
+//	 * @param int 日数
+//	 * @return String システム日付 - 日数(YYYY-MM-DD)
+//	 */
+//	private String getToDate(int week) {
+//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");        
+//        GregorianCalendar gc = new GregorianCalendar();
+//        gc.add(Calendar.DAY_OF_MONTH, - (WEEK_DAYS * week));
+//        String dateString = sdf.format(gc.getTime());
+////		Calendar calendar = Calendar.getInstance();
+////		calendar.add(Calendar.DAY_OF_MONTH, - (WEEK_DAYS * week));
+////		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssTZD");
+////		String date = sdf.format(calendar.getTime());
+//		return dateString;
+//	}
 
-	/**
-	 * システム日付-n週間前 Fromを取得
-	 * 
-	 * システム日付-n週間前 Fromを計算する
-	 * 
-	 * @param int 日数
-	 * @return String システム日付 - 日数(YYYY-MM-DD)
-	 */
-	private String getFromDate(int week) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");        
-        GregorianCalendar gc = new GregorianCalendar();
-        gc.add(Calendar.DAY_OF_MONTH, - (WEEK_DAYS * week));
-        String dateString = sdf.format(gc.getTime());       
-//        gc.setTime(sdf.parse(dateString));      
-//        XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(gc);
-//		Calendar calendar = Calendar.getInstance();
-//		calendar.add(Calendar.DAY_OF_MONTH, - (WEEK_DAYS * week));
-//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssTZD");
-//		String date = sdf.format(calendar.getTime());
-		return dateString;
-	}
+//	/**
+//	 * システム日付-n週間前 Fromを取得
+//	 * 
+//	 * システム日付-n週間前 Fromを計算する
+//	 * 
+//	 * @param int 日数
+//	 * @return String システム日付 - 日数(YYYY-MM-DD)
+//	 */
+//	private String getFromDate(int week) {
+//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");        
+//        GregorianCalendar gc = new GregorianCalendar();
+//        gc.add(Calendar.DAY_OF_MONTH, - (WEEK_DAYS * week));
+//        String dateString = sdf.format(gc.getTime());       
+////        gc.setTime(sdf.parse(dateString));      
+////        XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(gc);
+////		Calendar calendar = Calendar.getInstance();
+////		calendar.add(Calendar.DAY_OF_MONTH, - (WEEK_DAYS * week));
+////		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssTZD");
+////		String date = sdf.format(calendar.getTime());
+//		return dateString;
+//	}
 	/**
 	 * 発注情報を取得
 	 * 
@@ -394,30 +388,29 @@ public class OrderConfirmService extends OrderManageService {
 	 * @param id 発注ID
 	 * @return Map 商品ID・在庫数
 	 */
-	public List<StockInfo> getStockAmountList(SmarejiUser smarejiUser, String id) {
+	public List<StockInfo> getStockAmountList(SmarejiUser smarejiUser) {
 
 		logger.info("getStockAmountList:在庫一覧取得　処理開始");
 
 		List<StockInfo> stockInfoList= new ArrayList<StockInfo>();
 
+		ParamStockInfo paramStockInfo = new ParamStockInfo();
+		
+
+		// 在庫一取得のためのパラメータを設定
+		List<String> getParam = new ArrayList<String>();
+
+		// 取得する項目
+		getParam.add("productId");
+		getParam.add("stockAmount");
+		paramStockInfo.setFields(getParam);
+
 		// 在庫一覧を取得(API)
-//		List<StockInfo> = smarejiApiAccess.getStockInfo(smarejiUser.getContract().getId(), paramSuppliersInfo);
+		stockInfoList = smarejiApiAccess.getStocksInfo(smarejiUser.getContract().getId(), paramStockInfo);
 		/** テスト用 ローカルで動かす用mockを使用 *****************/
 		// テスト用の在庫一覧取得
 		//stockInfoList = smarejiApiAccessMock.getStockInfo("dummyid");
 		/***********************************************/
-
-		// 取得する項目
-//		getParam.add("stockAmount");
-
-		// 在庫数取得
-		Iterator<StockInfo> it = stockInfoList.iterator();
-		Map<String, String> stockAmountMap = new LinkedHashMap<String, String>();
-		while (it.hasNext()) {
-			// 商品ID、在庫数の設定
-			StockInfo stock = it.next();
-			stockAmountMap.put(stock.getProductId(), stock.getStockAmount());
-		}
 
 		logger.info("getStockAmountList:在庫一覧取得　処理終了");
 
@@ -490,42 +483,43 @@ public class OrderConfirmService extends OrderManageService {
 		return suppliersInfoList;
 	}
 
-	/**
-	 * 取引一覧取得を取得
-	 * 
-	 * 取引一覧取得APIを使用して取引一覧を取得する
-	 * 
-	 * @param smarejiUser スマレジユーザ情報
-	 * @param 発注先となる仕入先ID recipientOrderId
-	 * @return List<TransactionsInfo>
-	 */
-	private List<TransactionsInfo> getTransactionsInfo(SmarejiUser smarejiUser, String from, String to) {
-
-		logger.info("getTransactionsInfo:取引一覧取得　処理開始");
-
-		List<TransactionsInfo> transactionsInfoList = new ArrayList<TransactionsInfo>();
-		
-		ParamTransactionInfo param = new ParamTransactionInfo();
-		
-//		List<String> getParam = new ArrayList<String>();
-		
-		//query Parameters
-		param.setTransaction_date_time_from(from); 
-		param.setTransaction_date_time_to(to); 
-		param.setWith_details("summary");
-
-		// 取得項目
-//	 	param.setFields(getParam);
-	 	
-		// 取引一覧を取得(API)
-	 	transactionsInfoList = smarejiApiAccess.getTransactionsInfo(smarejiUser.getContract().getId(), param);
-		/** テスト用 ローカルで動かす用mockを使用 *****************/
-		// テスト用の商品画像一覧を取得
-		//productImageInfo = smarejiApiAccessMock.getProductImageInfo("dummyid");
-		/***********************************************/
-
-		logger.info("getTransactionsInfo:取引一覧取得　処理終了");
-
-		return transactionsInfoList;
-	}
+	//2024/08/05 機能削減のためコメントアウト
+//	/**
+//	 * 取引一覧取得を取得
+//	 * 
+//	 * 取引一覧取得APIを使用して取引一覧を取得する
+//	 * 
+//	 * @param smarejiUser スマレジユーザ情報
+//	 * @param 発注先となる仕入先ID recipientOrderId
+//	 * @return List<TransactionsInfo>
+//	 */
+//	private List<TransactionsInfo> getTransactionsInfo(SmarejiUser smarejiUser, String from, String to) {
+//
+//		logger.info("getTransactionsInfo:取引一覧取得　処理開始");
+//
+//		List<TransactionsInfo> transactionsInfoList = new ArrayList<TransactionsInfo>();
+//		
+//		ParamTransactionInfo param = new ParamTransactionInfo();
+//		
+////		List<String> getParam = new ArrayList<String>();
+//		
+//		//query Parameters
+//		param.setTransaction_date_time_from(from); 
+//		param.setTransaction_date_time_to(to); 
+//		param.setWith_details("summary");
+//
+//		// 取得項目
+////	 	param.setFields(getParam);
+//	 	
+//		// 取引一覧を取得(API)
+//	 	transactionsInfoList = smarejiApiAccess.getTransactionsInfo(smarejiUser.getContract().getId(), param);
+//		/** テスト用 ローカルで動かす用mockを使用 *****************/
+//		// テスト用の商品画像一覧を取得
+//		//productImageInfo = smarejiApiAccessMock.getProductImageInfo("dummyid");
+//		/***********************************************/
+//
+//		logger.info("getTransactionsInfo:取引一覧取得　処理終了");
+//
+//		return transactionsInfoList;
+//	}
 }

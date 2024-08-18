@@ -1,7 +1,5 @@
 package com.orderManage.controller.object;
 
-import java.math.BigDecimal;
-
 /**
  * 発注確定画面　一覧項目設定用SubForm
  */
@@ -23,20 +21,22 @@ public class OrderConfirmSubForm {
 	private String supplierName;
 	/* 部門名 */
 	private String categoryName;
-	/* 販売点数 4週 */
-	private BigDecimal fourWeekNumberSales;
-	/* 販売点数 3週 */
-	private BigDecimal threeWeekNumberSales;
-	/* 販売点数 2週 */
-	private BigDecimal towWeekNumberSales;
-	/* 販売点数 前週 */
-	private BigDecimal oneWeekNumberSales;
-	/* 販売点数 当週 */
-	private BigDecimal thisWeekNumberSales;
+	//2024/08/05 機能削減のためコメントアウト
+//	/* 販売点数 4週 */
+//	private BigDecimal fourWeekNumberSales;
+//	/* 販売点数 3週 */
+//	private BigDecimal threeWeekNumberSales;
+//	/* 販売点数 2週 */
+//	private BigDecimal towWeekNumberSales;
+//	/* 販売点数 前週 */
+//	private BigDecimal oneWeekNumberSales;
+//	/* 販売点数 当週 */
+//	private BigDecimal thisWeekNumberSales;
 	/* 在庫点数 */
 	private int stockAmount;
+	//2024/08/05 機能削減のためコメントアウト
 	/* 在庫日数 */
-	private int stockDays;
+//	private int stockDays;
 	/* 発注点数 */
 	private int orderingPoint;
 
@@ -88,48 +88,50 @@ public class OrderConfirmSubForm {
 	public void setCategoryName(String categoryName) {
 		this.categoryName = categoryName;
 	}
-	public BigDecimal getFourWeekNumberSales() {
-		return fourWeekNumberSales;
-	}
-	public void setFourWeekNumberSales(BigDecimal fourAmount) {
-		this.fourWeekNumberSales = fourAmount;
-	}
-	public BigDecimal getThreeWeekNumberSales() {
-		return threeWeekNumberSales;
-	}
-	public void setThreeWeekNumberSales(BigDecimal threeAmount) {
-		this.threeWeekNumberSales = threeAmount;
-	}
-	public BigDecimal getTowWeekNumberSales() {
-		return towWeekNumberSales;
-	}
-	public void setTowWeekNumberSales(BigDecimal twoAmount) {
-		this.towWeekNumberSales = twoAmount;
-	}
-	public BigDecimal getOneWeekNumberSales() {
-		return oneWeekNumberSales;
-	}
-	public void setOneWeekNumberSales(BigDecimal twoAmount) {
-		this.oneWeekNumberSales = twoAmount;
-	}
-	public BigDecimal getThisWeekNumberSales() {
-		return thisWeekNumberSales;
-	}
-	public void setThisWeekNumberSales(BigDecimal amount) {
-		this.thisWeekNumberSales = amount;
-	}
+	//2024/08/05 機能削減のためコメントアウト
+//	public BigDecimal getFourWeekNumberSales() {
+//		return fourWeekNumberSales;
+//	}
+//	public void setFourWeekNumberSales(BigDecimal fourAmount) {
+//		this.fourWeekNumberSales = fourAmount;
+//	}
+//	public BigDecimal getThreeWeekNumberSales() {
+//		return threeWeekNumberSales;
+//	}
+//	public void setThreeWeekNumberSales(BigDecimal threeAmount) {
+//		this.threeWeekNumberSales = threeAmount;
+//	}
+//	public BigDecimal getTowWeekNumberSales() {
+//		return towWeekNumberSales;
+//	}
+//	public void setTowWeekNumberSales(BigDecimal twoAmount) {
+//		this.towWeekNumberSales = twoAmount;
+//	}
+//	public BigDecimal getOneWeekNumberSales() {
+//		return oneWeekNumberSales;
+//	}
+//	public void setOneWeekNumberSales(BigDecimal twoAmount) {
+//		this.oneWeekNumberSales = twoAmount;
+//	}
+//	public BigDecimal getThisWeekNumberSales() {
+//		return thisWeekNumberSales;
+//	}
+//	public void setThisWeekNumberSales(BigDecimal amount) {
+//		this.thisWeekNumberSales = amount;
+//	}
 	public int getStockAmount() {
 		return stockAmount;
 	}
 	public void setStockAmount(int stockAmount) {
 		this.stockAmount = stockAmount;
 	}
-	public int getStockDays() {
-		return stockDays;
-	}
-	public void setStockDays(int stockDays) {
-		this.stockDays = stockDays;
-	}
+	//2024/08/05 機能削減のためコメントアウト
+//	public int getStockDays() {
+//		return stockDays;
+//	}
+//	public void setStockDays(int stockDays) {
+//		this.stockDays = stockDays;
+//	}
 	public int getOrderingPoint() {
 		return orderingPoint;
 	}
