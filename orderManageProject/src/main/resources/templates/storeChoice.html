@@ -68,7 +68,8 @@
 							<td class="align-middle text-center">
 								<select id="sotre_list" name="storeId" class="form-select"
 									aria-label="Default select example">
-									<option value="0" selected></option>
+<!--									<option value="0" selected></option>	-->
+									<option value="" selected></option>
 									<option th:each="storeInfo:${storeChoiceForm.storeInfos}" th:value="${storeInfo.key}"
 										th:text="${storeInfo.value}" th:selected="${storeInfo.key == storeId}">
 									</option>
@@ -99,7 +100,7 @@
 		</form>
 		</td>
 		<td>
-			<form method="post" th:action="@{/menu}" >
+			<form method="post" th:action="@{/menu}">
 				<input type="submit" class="btn btn-primary" value="メニューに戻る">
 			</form>
 		</td>
