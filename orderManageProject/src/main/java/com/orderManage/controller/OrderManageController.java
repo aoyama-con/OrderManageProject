@@ -22,6 +22,7 @@ import com.orderManage.controller.object.CheckOrderStatusSubForm;
 import com.orderManage.controller.object.OrderConfirmForm;
 import com.orderManage.controller.object.OrderHistoryForm;
 import com.orderManage.controller.object.OrderHistorySubForm;
+import com.orderManage.controller.object.OrderInputForm;
 import com.orderManage.controller.object.StoreChoiceForm;
 import com.orderManage.model.ApplicationPropertyModel;
 import com.orderManage.model.api.PurchaseOrdersInfo;
@@ -35,6 +36,7 @@ import com.orderManage.service.CheckOrderStatusService;
 import com.orderManage.service.MenuService;
 import com.orderManage.service.OrderConfirmService;
 import com.orderManage.service.OrderHistoryService;
+import com.orderManage.service.OrderInputService;
 import com.orderManage.service.OrderManageLoggingService;
 import com.orderManage.service.StoreChoiceService;
 import com.orderManage.service.UtilTestService;
@@ -98,6 +100,9 @@ public class OrderManageController {
 	CheckOrderStatusService checkOrderStatusService;
 	/* *********************************************************/
 	
+	/* 発注入力画面サービスクラス */
+	@Autowired
+	OrderInputService orderInputService;
 	/**
 	 * コンストラクタ
 	 * 
@@ -303,8 +308,8 @@ public class OrderManageController {
 		model.addAttribute("storeChoiceForm", form);
 
 		// 入力チェックエラーの場合にセッションに保持しておく
-//		smarejiSession.setAttribute("storeInfos", storesMap);
-		smarejiSession.setAttribute("storeChoiceForm", form);
+		smarejiSession.setAttribute("storeInfos", storesMap);
+//		smarejiSession.setAttribute("storeChoiceForm", form);
 
 		logger.info("店舗選択画面遷移処理　終了");
 
@@ -340,12 +345,8 @@ public class OrderManageController {
                 errorList.add(error.getDefaultMessage());
             }
             model.addAttribute("validationError", errorList);
-//            model.addAttribute("storeInfos", smarejiSession.getAttribute("storeInfos"));
-// 20240506 コメント            object.setStoreInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("storeInfos"));	// TODO objectの使い回しは微妙？
-            
-//            model.addAttribute("storeChoiceForm", object);
-            // 20240506 バリデートエラー時にプルダウン値値再設定
-            model.addAttribute("storeChoiceForm", smarejiSession.getAttribute("storeChoiceForm"));
+            object.setStoreInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("storeInfos"));	// TODO objectの使い回しは微妙？
+            model.addAttribute("storeChoiceForm", object);
             
             return "storeChoice";
         }
@@ -355,12 +356,71 @@ public class OrderManageController {
         smarejiSession.setAttribute("s_StoresInfo", storeInfo);
         
         // 発注入力　初期表示
+		OrderInputForm form = new OrderInputForm();
         
-        // 発注入力　検索
-        
-        
+		// 部門一覧情報を取得する
+		Map<String, String> categoryMap = new LinkedHashMap<String, String>();
+
+		// 部門一覧取得
+		categoryMap = orderInputService.getCategoriesInfo(smarejiUser);
+
+		// 部門一覧を発注入力画面に設定する
+		form.setCategoryInfos(categoryMap);
+
+		model.addAttribute("orderInputForm", form);
+
+		smarejiSession.setAttribute("categoryInfos", categoryMap);
         
 		logger.info("controller:発注入力画面表示処理 end");
+		
+		return "orderInput";
+	}
+
+
+	/**
+	 * 
+	 * @param object
+	 * @param bindingResult
+	 * @param referer
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("/orderInput_self")
+  public String orderInput_self(@ModelAttribute @Validated OrderInputForm object, BindingResult bindingResult, 
+		  @RequestHeader(value = "referer", required = false) final String referer, 
+		  Model model) {
+
+		logger.info("controller:発注入力画面表示処理_self start");
+
+		// バリデートチェック
+        if (bindingResult.hasErrors()) {
+        	// エラーの場合
+            List<String> errorList = new ArrayList<String>();
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                errorList.add(error.getDefaultMessage());
+            }
+            model.addAttribute("validationError", errorList);
+            object.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));	// TODO objectの使い回しは微妙？
+            model.addAttribute("orderInputForm", object);
+            return "orderInput";
+        }
+ 
+		StoreInfo storeInfo = (StoreInfo)smarejiSession.getAttribute("s_StoresInfo");
+		
+		storeInfo.setStoreId(storeInfo.getStoreId());
+		logger.info("店舗ID:" + storeInfo.getStoreId());
+		
+		OrderInputForm form = orderInputService.getDisplayInfo(smarejiUser, object, storeInfo.getStoreId());
+		form.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));
+
+		
+		form.setCategory(object.getCategory());
+		
+		model.addAttribute("orderInputForm", form);
+		
+//		smarejiSession.setAttribute("", form);
+		
+		logger.info("controller:発注入力画面表示処理_self end");
 		
 		return "orderInput";
 	}
@@ -372,9 +432,14 @@ public class OrderManageController {
 	 * @return  発注確認画面
 	 */
 	@RequestMapping("/checkOrderConfirm")
+	public String checkOrderConfirm(@ModelAttribute @Validated OrderInputForm object, BindingResult bindingResult, 
+			@RequestHeader(value = "referer", required = false) final String referer, 
+			Model model) {
+	/*
 	public String checkOrderConfirm(@RequestHeader(value = "referer", required = false) final String referer,
     		@RequestParam(required = false) String orderId,
     		Model model) {
+    */
 	/*
 	public String checkOrderConfirm(@RequestHeader(value = "referer", required = false) final String referer,
 		@RequestParam(required = false) String orderId,
@@ -386,6 +451,28 @@ public class OrderManageController {
 	    
 		logger.info("発注確認画面遷移処理　開始");
 
+		StoreInfo storeInfo = (StoreInfo)smarejiSession.getAttribute("s_StoresInfo");
+
+		Long datetime = System.currentTimeMillis();
+		String identificationNo = datetime.toString();
+		
+		// 仮発注登録
+		List<String> storageInfoIdList = orderInputService.entryPurchaseOrder(smarejiUser, object, storeInfo.getStoreId(), identificationNo);
+		
+		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
+		orderSessionInfo.setOrderControlNumber(identificationNo);
+		orderSessionInfo.setStorageInfoIdList(storageInfoIdList);
+		orderSessionInfo.setCategoryId(object.getCategory());
+		orderSessionInfo.setGroupCode(object.getGroupCode());
+		orderSessionInfo.setSupplierProductNo(object.getSupplierProductNo());
+		orderSessionInfo.setProductId(object.getProductId());
+		orderSessionInfo.setProductCode(object.getProductCode());
+		orderSessionInfo.setProductName(object.getProductName());
+		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
+		
+		
+		
+		
 		/*
 		int currentPage = page;
 		int pageSize= size;
@@ -396,8 +483,8 @@ public class OrderManageController {
 		OrderSessionInfo sOrderInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
 		
 		//TODO sOrderInfoがNULLになるので動作確認用に発注管理番号を設定（本来は呼び出し元から受け渡しされる）
-		// String orderControlNumber = sOrderInfo.getOrderControlNumber(); // 
-		String orderControlNumber = "999"; 
+		 String orderControlNumber = sOrderInfo.getOrderControlNumber(); // TODO 同一メソッド内で払い出された番号なのでセッションから取り出す必要はないが
+//		String orderControlNumber = "999"; 
 		
 		// 画面表示情報取得
 		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, orderControlNumber);
