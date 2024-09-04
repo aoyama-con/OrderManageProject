@@ -16,12 +16,28 @@
 <script th:src="@{https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/i18n/jquery.ui.datepicker-ja.min.js}"></script>
 <!-- 検索モーダル制御 -->
 <script type="text/javascript" th:src="@{/js/modal.js}"></script>
+
+<script>
+	function func(type) {
+		if (type == "0") {
+			document.form.submit();
+		} else if (type == "1") {
+			$('#form').attr('action', '/checkOrderConfirm');
+			document.form.submit();
+		}
+	}
+</script>
+
 <link th:href="@{/css/orderInput.css}" rel="stylesheet">
 <head>
 	<meta charset="UTF-8">
 	<title>発注入力</title>
 </head>
 <body>
+
+<form th:action="@{/orderInput_self}" th:method="post" th:object="${orderInputForm}" name="form" id="form">
+	<input type="hidden" name="type" value="" />
+
 	<div class="container">
 		<BR>
 		<div align="right">
@@ -30,6 +46,15 @@
 
 		<div align="center">
 			<h2>発注入力</h2>
+		</div>
+
+		<BR>
+		<div class="container">
+			<table>
+				<tr th:if="${validationError}" th:each="error : ${validationError}">
+					<td style="color:red;" th:text="${error}"></td>
+				</tr>
+			</table>
 		</div>
 
 		<p class="border-bottom" align="center">
@@ -43,50 +68,28 @@
 				<div class="accordion-content">
             		<p>
 						部門：
-            			<select name="">
-							<option value="0">全部門</option>
-							<option value="1">部門1</optio>
-							<option value="2">部門2</option>
-							<option value="3">部門3</option>
-							<option value="4">部門3</option>
+						<select id="category_list" name="category">
+							<option value="" selected></option>
+							<option th:each="categoryInfo:${orderInputForm.categoryInfos}" th:value="${categoryInfo.key}"
+								th:text="${categoryInfo.value}" th:selected="${categoryInfo.key == category}">
+							</option>
 						</select>
-						属性：
-						<select name="">
-							<option value="0"></option>
-							<option value="1">属性1</optio>
-							<option value="2">属性2</option>
-							<option value="3">属性3</option>
-							<option value="4">属性4</option>
-						</select>
-    					Gコード：<input type="text" name="">
+    					Gコード：<input type="text" name="groupCode">
     				</p>
     				<p>
-						品番：<input type="text" name="">
-    					商品ID：<input type="text" name="">
-    					商品CD：<input type="text" name="">
-    					商品名：<input type="text" name="">
+						品番：<input type="text" name="supplierProductNo">
+    					商品ID：<input type="text" name="productId">
+    					商品CD：<input type="text" name="productCode">
+    					商品名：<input type="text" name="productName">
     				</p>
-    				<p>
-						PB区分：<input type="text" name="">
-    					販売金額：
-						<select name="">
-							<option value="0"></option>
-							<option value="1"></option>
-							<option value="2"></option>
-							<option value="3"></option>
-							<option value="4"></option>
-						</select>
-						<input type="text" name="">円以上
-					</p>
 					<!-- 検索するボタン -->
 					<div align="right">
-						<button type="button" class="btn btn-primary">この条件で検索する</button>
+						<button type="button" class="btn btn-primary" onclick="func('0')">この条件で検索する</button>
 					</div> 
   				</div>
 			</details>
 			</div>
 		</div>
-	</div>
 	</div>
 	<BR>
 
@@ -111,123 +114,40 @@
 					<th scope="col" class="align-middle text-center">商品ID/商品CD/商品名</th>
 					<th scope="col" class="align-middle text-center">仕入先</th>
 					<th scope="col" class="align-middle text-center">部門名</th>
-					<th colspan="5" scope="col" class="text-center" style="padding :0;">
-						<table width="100%" class="table table-bordered" style="margin :0;">
-							<thead>
-								<tr>
-									<th colspan="5" class="table-info align-middle text-center">販売点数(合計)</th>
-								</tr>
-								<tr>
-									<th class="table-info align-middle text-center">4週</th>
-									<th class="table-info align-middle text-center">3週</th>
-									<th class="table-info align-middle text-center">2週</th>
-									<th class="table-info align-middle text-center">前週</th>
-									<th class="table-info align-middle text-center">当週</th>
-								</tr>
-							</thead>
-						</table>
-					</th>
-					<th scope="col" class="align-middle text-center">在庫点数<BR>(入荷予定数)</th>
-					<th scope="col" class="align-middle text-center">在庫日数<BR>
-						<select name="stock">
-							<option value="0">当週</option>
-							<option value="1">前週</option>
-							<option value="2">2週</option>
-							<option value="3">3週</option>
-							<option value="4">4週</option>
-						</select>
-					</th>
-					<th scope="col" class="align-middle text-center">発注点数<BR><button type="button"
-							class="btn btn-sm btn-primary">補充入力</button></th>
+					<th scope="col" class="align-middle text-center">在庫点数</th>
+					<th scope="col" class="align-middle text-center">発注点数（発注点）</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
-					<td class="align-middle text-center">2012236</td>
+				<tr th:each="order : ${orderInputForm.displayList}">
+					<td class="align-middle text-center" th:text="${order.groupCode}"></td>
 					<td class="align-middle text-left">
 						<table width="100%" style="margin :0;">
 							<thead>
 								<tr>
-									<td rowspan="2" class="table-info align-middle text-center"><img src="aaa" /></td>
-									<td class="table-info align-middle text-left">4751349617238-123456789</td>
+									<td rowspan="2" class="table-info align-middle text-center"><img th:src="${order.productImage}" width="50" height="50" /></td>
+									<td class="table-info align-middle text-left" th:text="${order.productInfo}"></td>
 								</tr>
 								<tr>
-									<td class="table-info align-middle text-left">スマレジキャップ</td>
+									<td class="table-info align-middle text-left" th:text="${order.productName}"></td><input type="hidden" name="productId_" th:value="${order.productId}" />
 								</tr>
 							</thead>
 						</table>
 					</td>
-					<td class="align-middle text-center">〇〇商事</td>
-					<td class="align-middle text-center">アパレル部門</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center"><input type="text" name=""></td>
-				</tr>
-				<tr>
-					<td class="align-middle text-center">2012236</td>
-					<td class="align-middle text-left">
-						<table width="100%" style="margin :0;">
-							<thead>
-								<tr>
-									<td rowspan="2" class="table-info align-middle text-center"><img src="aaa" /></td>
-									<td class="table-info align-middle text-left">4751349617238-123456789</td>
-								</tr>
-								<tr>
-									<td class="table-info align-middle text-left">スマレジキャップ</td>
-								</tr>
-							</thead>
-						</table>
-					</td>
-					<td class="align-middle text-center">〇〇商事</td>
-					<td class="align-middle text-center">アパレル部門</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center"><input type="text" name=""></td>
-				</tr>
-				<tr>
-					<td class="align-middle text-center">2012236</td>
-					<td class="align-middle text-left">
-						<table width="100%" style="margin :0;">
-							<thead>
-								<tr>
-									<td rowspan="2" class="table-info align-middle text-center"><img src="aaa" /></td>
-									<td class="table-info align-middle text-left">4751349617238-123456789</td>
-								</tr>
-								<tr>
-									<td class="table-info align-middle text-left">スマレジキャップ</td>
-								</tr>
-							</thead>
-						</table>
-					</td>
-					<td class="align-middle text-center">〇〇商事</td>
-					<td class="align-middle text-center">アパレル部門</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center">999</td>
-					<td class="align-middle text-center"><input type="text" name=""></td>
+					<td class="align-middle text-center" th:text="${order.supplierName}"></td><input type="hidden" name="supplierId_" th:value="${order.supplierId}" />
+					<td class="align-middle text-center" th:text="${order.categoryName}"></td>
+					<td class="align-middle text-center" th:text="${order.stockAmount}"></td>
+					<td class="align-middle text-center"><input type="text" name="orderAmount_" th:value="${order.orderAmount}">(<span th:text="${order.orderPoint}"></span>)</td>
 				</tr>
 			</tbody>
 		</table>
 		<BR>
 		<div align="right">
 			<button type="button" class="btn btn-primary">戻る</button>
-			<button type="button" class="btn btn-primary">発注に進む</button>
+			<button type="button" class="btn btn-primary" onclick="func('1')">発注に進む</button>
 		</div>
 	</div>
+</form>
 </body>
 
 </html>
