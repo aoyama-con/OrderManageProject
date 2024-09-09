@@ -50,6 +50,8 @@ public class DisplayOrderInput {
     /** 発注点 */
     private String orderPoint;
     
+	/** 仕入先名 */
+	private String supplierId;
 
     
     
@@ -63,7 +65,13 @@ public class DisplayOrderInput {
     
     
     
-    public String getProductImage() {
+    public String getSupplierId() {
+		return supplierId;
+	}
+	public void setSupplierId(String supplierId) {
+		this.supplierId = supplierId;
+	}
+	public String getProductImage() {
 		return productImage;
 	}
 	public void setProductImage(String productImage) {
