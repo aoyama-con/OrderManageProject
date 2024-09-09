@@ -74,13 +74,13 @@
 								th:text="${categoryInfo.value}" th:selected="${categoryInfo.key == category}">
 							</option>
 						</select>
-    					Gコード：<input type="text" name="groupCode">
+    					Gコード：<input type="text" name="groupCode" id="groupCode" th:value="${orderInputForm.groupCode}">
     				</p>
     				<p>
-						品番：<input type="text" name="supplierProductNo">
-    					商品ID：<input type="text" name="productId">
-    					商品CD：<input type="text" name="productCode">
-    					商品名：<input type="text" name="productName">
+						品番：<input type="text" name="supplierProductNo" id="supplierProductNo" th:value="${orderInputForm.supplierProductNo}">
+    					商品ID：<input type="text" name="productId" id="productId" th:value="${orderInputForm.productId}">
+    					商品CD：<input type="text" name="productCode" id="productCode" th:value="${orderInputForm.productCode}">
+    					商品名：<input type="text" name="productName" id="productName" th:value="${orderInputForm.productName}">
     				</p>
 					<!-- 検索するボタン -->
 					<div align="right">
