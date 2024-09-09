@@ -447,6 +447,9 @@ public class OrderManageController {
 			displayOrderInput.setStockAmount(displayList.get(i).getStockAmount());
 			displayOrderInput.setOrderAmount(displayList.get(i).getOrderAmount());
 			displayOrderInput.setOrderPoint(displayList.get(i).getOrderPoint());
+			
+			displayOrderInput.setSupplierId(displayList.get(i).getSupplierId());
+			
 			displayOrderInputList.add(displayOrderInput);
 		}
 
@@ -485,6 +488,7 @@ public class OrderManageController {
 		
 		List<DisplayOrderInput> displayOrderInputList = orderSessionInfo.getDisplayOrderInput();
 		List<OrderInputSubForm> displayList = new ArrayList<OrderInputSubForm>();
+		String[] orderAmount = (String[]) smarejiSession.getAttribute("orderAmount_");
 		for (int i = 0; i < displayOrderInputList.size(); i++) {
 			OrderInputSubForm display = new OrderInputSubForm();
 			display.setGroupCode(displayOrderInputList.get(i).getGroupCode());
@@ -498,6 +502,9 @@ public class OrderManageController {
 			display.setStockAmount(displayOrderInputList.get(i).getStockAmount());
 			display.setOrderAmount(displayOrderInputList.get(i).getOrderAmount());
 			display.setOrderPoint(displayOrderInputList.get(i).getOrderPoint());
+			
+			display.setOrderAmount(orderAmount[i]);
+			
 			displayList.add(display);
 		}
 		
@@ -557,7 +564,7 @@ public class OrderManageController {
 //		orderSessionInfo.setProductName(object.getProductName());
 		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
 		
-		
+		smarejiSession.setAttribute("orderAmount_", object.getOrderAmount_());
 		
 		
 		/*
