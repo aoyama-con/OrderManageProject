@@ -23,12 +23,14 @@ import com.orderManage.controller.object.OrderConfirmForm;
 import com.orderManage.controller.object.OrderHistoryForm;
 import com.orderManage.controller.object.OrderHistorySubForm;
 import com.orderManage.controller.object.OrderInputForm;
+import com.orderManage.controller.object.OrderInputSubForm;
 import com.orderManage.controller.object.StoreChoiceForm;
 import com.orderManage.model.ApplicationPropertyModel;
 import com.orderManage.model.api.PurchaseOrdersInfo;
 import com.orderManage.model.api.StaffInfo;
 import com.orderManage.model.api.StoreInfo;
 import com.orderManage.model.api.UserAccessToken;
+import com.orderManage.model.service.DisplayOrderInput;
 import com.orderManage.model.session.OrderSessionInfo;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.service.CheckOrderConfirmService;
@@ -413,31 +415,97 @@ public class OrderManageController {
 		OrderInputForm form = orderInputService.getDisplayInfo(smarejiUser, object, storeInfo.getStoreId());
 		form.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));
 
-		
-		form.setCategory(object.getCategory());
+		form.setCategoryId(object.getCategoryId());
+		form.setGroupCode(object.getGroupCode());
+		form.setSupplierProductNo(object.getSupplierProductNo());
+		form.setProductId(object.getProductId());
+		form.setProductCode(object.getProductCode());
+		form.setProductName(object.getProductName());
 		
 		model.addAttribute("orderInputForm", form);
 		
-//		smarejiSession.setAttribute("", form);
+		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
+		orderSessionInfo.setCategoryId(object.getCategoryId());
+		orderSessionInfo.setGroupCode(object.getGroupCode());
+		orderSessionInfo.setSupplierProductNo(object.getSupplierProductNo());
+		orderSessionInfo.setProductId(object.getProductId());
+		orderSessionInfo.setProductCode(object.getProductCode());
+		orderSessionInfo.setProductName(object.getProductName());
+
+		List<OrderInputSubForm> displayList = form.getDisplayList();
+		List<DisplayOrderInput> displayOrderInputList = new ArrayList<DisplayOrderInput>();  
+		for (int i = 0; i < displayList.size(); i++) {
+			DisplayOrderInput displayOrderInput = new DisplayOrderInput();
+			displayOrderInput.setGroupCode(displayList.get(i).getGroupCode());
+			displayOrderInput.setProductImage(displayList.get(i).getProductImage());
+			displayOrderInput.setProductInfo(displayList.get(i).getProductInfo());
+			displayOrderInput.setProductId(displayList.get(i).getProductId());
+			displayOrderInput.setProductCode(displayList.get(i).getProductCode());
+			displayOrderInput.setProductName(displayList.get(i).getProductName());
+			displayOrderInput.setSupplierName(displayList.get(i).getSupplierName());
+			displayOrderInput.setCategoryName(displayList.get(i).getCategoryName());
+			displayOrderInput.setStockAmount(displayList.get(i).getStockAmount());
+			displayOrderInput.setOrderAmount(displayList.get(i).getOrderAmount());
+			displayOrderInput.setOrderPoint(displayList.get(i).getOrderPoint());
+			displayOrderInputList.add(displayOrderInput);
+		}
+
+		orderSessionInfo.setDisplayOrderInput(displayOrderInputList);
+		
+		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
 		
 		logger.info("controller:発注入力画面表示処理_self end");
 		
 		return "orderInput";
 	}
 
+	/**
+	 * 
+	 * @param referer
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/orderInput_back")
     public String orderInput_back(@RequestHeader(value = "referer", required = false) final String referer,
     		Model model) {
 		
-		logger.info("店舗選択画面遷移処理　開始");
+		logger.info("controller:発注入力画面表示処理_back start");
 
 		OrderInputForm form = new OrderInputForm();
         
 		form.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));
 
+		OrderSessionInfo orderSessionInfo = (OrderSessionInfo) smarejiSession.getAttribute("s_OrderInfo");
+		form.setCategoryId(orderSessionInfo.getCategoryId());
+		form.setGroupCode(orderSessionInfo.getGroupCode());
+		form.setSupplierProductNo(orderSessionInfo.getSupplierProductNo());
+		form.setProductId(orderSessionInfo.getProductId());
+		form.setProductCode(orderSessionInfo.getProductCode());
+		form.setProductName(orderSessionInfo.getProductName());
+		
+		List<DisplayOrderInput> displayOrderInputList = orderSessionInfo.getDisplayOrderInput();
+		List<OrderInputSubForm> displayList = new ArrayList<OrderInputSubForm>();
+		for (int i = 0; i < displayOrderInputList.size(); i++) {
+			OrderInputSubForm display = new OrderInputSubForm();
+			display.setGroupCode(displayOrderInputList.get(i).getGroupCode());
+			display.setProductImage(displayOrderInputList.get(i).getProductImage());
+			display.setProductInfo(displayOrderInputList.get(i).getProductInfo());
+			display.setProductId(displayOrderInputList.get(i).getProductId());
+			display.setProductCode(displayOrderInputList.get(i).getProductCode());
+			display.setProductName(displayOrderInputList.get(i).getProductName());
+			display.setSupplierName(displayOrderInputList.get(i).getSupplierName());
+			display.setCategoryName(displayOrderInputList.get(i).getCategoryName());
+			display.setStockAmount(displayOrderInputList.get(i).getStockAmount());
+			display.setOrderAmount(displayOrderInputList.get(i).getOrderAmount());
+			display.setOrderPoint(displayOrderInputList.get(i).getOrderPoint());
+			displayList.add(display);
+		}
+		
+		form.setDisplayList(displayList);
+		
 		model.addAttribute("orderInputForm", form);
 		
-		logger.info("店舗選択画面遷移処理　終了");
+		logger.info("controller:発注入力画面表示処理_back end");
 
 		return "orderInput";
 	}
@@ -476,15 +544,17 @@ public class OrderManageController {
 		// 仮発注登録
 		List<String> storageInfoIdList = orderInputService.entryPurchaseOrder(smarejiUser, object, storeInfo.getStoreId(), identificationNo);
 		
-		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
+//		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
+		OrderSessionInfo orderSessionInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
 		orderSessionInfo.setOrderControlNumber(identificationNo);
 		orderSessionInfo.setStorageInfoIdList(storageInfoIdList);
-		orderSessionInfo.setCategoryId(object.getCategory());
-		orderSessionInfo.setGroupCode(object.getGroupCode());
-		orderSessionInfo.setSupplierProductNo(object.getSupplierProductNo());
-		orderSessionInfo.setProductId(object.getProductId());
-		orderSessionInfo.setProductCode(object.getProductCode());
-		orderSessionInfo.setProductName(object.getProductName());
+		// ここで検索条件をつめると検索後に入力された値が保持されてしまう
+//		orderSessionInfo.setCategoryId(object.getCategoryId());
+//		orderSessionInfo.setGroupCode(object.getGroupCode());
+//		orderSessionInfo.setSupplierProductNo(object.getSupplierProductNo());
+//		orderSessionInfo.setProductId(object.getProductId());
+//		orderSessionInfo.setProductCode(object.getProductCode());
+//		orderSessionInfo.setProductName(object.getProductName());
 		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
 		
 		
