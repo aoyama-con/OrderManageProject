@@ -425,6 +425,23 @@ public class OrderManageController {
 		return "orderInput";
 	}
 
+	@RequestMapping("/orderInput_back")
+    public String orderInput_back(@RequestHeader(value = "referer", required = false) final String referer,
+    		Model model) {
+		
+		logger.info("店舗選択画面遷移処理　開始");
+
+		OrderInputForm form = new OrderInputForm();
+        
+		form.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));
+
+		model.addAttribute("orderInputForm", form);
+		
+		logger.info("店舗選択画面遷移処理　終了");
+
+		return "orderInput";
+	}
+
 	/**
 	 * 発注確認画面遷移時に制御するコントローラー
 	 * 
