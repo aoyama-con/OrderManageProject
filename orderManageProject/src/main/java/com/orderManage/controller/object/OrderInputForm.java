@@ -15,7 +15,7 @@ public class OrderInputForm implements Serializable {
     Map<String, String> categoryInfos;
     
     /** 検索条件・部門 */
-    private String category;
+    private String categoryId;
 
     /** 検索条件・Gコード（グループコード） */
     private String groupCode;
@@ -53,7 +53,7 @@ public class OrderInputForm implements Serializable {
     public boolean isValidSearchConditionEmpty() {
     	boolean result = true;
 
-    	if (StringUtil.isEmpty(category)
+    	if (StringUtil.isEmpty(categoryId)
     			&& StringUtil.isEmpty(groupCode)
     			&& StringUtil.isEmpty(supplierProductNo)
     			&& StringUtil.isEmpty(productId)
@@ -74,12 +74,12 @@ public class OrderInputForm implements Serializable {
 		this.categoryInfos = categoryInfos;
 	}
 
-	public String getCategory() {
-		return category;
+	public String getCategoryId() {
+		return categoryId;
 	}
 
-	public void setCategory(String category) {
-		this.category = category;
+	public void setCategoryId(String categoryId) {
+		this.categoryId = categoryId;
 	}
 
 	public String getGroupCode() {
