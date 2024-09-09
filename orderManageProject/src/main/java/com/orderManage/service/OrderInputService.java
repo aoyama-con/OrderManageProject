@@ -385,7 +385,7 @@ public class OrderInputService extends OrderManageService {
 		// (3)商品一覧取得
 		logger.info("(3)商品一覧取得");
 
-		Map<String, ProductsInfo> productsInfoMap= getProductsInfoMap(smarejiUser, object.getCategory(), object.getProductCode(), object.getGroupCode(), object.getSupplierProductNo());
+		Map<String, ProductsInfo> productsInfoMap= getProductsInfoMap(smarejiUser, object.getCategoryId(), object.getProductCode(), object.getGroupCode(), object.getSupplierProductNo());
 
 		logger.info("商品一覧取得件数：" + productsInfoMap.size());
 		
@@ -408,7 +408,7 @@ public class OrderInputService extends OrderManageService {
 
 			logger.info("仕入先ID：" + supplier.getSupplierId());
 			logger.info("仕入先名：" + supplier.getSupplierName());
-			logger.info("部門ID：" + object.getCategory());
+			logger.info("部門ID：" + object.getCategoryId());
 			logger.info("商品ID：" + object.getProductId());
 			
 			// API
