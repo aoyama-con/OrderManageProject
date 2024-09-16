@@ -78,6 +78,9 @@ public class CheckOrderStatusService extends OrderManageService {
 			//商品詳細情報取得パラメータを設定
 			ParamProductInfo param = new ParamProductInfo();
 			
+			//一覧取得系APIの取得件数上限を100以上に拡張する
+			param.setLimit(1000);
+			
 			//必要パラメーター String contractId, ParamProductInfo paramProductInfo
 			List<String> getParam = new ArrayList<String>();
 			getParam.add("productCode");
@@ -113,7 +116,7 @@ public class CheckOrderStatusService extends OrderManageService {
 	public List<CategorieInfo> getCategoriesLnfo(SmarejiUser smarejiUser, List<String> CategoryId1) {
 		
 		/**
-		 * 発注状況画面 下部（商品一覧）の表示情報を取得する。
+		 * 発注状況画面 下部（部門一覧）の表示情報を取得する。
 		 * 
 		 * API:CategorieInfoを使用
 		 * 
@@ -130,6 +133,9 @@ public class CheckOrderStatusService extends OrderManageService {
 			
 			//部門情報一覧取得パラメータを設定
 			ParamCategorieInfo param = new ParamCategorieInfo();
+			
+			//一覧取得系APIの取得件数上限を100以上に拡張する
+			param.setLimit(1000);
 		
 			//必要パラメーター String contractId, ParamCategorieInfo paramCategorieInfo
 			//orderIdは発注履歴から引継ぎ
@@ -175,6 +181,7 @@ public class CheckOrderStatusService extends OrderManageService {
 			//APIからの取得値を格納するmodelを準備しておく
 			List<ProductImageInfo> productImageInfoList = new ArrayList<ProductImageInfo>();
 
+			//商品画像は登録が任意のため、未登録を考慮して予め件数分の入れ物を用意しておく
 			List<ProductImageInfo> productImageInfoListTrue = new ArrayList<ProductImageInfo>();
 		    for (int i=0; i<ProductId1.size(); i++) {
 		    	ProductImageInfo PID = new ProductImageInfo();
@@ -185,6 +192,9 @@ public class CheckOrderStatusService extends OrderManageService {
 			
 			//商品画像情報一覧取得パラメータを設定
 			ParamProductImage param = new ParamProductImage();
+			
+			//一覧取得系APIの取得件数上限を100以上に拡張する
+			param.setLimit(1000);
 		
 			//必要パラメーター String contractId, ParamProductImage paramProductImage
 			//orderIdは発注履歴から引継ぎ
@@ -211,10 +221,7 @@ public class CheckOrderStatusService extends OrderManageService {
 						  productImageInfoListTrue.get(u).setUrl("http://localhost:8080/img/no_image.png");
 					  }
 				  }
-				  
-				  
-		    logger.info("getProductsImageInfo:商品画像情報一覧取得 処理終了");
-		    
+				  				  		    
 		    logger.info("getProductsImageInfo:商品画像情報一覧取得 処理終了");
 				
 			return productImageInfoListTrue;

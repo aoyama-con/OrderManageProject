@@ -134,17 +134,17 @@ public class UtilTestService extends OrderManageService {
 		
 		// 発注登録内容設定
 		ParamEntryPurchaseOrder paramEntryPurchaseOrder = new ParamEntryPurchaseOrder();
-		// 発注先ID
-		paramEntryPurchaseOrder.setRecipientOrderId("2");
+		// 発注先ID (仕入先ID)
+		paramEntryPurchaseOrder.setRecipientOrderId("1");
 		// 発注日
-		paramEntryPurchaseOrder.setOrderedDate("2023-12-16");
+		paramEntryPurchaseOrder.setOrderedDate("2024-08-30");
 		// メモ
 		paramEntryPurchaseOrder.setMemo("共通ライブラリテストメモ");
 		// 識別番号 現在時刻（UNIXTIME）を使用
 		Long datetime = System.currentTimeMillis();
 		paramEntryPurchaseOrder.setIdentificationNo(datetime.toString());
 		// 税丸め（0:四捨五入、1:切り捨て、2:切り上げ）
-		paramEntryPurchaseOrder.setRoundingDivision("0");
+		paramEntryPurchaseOrder.setRoundingDivision("1");
 		// ステータス
 		paramEntryPurchaseOrder.setStatus("5");
 		// 発注処理時のスタッフID
@@ -156,7 +156,7 @@ public class UtilTestService extends OrderManageService {
 		
 		// テスト商品12 設定
 		ParamEntryPurchaseOrderProduct op = new ParamEntryPurchaseOrderProduct();
-		op.setProductId("8000010");
+		op.setProductId("8000002");
 		// コスト　NULL不可
 //		op.setCost("400");
 		ParamEntryPurchaseOrderDeliveryStore ds = new ParamEntryPurchaseOrderDeliveryStore();
@@ -177,7 +177,7 @@ public class UtilTestService extends OrderManageService {
 		ds = new ParamEntryPurchaseOrderDeliveryStore();
 		ds.setStoreId("3");
 		// 発注数量
-		ds.setQuantity("0");
+		ds.setQuantity("10");
 //		ds.setQuantity("100");
 		dsList.add(ds);
 		op.setDeliveryStore(dsList);

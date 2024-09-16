@@ -31,7 +31,7 @@
 		<BR>
 		　<div align="right">
 			<form role="form" id="logout" th:action="@{/logout}" method="post">
-				<button type="submit" class="btn btn-primary">ログアウト</button>
+				<button type="submit" class="btn btn-primary" style="width:100px">ログアウト</button>
 			</form>
 		　</div>
 		<div align="center">
@@ -44,15 +44,15 @@
 		<table class="table table-bordered">
 			<tbody>
 				<tr>
-					<td class="align-middle text-left">発注日</td>
+					<td class="align-middle text-left" style="background-color: #cff4fc">発注日</td>
 					<td class="align-middle text-left">[[${orderedDate}]]</td>
 				</tr>
 				<tr>
-					<td class="align-middle text-left">発注者</td>
+					<td class="align-middle text-left" style="background-color: #cff4fc">発注者</td>
 					<td class="align-middle text-left">[[${hatyusha}]]</td>
 				</tr>
 				<tr>
-					<td class="align-middle text-left">仕入先</td>
+					<td class="align-middle text-left" style="background-color: #cff4fc" >仕入先</td>
 					<td class="align-middle text-left">[[${supplierName}]]</td>
 				</tr>
 			</tbody>
@@ -86,13 +86,13 @@
 				    <tbody>
         </tdcolspan="2">
 						<tr th:inline="text" th:each="m1:${meisai}" >
-							<td style=vertical-align:middle>[[${m1.GroupCode}]]</td>
-							<td style=vertical-align:middle>
+							<td align="center" style="vertical-align:middle">[[${m1.GroupCode}]]</td>
+							<td align="left" width="61px" style="vertical-align:middle; border-right:none; padding-left:2px">
 								<img th:src="${m1.url}" width="50" height="50">
 							</td>
-							<td style=vertical-align:middle>[[${m1.ProductId}]]-[[${m1.ProductCode}]]<br>[[${m1.ProductName}]]</td>
-							<td style=vertical-align:middle>[[${m1.CategoryName}]]</td>
-							<td style=vertical-align:middle>[[${m1.Quantity}]]</td>
+							<td style="vertical-align:middle; border-left:none; padding-left:0px">[[${m1.ProductId}]]-[[${m1.ProductCode}]]<br>[[${m1.ProductName}]]</td>
+							<td align="center" style="vertical-align:middle">[[${m1.CategoryName}]]</td>
+							<td align="right" style="vertical-align:middle">[[${m1.Quantity}]]</td>
 						<tr> 
 				    </tbody>
 			</table>
@@ -113,7 +113,7 @@
 		　<td>
 			<div align="right">
 			　<form method="post" th:action="@{/orderHistory}">
-				　<input type="submit" class="btn btn-primary" value="発注履歴に戻る">
+				　<input type="submit" class="btn btn-primary" style="width:100px" value="戻る">
 			　</form>
 			</div>
 		　</td>

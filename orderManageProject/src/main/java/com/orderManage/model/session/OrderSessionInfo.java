@@ -43,5 +43,90 @@ public class OrderSessionInfo {
 	private String totalPrice;
 	/* ***********************************************/
 	
+	public Pagination getPagenation() {
+		return pagenation;
+	}
+	public void setPagenation(Pagination pagenation) {
+		this.pagenation = pagenation;
+	}
+	public String getOrderControlNumber() {
+		return OrderControlNumber;
+	}
+	public void setOrderControlNumber(String orderControlNumber) {
+		OrderControlNumber = orderControlNumber;
+	}
+	public List<String> getStorageInfoIdList() {
+		return storageInfoIdList;
+	}
+	public void setStorageInfoIdList(List<String> storageInfoIdList) {
+		this.storageInfoIdList = storageInfoIdList;
+	}
+	public List<DisplayOrderInput> getDisplayOrderInput() {
+		return displayOrderInput;
+	}
+	public void setDisplayOrderInput(List<DisplayOrderInput> displayOrderInput) {
+		this.displayOrderInput = displayOrderInput;
+	}
+	public String getCategoryId() {
+		return categoryId;
+	}
+	public void setCategoryId(String categoryId) {
+		this.categoryId = categoryId;
+	}
+	public String getAttribute() {
+		return attribute;
+	}
+	public void setAttribute(String attribute) {
+		this.attribute = attribute;
+	}
+	public String getGroupCode() {
+		return groupCode;
+	}
+	public void setGroupCode(String groupCode) {
+		this.groupCode = groupCode;
+	}
+	public String getSupplierProductNo() {
+		return supplierProductNo;
+	}
+	public void setSupplierProductNo(String supplierProductNo) {
+		this.supplierProductNo = supplierProductNo;
+	}
+	public String getProductId() {
+		return productId;
+	}
+	public void setProductId(String productId) {
+		this.productId = productId;
+	}
+	public String getProductCode() {
+		return productCode;
+	}
+	public void setProductCode(String productCode) {
+		this.productCode = productCode;
+	}
+	public String getProductName() {
+		return productName;
+	}
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+	public String getPbDivision() {
+		return pbDivision;
+	}
+	public void setPbDivision(String pbDivision) {
+		this.pbDivision = pbDivision;
+	}
+	public String getTotalPriceWeek() {
+		return totalPriceWeek;
+	}
+	public void setTotalPriceWeek(String totalPriceWeek) {
+		this.totalPriceWeek = totalPriceWeek;
+	}
+	public String getTotalPrice() {
+		return totalPrice;
+	}
+	public void setTotalPrice(String totalPrice) {
+		this.totalPrice = totalPrice;
+	}
+	
 	
 }

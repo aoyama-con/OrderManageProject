@@ -96,7 +96,7 @@ public class OrderHistoryService {
 		paramPurchaseOrderInfo.setFields(getParam);
 
 		// ソート順
-		paramPurchaseOrderInfo.setSort("status:desc,orderedDate");
+		paramPurchaseOrderInfo.setSort("status:desc,orderedDate,storageInfoId");
 
 		// 取得上限数
 		paramPurchaseOrderInfo.setLimit(form.getMaxDisplayAmount());
@@ -229,8 +229,8 @@ public class OrderHistoryService {
 		//発注日FROM
 		if (Objects.nonNull(strDateFrom) && !strDateFrom.isEmpty()) {
 			try {
-				// 日付がyyyy/MM-/ddの形である想定で、Date型に変換
-				dateFrom = new SimpleDateFormat("yyyy/MM/dd").parse(strDateFrom);
+				// 日付がyyyy-MM-ddの形である想定で、Date型に変換
+				dateFrom = new SimpleDateFormat("yyyy-MM-dd").parse(strDateFrom);
 				dateFromFlg = true;
 			} catch (ParseException e){
 				logger.error(strDateFrom + ":発注日（FROM)：日付型への変換でエラーが発生しました");
@@ -239,8 +239,8 @@ public class OrderHistoryService {
 		//発注日TO
 		if (Objects.nonNull(strDateTo) && !strDateTo.isEmpty()) {
 			try {
-				// 日付がyyyy/MM/ddの形である想定で、Date型に変換
-				dateTo = new SimpleDateFormat("yyyy/MM/dd").parse(strDateTo);
+				// 日付がyyyy-MM-ddの形である想定で、Date型に変換
+				dateTo = new SimpleDateFormat("yyyy-MM-dd").parse(strDateTo);
 				dateToFlg = true;
 			} catch (ParseException e){
 				logger.error(strDateTo + ":発注日（TO)：日付型への変換でエラーが発生しました");
@@ -432,7 +432,7 @@ public class OrderHistoryService {
 			
 			// 計算結果を設定
 			orderList.get(i).setQuantity(totalQuantity.toString());
-			orderList.get(i).setTotalPrice(totalCost.toString());
+			orderList.get(i).setTotalPrice("\\".concat(totalCost.toString()));
 		}
 		form.setDisplayList(orderList);
 		
@@ -508,12 +508,16 @@ public class OrderHistoryService {
 		logger.info("calcQuantity:発注点数計算　処理開始");
 
 		BigDecimal totalQuantity = new BigDecimal("0");
+//		
+//		for (PurchaseOrdersProductsInfo orderPuroduct : orderProductList) {
+//			BigDecimal quantity = new BigDecimal(orderPuroduct.getQuantity());
+//			// 加算
+//			totalQuantity = totalQuantity.add(quantity);
+//		}
 		
-		for (PurchaseOrdersProductsInfo orderPuroduct : orderProductList) {
-			BigDecimal quantity = new BigDecimal(orderPuroduct.getQuantity());
-			// 加算
-			totalQuantity = totalQuantity.add(quantity);
-		}
+		totalQuantity = BigDecimal.valueOf(orderProductList.parallelStream()
+	            .mapToInt(e -> Integer.parseInt(e.getQuantity())).sum());
+		
 		
 		logger.info("calcQuantity:発注点数計算　処理終了");
 		
@@ -542,7 +546,6 @@ public class OrderHistoryService {
 			// 合計金額に加算
 			total = total.add(subTotal);
 		}
-		
 		// 端数処理（小数点第二位で四捨五入）
 		BigDecimal result = total.setScale(1, RoundingMode.HALF_UP);
 		
@@ -565,7 +568,7 @@ public class OrderHistoryService {
 		logger.info("deleteOrder:発注削除　処理開始");
 		
 		try {
-		//SmarejiApiAccess.deletePurchaseOrder(smarejiUser.getContract().getId(),orderId);
+		smarejiApiAccess.deletePurchaseOrder(smarejiUser.getContract().getId(),orderId);
 		}catch (Exception e){
 			logger.error("発注削除処理でエラーが発生しました。");
 		}

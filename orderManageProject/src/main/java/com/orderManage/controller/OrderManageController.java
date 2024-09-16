@@ -1,7 +1,6 @@
 package com.orderManage.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,21 +20,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.orderManage.controller.object.CheckOrderConfirmForm;
 import com.orderManage.controller.object.CheckOrderStatusSubForm;
 import com.orderManage.controller.object.OrderConfirmForm;
-import com.orderManage.controller.object.OrderConfirmSubForm;
 import com.orderManage.controller.object.OrderHistoryForm;
 import com.orderManage.controller.object.OrderHistorySubForm;
+import com.orderManage.controller.object.OrderInputForm;
+import com.orderManage.controller.object.OrderInputSubForm;
 import com.orderManage.controller.object.StoreChoiceForm;
 import com.orderManage.model.ApplicationPropertyModel;
-import com.orderManage.model.api.ProductsInfo;
 import com.orderManage.model.api.PurchaseOrdersInfo;
+import com.orderManage.model.api.StaffInfo;
 import com.orderManage.model.api.StoreInfo;
 import com.orderManage.model.api.UserAccessToken;
+import com.orderManage.model.service.DisplayOrderInput;
+import com.orderManage.model.session.OrderSessionInfo;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.service.CheckOrderConfirmService;
 import com.orderManage.service.CheckOrderStatusService;
 import com.orderManage.service.MenuService;
 import com.orderManage.service.OrderConfirmService;
 import com.orderManage.service.OrderHistoryService;
+import com.orderManage.service.OrderInputService;
 import com.orderManage.service.OrderManageLoggingService;
 import com.orderManage.service.StoreChoiceService;
 import com.orderManage.service.UtilTestService;
@@ -99,6 +102,9 @@ public class OrderManageController {
 	CheckOrderStatusService checkOrderStatusService;
 	/* *********************************************************/
 	
+	/* 発注入力画面サービスクラス */
+	@Autowired
+	OrderInputService orderInputService;
 	/**
 	 * コンストラクタ
 	 * 
@@ -181,13 +187,8 @@ public class OrderManageController {
     		Model model) {
 
 		logger.info("controller:メニュー画面表示処理 start");
-		
-		/** テスト用　Exception発生 ****/
-		//String str = null;
-		//str.toString();
-		/**************************/
-		
-		/** 認証関連 スマレジアクセス時にコメントをはずす*******************************************************************/
+
+		/** 認証関連 *******************************************************************/
 		// 20240506 追加 スマレジユーザが取得されている場合は認証処理を行わない(メニューに戻る対応)
 		if (Objects.isNull(smarejiUser.getSub())) {
 			logger.debug("認可コード:code:" + code);
@@ -200,9 +201,13 @@ public class OrderManageController {
 			logger.debug("契約ID：" + smarejiUser.getContract().getId());
 
 			// ユーザ情報をセッションに格納する
-			smarejiSession.setAttribute("s_smarejiUser", smarejiUser);			
+			smarejiSession.setAttribute("s_smarejiUser", smarejiUser);
 		}
-		/****************************************************************************************************/
+		/******************************************************************************/
+		
+		// 取得したスタッフ情報はセッションに格納しておく　20240715 add 
+		StaffInfo staffInfo = menuService.getStaffInfo(smarejiUser);
+		smarejiSession.setAttribute("s_StaffInfo", staffInfo);
 		
 		/* Util系テスト ******************************************************************/
 //		SmarejiUser suser = (SmarejiUser)smarejiSession.getAttribute("smarejiUser");
@@ -210,28 +215,27 @@ public class OrderManageController {
 //		List<StoreInfo> storeInfoList = utilTestService.getStoresInfo(suser);
 //		// セッションに格納
 //		smarejiSession.setAttribute("storesInfoList", storeInfoList);
-		
-		// 店舗情報取得
+//		// 店舗情報取得
 //		StoreInfo si = utilTestService.getStoreInfo(smarejiUser);
-		// 発注一覧取得
+//		// 発注一覧取得
 //		List<PurchaseOrdersInfo> poiList = utilTestService.getPurchaseOrdersInfo(smarejiUser);
-		// 発注情報取得
+//		// 発注情報取得
 //		PurchaseOrdersInfo poi = utilTestService.getPurchaseOrderInfo(smarejiUser);
-		// 発注登録
+//		// 発注登録
 //		PurchaseOrdersInfo poientry = utilTestService.entryPurchaseOrder(smarejiUser);
-		// 発注更新
+//		// 発注更新
 //		PurchaseOrdersInfo poiupdate = utilTestService.updatePurchaseOrder(smarejiUser, "18");
-		// 発注削除
+//		// 発注削除
 //		utilTestService.deletePurchaseOrder(smarejiUser, "12");
-		// 発注対象商品取得
+//		// 発注対象商品取得
 //		List<PurchaseOrdersProductsInfo> popiList = utilTestService.getPurchaseOrdersProductInfo(smarejiUser, "22");
-		// 発注対象店舗取得
+//		// 発注対象店舗取得
 //		List<PurchaseOrdersStoresInfo> posiList = utilTestService.getPurchaseOrdersStoreInfo(smarejiUser, "15");
-		// 仕入先一覧取得
+//		// 仕入先一覧取得
 //		List<SuppliersInfo> suppliesList = utilTestService.getSuppliersInfo(smarejiUser);
-		// 仕入先商品一覧取得
+//		// 仕入先商品一覧取得
 //		List<SuppliersProductsInfo> suplierProductList = utilTestService.getSuppliersProductsInfo(smarejiUser, "1");
-		// 商品一覧取得
+//		// 商品一覧取得
 //		List<ProductsInfo> productsInfoList = utilTestService.getProductsInfo(smarejiUser);
 //		// 在庫一覧取得
 //		List<StockInfo> stockInfoList = utilTestService.getStockInfo(smarejiUser);
@@ -251,8 +255,8 @@ public class OrderManageController {
 //		// 取引一覧取得
 //		List<TransactionsInfo> transactionsInfoList = utilTestService.getTransactionsInfo(smarejiUser);
 		
-		// no image画像の設定
-		model.addAttribute("image", "/img/no_image.png");
+//		// no image画像の設定
+//		model.addAttribute("image", "/img/no_image.png");
 		/* ****************************************************************************/
 
 		// ログに出力すべき情報も出力
@@ -260,7 +264,6 @@ public class OrderManageController {
 		
 		logger.info("controller:メニュー画面表示処理 end");
 
-		
         return "menu";
 	}
 
@@ -307,8 +310,8 @@ public class OrderManageController {
 		model.addAttribute("storeChoiceForm", form);
 
 		// 入力チェックエラーの場合にセッションに保持しておく
-//		smarejiSession.setAttribute("storeInfos", storesMap);
-		smarejiSession.setAttribute("storeChoiceForm", form);
+		smarejiSession.setAttribute("storeInfos", storesMap);
+//		smarejiSession.setAttribute("storeChoiceForm", form);
 
 		logger.info("店舗選択画面遷移処理　終了");
 
@@ -344,12 +347,8 @@ public class OrderManageController {
                 errorList.add(error.getDefaultMessage());
             }
             model.addAttribute("validationError", errorList);
-//            model.addAttribute("storeInfos", smarejiSession.getAttribute("storeInfos"));
-// 20240506 コメント            object.setStoreInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("storeInfos"));	// TODO objectの使い回しは微妙？
-            
-//            model.addAttribute("storeChoiceForm", object);
-            // 20240506 バリデートエラー時にプルダウン値値再設定
-            model.addAttribute("storeChoiceForm", smarejiSession.getAttribute("storeChoiceForm"));
+            object.setStoreInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("storeInfos"));	// TODO objectの使い回しは微妙？
+            model.addAttribute("storeChoiceForm", object);
             
             return "storeChoice";
         }
@@ -359,13 +358,162 @@ public class OrderManageController {
         smarejiSession.setAttribute("s_StoresInfo", storeInfo);
         
         // 発注入力　初期表示
+		OrderInputForm form = new OrderInputForm();
         
-        // 発注入力　検索
-        
-        
+		// 部門一覧情報を取得する
+		Map<String, String> categoryMap = new LinkedHashMap<String, String>();
+
+		// 部門一覧取得
+		categoryMap = orderInputService.getCategoriesInfo(smarejiUser);
+
+		// 部門一覧を発注入力画面に設定する
+		form.setCategoryInfos(categoryMap);
+
+		model.addAttribute("orderInputForm", form);
+
+		smarejiSession.setAttribute("categoryInfos", categoryMap);
         
 		logger.info("controller:発注入力画面表示処理 end");
 		
+		return "orderInput";
+	}
+
+
+	/**
+	 * 
+	 * @param object
+	 * @param bindingResult
+	 * @param referer
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("/orderInput_self")
+  public String orderInput_self(@ModelAttribute @Validated OrderInputForm object, BindingResult bindingResult, 
+		  @RequestHeader(value = "referer", required = false) final String referer, 
+		  Model model) {
+
+		logger.info("controller:発注入力画面表示処理_self start");
+
+		// バリデートチェック
+        if (bindingResult.hasErrors()) {
+        	// エラーの場合
+            List<String> errorList = new ArrayList<String>();
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                errorList.add(error.getDefaultMessage());
+            }
+            model.addAttribute("validationError", errorList);
+            object.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));	// TODO objectの使い回しは微妙？
+            model.addAttribute("orderInputForm", object);
+            return "orderInput";
+        }
+ 
+		StoreInfo storeInfo = (StoreInfo)smarejiSession.getAttribute("s_StoresInfo");
+		
+		storeInfo.setStoreId(storeInfo.getStoreId());
+		logger.info("店舗ID:" + storeInfo.getStoreId());
+		
+		OrderInputForm form = orderInputService.getDisplayInfo(smarejiUser, object, storeInfo.getStoreId());
+		form.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));
+
+		form.setCategoryId(object.getCategoryId());
+		form.setGroupCode(object.getGroupCode());
+		form.setSupplierProductNo(object.getSupplierProductNo());
+		form.setProductId(object.getProductId());
+		form.setProductCode(object.getProductCode());
+		form.setProductName(object.getProductName());
+		
+		model.addAttribute("orderInputForm", form);
+		
+		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
+		orderSessionInfo.setCategoryId(object.getCategoryId());
+		orderSessionInfo.setGroupCode(object.getGroupCode());
+		orderSessionInfo.setSupplierProductNo(object.getSupplierProductNo());
+		orderSessionInfo.setProductId(object.getProductId());
+		orderSessionInfo.setProductCode(object.getProductCode());
+		orderSessionInfo.setProductName(object.getProductName());
+
+		List<OrderInputSubForm> displayList = form.getDisplayList();
+		List<DisplayOrderInput> displayOrderInputList = new ArrayList<DisplayOrderInput>();  
+		for (int i = 0; i < displayList.size(); i++) {
+			DisplayOrderInput displayOrderInput = new DisplayOrderInput();
+			displayOrderInput.setGroupCode(displayList.get(i).getGroupCode());
+			displayOrderInput.setProductImage(displayList.get(i).getProductImage());
+			displayOrderInput.setProductInfo(displayList.get(i).getProductInfo());
+			displayOrderInput.setProductId(displayList.get(i).getProductId());
+			displayOrderInput.setProductCode(displayList.get(i).getProductCode());
+			displayOrderInput.setProductName(displayList.get(i).getProductName());
+			displayOrderInput.setSupplierName(displayList.get(i).getSupplierName());
+			displayOrderInput.setCategoryName(displayList.get(i).getCategoryName());
+			displayOrderInput.setStockAmount(displayList.get(i).getStockAmount());
+			displayOrderInput.setOrderAmount(displayList.get(i).getOrderAmount());
+			displayOrderInput.setOrderPoint(displayList.get(i).getOrderPoint());
+			
+			displayOrderInput.setSupplierId(displayList.get(i).getSupplierId());
+			
+			displayOrderInputList.add(displayOrderInput);
+		}
+
+		orderSessionInfo.setDisplayOrderInput(displayOrderInputList);
+		
+		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
+		
+		logger.info("controller:発注入力画面表示処理_self end");
+		
+		return "orderInput";
+	}
+
+	/**
+	 * 
+	 * @param referer
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("/orderInput_back")
+    public String orderInput_back(@RequestHeader(value = "referer", required = false) final String referer,
+    		Model model) {
+		
+		logger.info("controller:発注入力画面表示処理_back start");
+
+		OrderInputForm form = new OrderInputForm();
+        
+		form.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));
+
+		OrderSessionInfo orderSessionInfo = (OrderSessionInfo) smarejiSession.getAttribute("s_OrderInfo");
+		form.setCategoryId(orderSessionInfo.getCategoryId());
+		form.setGroupCode(orderSessionInfo.getGroupCode());
+		form.setSupplierProductNo(orderSessionInfo.getSupplierProductNo());
+		form.setProductId(orderSessionInfo.getProductId());
+		form.setProductCode(orderSessionInfo.getProductCode());
+		form.setProductName(orderSessionInfo.getProductName());
+		
+		List<DisplayOrderInput> displayOrderInputList = orderSessionInfo.getDisplayOrderInput();
+		List<OrderInputSubForm> displayList = new ArrayList<OrderInputSubForm>();
+		String[] orderAmount = (String[]) smarejiSession.getAttribute("orderAmount_");
+		for (int i = 0; i < displayOrderInputList.size(); i++) {
+			OrderInputSubForm display = new OrderInputSubForm();
+			display.setGroupCode(displayOrderInputList.get(i).getGroupCode());
+			display.setProductImage(displayOrderInputList.get(i).getProductImage());
+			display.setProductInfo(displayOrderInputList.get(i).getProductInfo());
+			display.setProductId(displayOrderInputList.get(i).getProductId());
+			display.setProductCode(displayOrderInputList.get(i).getProductCode());
+			display.setProductName(displayOrderInputList.get(i).getProductName());
+			display.setSupplierName(displayOrderInputList.get(i).getSupplierName());
+			display.setCategoryName(displayOrderInputList.get(i).getCategoryName());
+			display.setStockAmount(displayOrderInputList.get(i).getStockAmount());
+			display.setOrderAmount(displayOrderInputList.get(i).getOrderAmount());
+			display.setOrderPoint(displayOrderInputList.get(i).getOrderPoint());
+			
+			display.setOrderAmount(orderAmount[i]);
+			
+			displayList.add(display);
+		}
+		
+		form.setDisplayList(displayList);
+		
+		model.addAttribute("orderInputForm", form);
+		
+		logger.info("controller:発注入力画面表示処理_back end");
+
 		return "orderInput";
 	}
 
@@ -376,14 +524,80 @@ public class OrderManageController {
 	 * @return  発注確認画面
 	 */
 	@RequestMapping("/checkOrderConfirm")
-    public String checkOrderConfirm(@RequestHeader(value = "referer", required = false) final String referer,
+	public String checkOrderConfirm(@ModelAttribute @Validated OrderInputForm object, BindingResult bindingResult, 
+			@RequestHeader(value = "referer", required = false) final String referer, 
+			Model model) {
+	/*
+	public String checkOrderConfirm(@RequestHeader(value = "referer", required = false) final String referer,
+    		@RequestParam(required = false) String orderId,
     		Model model) {
-		
+    */
+	/*
+	public String checkOrderConfirm(@RequestHeader(value = "referer", required = false) final String referer,
+		@RequestParam(required = false) String orderId,
+		@RequestParam("page") int page,
+		@RequestParam("size") int size,
+		Model model) {
+	*/   	
+	   	
+	    
 		logger.info("発注確認画面遷移処理　開始");
+
+		StoreInfo storeInfo = (StoreInfo)smarejiSession.getAttribute("s_StoresInfo");
+
+		Long datetime = System.currentTimeMillis();
+		String identificationNo = datetime.toString();
+		
+		// 仮発注登録
+		List<String> storageInfoIdList = orderInputService.entryPurchaseOrder(smarejiUser, object, storeInfo.getStoreId(), identificationNo);
+		
+//		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
+		OrderSessionInfo orderSessionInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
+		orderSessionInfo.setOrderControlNumber(identificationNo);
+		orderSessionInfo.setStorageInfoIdList(storageInfoIdList);
+		// ここで検索条件をつめると検索後に入力された値が保持されてしまう
+//		orderSessionInfo.setCategoryId(object.getCategoryId());
+//		orderSessionInfo.setGroupCode(object.getGroupCode());
+//		orderSessionInfo.setSupplierProductNo(object.getSupplierProductNo());
+//		orderSessionInfo.setProductId(object.getProductId());
+//		orderSessionInfo.setProductCode(object.getProductCode());
+//		orderSessionInfo.setProductName(object.getProductName());
+		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
+		
+		smarejiSession.setAttribute("orderAmount_", object.getOrderAmount_());
+		
+		
+		/*
+		int currentPage = page;
+		int pageSize= size;
+		*/
+
+		// セッションから情報を取得
+		// 発注入力画面で設定した情報
+		OrderSessionInfo sOrderInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
+		
+		//TODO sOrderInfoがNULLになるので動作確認用に発注管理番号を設定（本来は呼び出し元から受け渡しされる）
+		 String orderControlNumber = sOrderInfo.getOrderControlNumber(); // TODO 同一メソッド内で払い出された番号なのでセッションから取り出す必要はないが
+//		String orderControlNumber = "999"; 
 		
 		// 画面表示情報取得
-		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser);
-	
+		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, orderControlNumber);
+
+		/*
+		// ページング処理
+		Page<CheckOrderConfirmSubForm> pageable =checkOrderConfirmService
+				.test(PageRequest.of(currentPage - 1, pageSize), form);
+		
+		model.addAttribute("page", pageable);
+		
+		int totalPages = pageable.getTotalPages();
+		if(totalPages > 0) {
+			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+			model.addAttribute("pageNumbers", pageNumbers);
+		}
+		*/
+		
+		// 画面に設定する
 		model.addAttribute("checkOrderConfirmForm", form);
 		
 		logger.info("発注確認画面遷移処理　終了");
@@ -398,54 +612,15 @@ public class OrderManageController {
 	 * @return　発注確定画面
 	 */
 	@RequestMapping("/orderConfirm")
-    public String orderConfirm(@RequestHeader(value = "referer", required = false) final String referer,
+    public String orderConfirm(@RequestParam(required = false) String orderId, @RequestHeader(value = "referer", required = false) final String referer,
     		Model model) {
-		// 初期化
-		OrderConfirmForm form = new OrderConfirmForm();
-		List<OrderConfirmSubForm> displayList = new ArrayList<OrderConfirmSubForm>();
-		List<String> productIdList = new ArrayList<String>();
-		Map<String, String> stockAmountMap = new HashMap<>(); 
 		
-		// 発注ID取得
-		productIdList = orderConfirmService.getOrderInfo(smarejiUser, "dummyid");
-		// 在庫数取得
-		// TODO 在庫数
-		stockAmountMap = orderConfirmService.getStockAmountList(smarejiUser, "dummyid");
-		
-		// 発注IDでループ
-		for (String productId: productIdList) {
-			// 初期化
-			OrderConfirmSubForm subForm = new OrderConfirmSubForm();
-			ProductsInfo productsInfo = new ProductsInfo();
-			
-			// 商品情報を取得
-			productsInfo = orderConfirmService.getProductsInfo(smarejiUser, productId);
-			
-			// グループCD設定
-			subForm.setGroupCode(productsInfo.getGroupCode());
-			// 商品ID設定
-			subForm.setProductId(productsInfo.getProductId());
-			// 商品CD設定
-			subForm.setProductCd(productsInfo.getProductCode());
-			// 商品名設定
-			subForm.setProductName(productsInfo.getProductName());
-			// 部門名設定
-			subForm.setCategoryName(orderConfirmService.getCategoryName(smarejiUser, productsInfo.getCategoryId()));
-			// 画像取得
-			subForm.setImgUrl(orderConfirmService.getProductImageInfo(smarejiUser, productId));
-			// 仕入れ先取得　→課題待ち
-			subForm.setSupplierName("テスト仕入れ先");
+		// TODO テスト用
+		orderId = "27";
 
-			// 在庫点数設定
-			subForm.setStockAmount(Integer.parseInt(stockAmountMap.get(productsInfo.getProductId())));
-			// TODO
-			// 在庫日数　計算して取得する？
-			subForm.setStockDays(999);
-			subForm.setConditionSection("test");
-			displayList.add(subForm);
-		}
+		// 画面表示情報取得
+		OrderConfirmForm form = orderConfirmService.getDisplayInfo(smarejiUser, orderId);
 
-		form.setDisplayList(displayList);
 		// 画面に返す
 		model.addAttribute("orderConfirmForm", form);
 		
@@ -491,12 +666,10 @@ public class OrderManageController {
 		// 発注一覧取得処理(API使用）
 		List<PurchaseOrdersInfo> purchaseOrderInfoList =orderHistoryService
 				.getPurchaseOrderInfoList(smarejiUser,orderHistoryForm);
-		
-		
+
 		// 絞り込み処理
 		orderHistoryService.filter(smarejiUser,purchaseOrderInfoList,orderHistoryForm);
-		
-		
+
 		// 名称設定
 		// 仕入先名設定
 		orderHistoryService.setSupplierName(orderHistoryForm, suppliersMap);

@@ -20,6 +20,9 @@
   ---テスト用------------------------------------------------------------
   テスト画像：<p><img th:src="${image}" width="100" height="100"></p>
 
+  <form th:action="@{/storeChoice}" method="post">
+    <p><input type="submit" value="店舗選択"></p>
+  </form>
   <form th:action="@{/orderInput}" method="post">
     <p><input type="submit" value="発注入力"></p>
   </form>

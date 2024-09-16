@@ -3,12 +3,14 @@ package com.orderManage.controller.object;
 import java.io.Serializable;
 import java.util.Map;
 
+import com.orderManage.util.StringUtil;
+
 import jakarta.validation.constraints.AssertTrue;
 
 public class StoreChoiceForm implements Serializable {
 
-	/** 店舗選択デフォルト値 */
-	private static String DEFAULT_STORESELECT = "0";
+//	/** 店舗選択デフォルト値 */
+//	private static String DEFAULT_STORESELECT = "0";
 	
 	/** 店舗ID */
  	private String storeId;
@@ -31,8 +33,11 @@ public class StoreChoiceForm implements Serializable {
     public boolean isValidStoreselect() {
     	boolean result = true;
     	// 未指定（デフォルト値）の場合
-    	if (DEFAULT_STORESELECT.equals(this.storeId)) {
+//    	if (DEFAULT_STORESELECT.equals(this.storeId)) {
+    	if (StringUtil.isEmpty(this.storeId)) {
     		result = false;
+    		// TODO 20240430 バリデートエラー後に、セレクトボックスに値再設定が必要
+    		// → セッションより取得している
     	}
     	return result;
     }

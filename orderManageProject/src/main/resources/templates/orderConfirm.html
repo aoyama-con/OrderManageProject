@@ -16,7 +16,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>発注確定</title>
 </head>
 
 <body>
@@ -33,14 +33,14 @@
 	<BR>
 		
 	<div class="container">
-		<table class="table">
+		<table class="table table-bordered">
 			<thead class="table-info">
 				<tr>
 					<th scope="col" class="align-middle text-center">グループ<BR>コード</th>
 					<th scope="col" class="align-middle text-center">商品ID/商品CD/商品名</th>
 					<th scope="col" class="align-middle text-center">仕入先</th>
 					<th scope="col" class="align-middle text-center">部門名</th>
-					<th colspan="5" scope="col" class="text-center" style="padding :0;">
+					<!--<th colspan="5" scope="col" class="text-center" style="padding :0;">
 						<table width="100%" class="table table-bordered" style="margin :0;">
 							<thead>
 								<tr>
@@ -54,10 +54,10 @@
 									<th class="table-info align-middle text-center">当週</th>
 								</tr>
 							</thead>
-						</table>
+						</table>-->
 					</th>
-					<th scope="col" class="align-middle text-center">在庫点数<BR>(入荷予定数)</th>
-					<th scope="col" class="align-middle text-center">在庫日数<BR>当週</th>
+					<th scope="col" class="align-middle text-center">在庫点数<BR></th>
+					<!--<th scope="col" class="align-middle text-center">在庫日数<BR>当週</th>-->
 					<th scope="col" class="align-middle text-center">発注点数</th>
 				</tr>
 			</thead>
@@ -68,8 +68,8 @@
 						<table width="100%" style="margin :0;">
 							<thead>
 								<tr>
-									<td rowspan="2" class="table-info align-middle text-center"><img src="aaa" /></td>
-									<td class="table-info align-middle text-left" th:text="${order.productId}-${order.productCd}"></td>
+									<td rowspan="2" class="table-info align-middle text-center"><img src="${order.url}" width="40" height="40"/></td>
+									<td class="table-info align-middle text-left" th:text="${order.productId} + '-' + ${order.productCd}"></td>
 								</tr>
 								<tr>
 									<td class="table-info align-middle text-left" th:text="${order.productName}"></td>
@@ -79,13 +79,13 @@
 					</td>
 					<td class="align-middle text-center" th:text="${order.supplierName}"></td>
 					<td class="align-middle text-center" th:text="${order.categoryName}"></td>
-					<td class="align-middle text-center" th:text="${order.fourWeekNumberSales}"></td>
-					<td class="align-middle text-center" th:text="${order.threeWeekNumberSales}"></td>
-					<td class="align-middle text-center" th:text="${order.towWeekNumberSales}"></td>
-					<td class="align-middle text-center" th:text="${order.oneWeekNumberSales}"></td>
-					<td class="align-middle text-center" th:text="${order.thisWeekNumberSales}"></td>
-					<td class="align-middle text-center" th:text="${order.stockAmount}"></td>
-					<td class="align-middle text-center" th:text="${order.stockDays}"></td>
+					<!--<td class="align-middle text-right" th:text="${order.fourWeekNumberSales}"></td>
+					<td class="align-middle text-end" th:text="${order.threeWeekNumberSales}"></td>
+					<td class="align-middle text-end" th:text="${order.towWeekNumberSales}"></td>
+					<td class="align-middle text-end" th:text="${order.oneWeekNumberSales}"></td>
+					<td class="align-middle text-end" th:text="${order.thisWeekNumberSales}"></td>-->
+					<td class="align-middle text-end" th:text="${order.stockAmount}"></td>
+					<!--<td class="align-middle text-right" th:text="${order.stockDays}"></td>-->
 					<td class="align-middle text-center"><input type="text" name="orderCnt1" id="orderCnt1" /></td>
 				</tr>
 			</tbody>

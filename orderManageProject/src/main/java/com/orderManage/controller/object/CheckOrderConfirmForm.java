@@ -10,9 +10,13 @@ import java.util.List;
  */
 public class CheckOrderConfirmForm {
 
-    /* 発注情報リスト */
+	/* 発注情報リスト */
     private List<CheckOrderConfirmSubForm> displayList;
 
+    /* 引渡し項目 */
+    /* 発注ID */
+    private String orderId ;
+    
 	public List<CheckOrderConfirmSubForm> getDisplayList() {
 		return displayList;
 	}
@@ -21,4 +25,10 @@ public class CheckOrderConfirmForm {
 		this.displayList = displayList;
 	}
 
+	public String getOrderId() {
+		return orderId;
+	}
+	public void setOrderId(String orderId) {
+		this.orderId = orderId;
+	}
 }

@@ -32,6 +32,75 @@ public class DisplayOrderInput {
 	/* 発注点数 */
     private String quantity;
 
+    
+    
+    
+    /** 商品画像 */
+	private String productImage;
+    
+    /** 商品情報 */
+    private String productInfo;
+    
+    /** 在庫点数 */
+    private String stockAmount;
+    
+    /** 発注点数 */
+    private String orderAmount;
+
+    /** 発注点 */
+    private String orderPoint;
+    
+	/** 仕入先名 */
+	private String supplierId;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    public String getSupplierId() {
+		return supplierId;
+	}
+	public void setSupplierId(String supplierId) {
+		this.supplierId = supplierId;
+	}
+	public String getProductImage() {
+		return productImage;
+	}
+	public void setProductImage(String productImage) {
+		this.productImage = productImage;
+	}
+	public String getProductInfo() {
+		return productInfo;
+	}
+	public void setProductInfo(String productInfo) {
+		this.productInfo = productInfo;
+	}
+	public String getStockAmount() {
+		return stockAmount;
+	}
+	public void setStockAmount(String stockAmount) {
+		this.stockAmount = stockAmount;
+	}
+	public String getOrderAmount() {
+		return orderAmount;
+	}
+	public void setOrderAmount(String orderAmount) {
+		this.orderAmount = orderAmount;
+	}
+	public String getOrderPoint() {
+		return orderPoint;
+	}
+	public void setOrderPoint(String orderPoint) {
+		this.orderPoint = orderPoint;
+	}
 	public String getStatusClass() {
 		return statusClass;
 	}
