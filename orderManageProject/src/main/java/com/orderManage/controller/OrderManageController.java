@@ -422,6 +422,7 @@ public class OrderManageController {
 		form.setProductCode(object.getProductCode());
 		form.setProductName(object.getProductName());
 		
+		model.addAttribute("categoryId", object.getCategoryId());	// TODO
 		model.addAttribute("orderInputForm", form);
 		
 		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
@@ -510,6 +511,7 @@ public class OrderManageController {
 		
 		form.setDisplayList(displayList);
 		
+		model.addAttribute("categoryId", orderSessionInfo.getCategoryId());	// TODO
 		model.addAttribute("orderInputForm", form);
 		
 		logger.info("controller:発注入力画面表示処理_back end");
