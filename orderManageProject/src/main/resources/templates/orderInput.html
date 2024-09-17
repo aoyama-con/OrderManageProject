@@ -68,10 +68,10 @@
 				<div class="accordion-content">
             		<p>
 						部門：
-						<select id="category_list" name="category">
+						<select id="category_list" name="categoryId">
 							<option value="" selected></option>
 							<option th:each="categoryInfo:${orderInputForm.categoryInfos}" th:value="${categoryInfo.key}"
-								th:text="${categoryInfo.value}" th:selected="${categoryInfo.key == category}">
+								th:text="${categoryInfo.value}" th:selected="${categoryInfo.key == categoryId}">
 							</option>
 						</select>
     					Gコード：<input type="text" name="groupCode" id="groupCode" th:value="${orderInputForm.groupCode}">
