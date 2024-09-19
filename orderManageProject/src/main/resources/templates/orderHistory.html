@@ -23,6 +23,15 @@
         dateFormat: 'yy-mm-dd'
     	});
 	});
+	
+	var funcOrderInput = function() {
+		if (confirm("発注を取り消します。よろしいですか？")) {
+			document.form.submit();
+		} else {
+			return;
+		}
+	}
+
 </script>
 
 <head>
@@ -44,13 +53,13 @@
 		</div>
 	</div>
 	<BR>
-<!--	<div class="container">-->
-<!--		<table>-->
-<!--			<tr th:if="${validationError}" th:each="error : ${validationError}">-->
-<!--				<td style="color:red;" th:text="${error}"></td>-->
-<!--			</tr>-->
-<!--		</table>-->
-<!--	</div>-->
+	<div class="container">
+		<table>
+			<tr th:if="${validationError}" th:each="error : ${validationError}">
+				<td style="color:red;" th:text="${error}"></td>
+			</tr>
+		</table>
+	</div>
 
 	<div class="container">
 		<form th:action="@{/orderHistory}" th:object="${orderHistoryForm}"} method="post">
@@ -147,11 +156,11 @@
 									<div class="p-1 bg-warning">仮発注</div>
 								</th:block>
 							</td>
-							<td th:text="${order.orderDate}"></td>
-							<td th:text="${order.supplierName}"></td>
-							<td th:text="${order.staffName}"></td>
-							<td align="right" th:text="${order.quantity}"></td>
-							<td align="right" th:text="${order.totalPrice}"></td>
+							<td th:text="${order.orderDate}"class="align-middle text-center"></td>
+							<td th:text="${order.supplierName}"class="align-middle text-center"></td>
+							<td th:text="${order.staffName}"class="align-middle text-center"></td>
+							<td align="right" th:text="${order.quantity}"class="align-middle"></td>
+							<td align="right" th:text="${order.totalPrice}"class="align-middle"></td>
 							<td class="text-center">
 								<div class="d-flex justify-content-around">
 <!--								<div style="display:inline-flex">-->
@@ -162,7 +171,7 @@
 										<input type="hidden" th:value="${orderHistoryForm.displayList[__${stat.index}__].orderId} " name="orderId" th:id="shosai+${stat.index}">
 									</form>
 									<form th:action="@{/orderHistory}"  method="post" th:id="shosai+${stat.index}">
-										<input type="submit" class="btn btn-primary" value="　取消　" th:id="shosai+${stat.index}">
+										<input type="submit" class="btn btn-primary" value="　取消　" th:id="shosai+${stat.index}"onclick="funcOrderInput()">
 										<input type="hidden" th:value="${orderHistoryForm.displayList[__${stat.index}__].orderId} " name="orderId" th:id="shosai+${stat.index}">
 									</form>
 								</th:block>
@@ -177,11 +186,25 @@
 								</div>
 
 							</td>
+
 						</tr>
 					</tbody>
 				</table>
 			</div>
-		
+			<div class="container">
+				<table>
+					<tr th:if="${#lists.isEmpty(orderHistoryForm.displayList)}" >
+						<td style="color:red;" th:text="検索結果がありません。"></td>
+					</tr>
+				</table>
+			</div>
+			<div align="right">
+				<BR>
+				<form method="post" th:action="@{/menu}" >
+					<input type="submit" class="btn btn-primary" value="メニューに戻る">
+				</form>
+				
+			</div>
 	</body>
 	
 

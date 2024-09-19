@@ -662,7 +662,7 @@ public class OrderManageController {
 	 */
 	@RequestMapping("/orderHistory")
     public String orderHistory(Model model,
-    		@ModelAttribute OrderHistoryForm orderHistoryForm,
+    		@ModelAttribute @Validated OrderHistoryForm orderHistoryForm,BindingResult bindingResult,
     		@RequestParam(required = false) String orderId,
     		@RequestHeader(value = "referer", required = false) final String referer) {
 		
@@ -676,6 +676,16 @@ public class OrderManageController {
 			orderHistoryService.deleteOrder(smarejiUser,orderId);
 		}
 		
+		// バリデートチェック
+        if (bindingResult.hasErrors()) {
+        	// エラーの場合
+            List<String> errorList = new ArrayList<String>();
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                errorList.add(error.getDefaultMessage());
+            }
+            model.addAttribute("validationError", errorList);
+            return "orderHistory";
+        }
 		// 絞り込み条件設定
 		orderHistoryForm = orderHistoryService.setCondition(orderHistoryForm,session);
 		// セッションに画面情報を格納

@@ -1,5 +1,8 @@
 package com.orderManage.controller.object;
 import java.util.List;
+
+import io.micrometer.common.util.StringUtils;
+import jakarta.validation.constraints.AssertTrue;
 /**
  * 発注履歴Form
  * 
@@ -30,7 +33,25 @@ public class OrderHistoryForm {
     /* 発注ID */
     private String orderId ;
  
+  /**
+  * 
+  * @return
+  */
+ @AssertTrue(message = "発注日Toは発注日From以降の日付を入力してください。")
+ public boolean isValidDateTo() {
+ 	boolean result = true;
 
+ 	// ブランク以外の場合チェックを行う
+ 	if (!StringUtils.isEmpty(DateFrom) && !StringUtils.isEmpty(DateTo)) {
+     	
+     	if (DateTo.compareTo(DateFrom)<0) {
+     		result = false;
+     	}
+ 	}
+ 	return result;
+ }
+ 
+ 
 	public String getSupplierId() {
 		return supplierId;
 	}
