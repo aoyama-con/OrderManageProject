@@ -52,7 +52,7 @@ public class CheckOrderConfirmService extends OrderManageService {
     private final String STATUS_TENTATIVE_ORDER = "5";
 	
 	/* 1ページ表示数(デフォルト値50) */
-	private final int DEF_MAX_DISP_AMOUNT = 50;
+	private final int DEF_MAX_DISP_AMOUNT = 20;
 
 	/* ページ番号(デフォルト値1) */
 	private final int DEF_CUR_PAGE = 1;
@@ -176,6 +176,9 @@ public class CheckOrderConfirmService extends OrderManageService {
 		getParam.add("identificationNo"); // 発注管理番号
 		param.setFields(getParam);
 		
+		// ソート順（発注日（昇順）、発注ID（昇順））
+		param.setSort("orderedDate:asc," + "storageInfoId:asc");
+		
 		// 発注一覧を取得(API)
 		purchaseOrdersInfoList = smarejiApiAccess.getPurchaseOrdersInfo(smarejiUser.getContract().getId(), param);
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
@@ -256,9 +259,10 @@ public class CheckOrderConfirmService extends OrderManageService {
 	 * 
 	 * @param smarejiUser スマレジユーザ情報
 	 * @param orderControlNumber 発注管理番号
+	 * @param staffName 発注者名（ログインユーザ名）
 	 * @return CheckOrderConfirmForm 発注確認画面Formリスト
 	 */
-	public CheckOrderConfirmForm getDisplayInfo(SmarejiUser smarejiUser, String orderControlNumber) {
+	public CheckOrderConfirmForm getDisplayInfo(SmarejiUser smarejiUser, String orderControlNumber, String staffName) {
 		
 		logger.info("getDisplayInfoList:発注確認画面初期表示情報取得　処理開始");
 		
@@ -291,9 +295,9 @@ public class CheckOrderConfirmService extends OrderManageService {
 				amountSum = amountSum.add(cost.multiply(count)); 
 			}
 			
-			// 名称取得（仕入先、スタッフ）
+			// 名称取得（仕入先）
 			String supplierName = supplierMap.get(purchaseOrdersInfo.getRecipientOrderId());
-			String staffName = staffMap.get(purchaseOrdersInfo.getStaffId());
+			// String staffName = staffMap.get(purchaseOrdersInfo.getStaffId());
 			
 			// 画面表示用Formに情報を設定
 			DecimalFormat decimalFormat = new DecimalFormat("#,###.#");		

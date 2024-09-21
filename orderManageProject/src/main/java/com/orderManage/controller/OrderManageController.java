@@ -602,13 +602,15 @@ public class OrderManageController {
 		// セッションから情報を取得
 		// 発注入力画面で設定した情報
 		OrderSessionInfo sOrderInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
-		
+		// スタッフ名（ログインユーザ名＝発注者名）
+		StaffInfo sStaffInfo = (StaffInfo)smarejiSession.getAttribute("s_StaffInfo");
+				
 		//TODO sOrderInfoがNULLになるので動作確認用に発注管理番号を設定（本来は呼び出し元から受け渡しされる）
 		 String orderControlNumber = sOrderInfo.getOrderControlNumber(); // TODO 同一メソッド内で払い出された番号なのでセッションから取り出す必要はないが
 //		String orderControlNumber = "999"; 
 		
 		// 画面表示情報取得
-		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, orderControlNumber);
+		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, orderControlNumber, sStaffInfo.getStaffName());
 
 		/*
 		// ページング処理
