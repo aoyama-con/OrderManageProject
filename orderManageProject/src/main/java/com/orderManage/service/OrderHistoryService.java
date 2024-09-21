@@ -2,6 +2,7 @@ package com.orderManage.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -431,8 +432,11 @@ public class OrderHistoryService {
 			BigDecimal totalCost = calcCost(orderProductList);
 			
 			// 計算結果を設定
-			orderList.get(i).setQuantity(totalQuantity.toString());
-			orderList.get(i).setTotalPrice("\\".concat(totalCost.toString()));
+			DecimalFormat costFormat = new DecimalFormat("#,###.#");
+			costFormat.setMinimumFractionDigits(1);
+			DecimalFormat quantityFormat = new DecimalFormat("#,###");
+			orderList.get(i).setQuantity(quantityFormat.format(totalQuantity));
+			orderList.get(i).setTotalPrice("\\".concat(costFormat.format(totalCost)));
 		}
 		form.setDisplayList(orderList);
 		

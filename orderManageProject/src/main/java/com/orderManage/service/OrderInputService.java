@@ -29,6 +29,10 @@ import com.orderManage.model.param.ParamProductInfo;
 import com.orderManage.model.param.ParamStockInfo;
 import com.orderManage.model.param.ParamSupplierInfo;
 import com.orderManage.model.param.ParamSupplierProduct;
+import com.orderManage.model.param.ParamUpdatePurchasOrderDeliveryStore;
+import com.orderManage.model.param.ParamUpdatePurchaseOrder;
+import com.orderManage.model.param.ParamUpdatePurchaseOrderProduct;
+import com.orderManage.model.param.ParamUpdatePurchaseOrderStore;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.util.DateUtil;
 import com.orderManage.util.StringUtil;
@@ -504,8 +508,10 @@ public class OrderInputService extends OrderManageService {
 	 * @param identificationNo
 	 * @return
 	 */
-	public List<String> entryPurchaseOrder(SmarejiUser smarejiUser, OrderInputForm object, String storeId, String identificationNo) {
+//	public List<String> entryPurchaseOrder(SmarejiUser smarejiUser, OrderInputForm object, String storeId, String identificationNo) {
+	public Map<String, String> entryPurchaseOrder(SmarejiUser smarejiUser, OrderInputForm object, String storeId, String identificationNo) {
 
+		Map<String, String> resultMap = new HashMap<String, String>();
 		List<String> storageInfoIdList = new ArrayList<String>();
 		Map<String, List<String[]>> orderMap = new HashMap<String, List<String[]>>();
 
@@ -516,7 +522,8 @@ public class OrderInputService extends OrderManageService {
 		
 		
 		if (orderAmount == null || orderAmount.length == 0) {
-			return storageInfoIdList;
+//			return storageInfoIdList;
+			return resultMap;
 		}
 		
 		for (int i = 0; i < object.getOrderAmount_().length; i++) {
@@ -603,8 +610,137 @@ public class OrderInputService extends OrderManageService {
 			logger.info("発注ID：" + purchaseOrdersInfo.getStorageInfoId());
 			
 			storageInfoIdList.add(purchaseOrdersInfo.getStorageInfoId());
+			
+			resultMap.put(order.getKey(), purchaseOrdersInfo.getStorageInfoId());
 		}
 		
-		return storageInfoIdList;
+//		return storageInfoIdList;
+		return resultMap;
+	}
+
+	/**
+	 * 
+	 * @param smarejiUser
+	 * @param object
+	 * @param storeId
+	 * @param identificationNo
+	 * @return
+	 */
+//	public List<String> updatePurchaseOrder(SmarejiUser smarejiUser, OrderInputForm object, String storeId, String identificationNo, Map<String, String> map) {
+	public Map<String, String> updatePurchaseOrder(SmarejiUser smarejiUser, OrderInputForm object, String storeId, String identificationNo, Map<String, String> map) {
+
+		Map<String, String> resultMap = new HashMap<String, String>();
+		List<String> storageInfoIdList = new ArrayList<String>();
+		Map<String, List<String[]>> orderMap = new HashMap<String, List<String[]>>();
+
+		String[] orderAmount = object.getOrderAmount_();
+		String[] productId = object.getProductId_();
+		String[] supplierId = object.getSupplierId_();
+
+		
+		
+		if (orderAmount == null || orderAmount.length == 0) {
+//			return storageInfoIdList;
+			return resultMap;
+		}
+		
+		for (int i = 0; i < object.getOrderAmount_().length; i++) {
+			if (StringUtils.isEmpty(orderAmount[i])) {
+				continue;
+			}
+
+			// 仕入先が存在する場合
+			if (orderMap.containsKey(supplierId[i])) {
+				List<String[]> orderList = orderMap.get(supplierId[i]);
+				orderList.add(new String[] { productId[i], orderAmount[i] });
+				orderMap.put(supplierId[i], orderList);
+			// 仕入先が存在しない場合
+			} else {
+				List<String[]> orderList = new ArrayList<String[]>();
+				orderList.add(new String[] { productId[i], orderAmount[i] });
+				orderMap.put(supplierId[i], orderList);
+			}
+		}
+
+		
+		Iterator<Map.Entry<String, List<String[]>>> it = orderMap.entrySet().iterator();
+		
+		while (it.hasNext()) {
+			
+			Map.Entry<String, List<String[]>> order = it.next();
+			
+			
+			// 仕入先から発注IDを取得する
+			String orderId = (String) map.get(order.getKey());
+			
+			
+			// 発注登録内容設定
+			ParamUpdatePurchaseOrder paramUpdatePurchaseOrder = new ParamUpdatePurchaseOrder();
+			// 発注先ID
+			paramUpdatePurchaseOrder.setRecipientOrderId(order.getKey());	// 仕入先
+			// 発注日
+			paramUpdatePurchaseOrder.setOrderedDate(DateUtil.getSysDateYyyyMmDd());	// システム日付
+//			// メモ
+//			paramEntryPurchaseOrder.setMemo("共通ライブラリテストメモ");
+			// 識別番号 現在時刻（UNIXTIME）を使用
+//			Long datetime = System.currentTimeMillis();
+//			paramEntryPurchaseOrder.setIdentificationNo(datetime.toString());
+			paramUpdatePurchaseOrder.setIdentificationNo(identificationNo);
+//			// 税丸め（0:四捨五入、1:切り捨て、2:切り上げ）
+//			paramEntryPurchaseOrder.setRoundingDivision("0");
+			// ステータス
+			paramUpdatePurchaseOrder.setStatus("5");
+			// 発注処理時のスタッフID
+			paramUpdatePurchaseOrder.setStaffId(smarejiUser.getContract().getUser_id());
+			
+			// 発注対象商品 array ///////////////////////////////////////////////////////////
+			ArrayList<ParamUpdatePurchaseOrderProduct> opList = new ArrayList<ParamUpdatePurchaseOrderProduct>(); 
+
+			List<String[]> valueList = order.getValue();
+
+			for (int j = 0; j < valueList.size(); j++) {
+				String[] value = valueList.get(j);
+				
+				// テスト商品12 設定
+				ParamUpdatePurchaseOrderProduct op = new ParamUpdatePurchaseOrderProduct();
+//				op.setProductId(value[0]);
+				op.setStorageInfoProductId(value[0]);
+				// コスト　NULL不可
+	//			op.setCost("400");
+				ArrayList<ParamUpdatePurchasOrderDeliveryStore> dsList = new ArrayList<ParamUpdatePurchasOrderDeliveryStore>();
+				ParamUpdatePurchasOrderDeliveryStore ds = new ParamUpdatePurchasOrderDeliveryStore();
+				ds.setStorageInfoDeliveryProductId(value[0]);
+				ds.setStoreId(storeId);
+				// 発注数量
+				ds.setQuantity(value[1]);
+				dsList.add(ds);
+				op.setDeliveryStore(dsList);
+				opList.add(op);
+			}
+			
+			paramUpdatePurchaseOrder.setProducts(opList);
+			//////////////////////////////////////////////////////////////////////////////
+
+			// 発注対象店舗 array ///////////////////////////////////////////////////////////
+			ArrayList<ParamUpdatePurchaseOrderStore> osList = new ArrayList<ParamUpdatePurchaseOrderStore>();
+			ParamUpdatePurchaseOrderStore os = new ParamUpdatePurchaseOrderStore();
+			os.setStorageInfoDeliveryId(storeId);
+			os.setStorageStoreId(storeId);
+			osList.add(os);
+			paramUpdatePurchaseOrder.setStores(osList);
+			//////////////////////////////////////////////////////////////////////////////
+			
+
+			PurchaseOrdersInfo purchaseOrdersInfo = smarejiApiAccess.updatePurchaseOrder(smarejiUser.getContract().getId(), orderId, paramUpdatePurchaseOrder);
+			
+			logger.info("発注ID：" + purchaseOrdersInfo.getStorageInfoId());
+			
+			resultMap.put(order.getKey(), purchaseOrdersInfo.getStorageInfoId());
+
+			storageInfoIdList.add(purchaseOrdersInfo.getStorageInfoId());
+		}
+		
+//		return storageInfoIdList;
+		return resultMap;
 	}
 }
