@@ -12,5 +12,19 @@ today.setDate(today.getDate());
 var yyyy = today.getFullYear();
 var mm = ("0"+(today.getMonth()+1)).slice(-2);
 var dd = ("0"+today.getDate()).slice(-2);
-document.getElementById("today").value=yyyy+'-'+mm+'-'+dd;
 
+if(document.getElementById("today") !=null) {
+    document.getElementById("today").value=yyyy+'-'+mm+'-'+dd;
+}
+
+/*
+ *ログアウト共通処理
+ *OK押下時：ログアウト キャンセル押下時：何もしない
+ */
+function logout (message) {
+	if(confirm(message)){
+		$('#logoutForm').submit();
+	} else {
+		return false;
+	}
+};

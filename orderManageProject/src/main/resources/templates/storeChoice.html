@@ -15,7 +15,7 @@
 <script th:src="@{/js/common.js}"></script>
 
 
-<script>
+<script  th:inline="javascript">
 	var funcOrderInput = function() {
 		//20240430 店舗選択⇛発注入力遷移でのポップアップはないため削除
 		//if (confirm("次に進みますか？")) {
@@ -24,6 +24,13 @@
 		//	return;
 		//}
 	}
+	
+	$(function(){
+		$('#logout').click(function(){
+			logout('入力内容は保存されません。終了してもよろしいでしょうか？');
+		});		
+	});
+	
 </script>
 
 <head>
@@ -35,8 +42,8 @@
 	<div class="container">
 		<BR>
 		<div align="right">
-			<form method="post" th:action="@{/logout}" >
-				<input type="submit" class="btn btn-primary" value="ログアウト">
+			<form method="post" th:action="@{/logout}" id="logoutForm">
+				<input type="button" id ="logout" class="btn btn-primary" value="ログアウト">
 			</form>
 		</div>
 
