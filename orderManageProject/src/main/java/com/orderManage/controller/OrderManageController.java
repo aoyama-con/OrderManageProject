@@ -321,6 +321,35 @@ public class OrderManageController {
 	}
 
 	/**
+	 * 
+	 * @param referer
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("/storeChoice_back")
+    public String storeChoice_back(@RequestHeader(value = "referer", required = false) final String referer,
+    		Model model) {
+		
+		logger.info("controller:店舗選択画面表示処理_back start");
+
+		StoreChoiceForm form = new StoreChoiceForm();
+        
+		form.setStoreInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("storeInfos"));
+
+		StoreInfo storeInfo = (StoreInfo) smarejiSession.getAttribute("s_StoresInfo");
+
+		model.addAttribute("storeId", storeInfo.getStoreId());
+		model.addAttribute("storeChoiceForm", form);
+
+		// 発注入力のセッション削除 発注入力に遷移したら詰めなおすので削除しなくても問題ないかもしれないが
+		smarejiSession.removeAttribute("s_OrderInfo");
+		
+		logger.info("controller:店舗選択画面表示処理_back end");
+
+		return "storeChoice";
+	}
+
+	/**
 	 * 発注入力画面遷移時に制御するコントローラー
 	 * 
 	 * @param model　パラメータ受け渡し制御Model
