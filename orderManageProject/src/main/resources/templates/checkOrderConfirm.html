@@ -6,6 +6,7 @@
 	integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
 	crossorigin="anonymous"></script>
 <script th:src="@{/js/common.js}"></script>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css">
 <!-- jQuery本体 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -13,7 +14,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <!-- 日本語化ファイル -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/i18n/jquery.ui.datepicker-ja.min.js"></script>
+<script th:inline="javascript">
 
+	$(function(){
+		$('#logout').click(function(){
+			logout('ログアウトします。よろしいですか？');
+		});		
+	});
+	
+</script>
 <head>
 	<meta charset="UTF-8">
 	<title>発注確認</title>
@@ -23,7 +32,9 @@
 	<div class="container">
 		<BR>
 		<div align="right">
-			<button type="button" class="btn btn-primary">ログアウト</button>
+			<form method="post" th:action="@{/logout}" id="logoutForm">
+				<input type="button" id ="logout" class="btn btn-primary" value="ログアウト">
+			</form>
 		</div>
 
 		<div align="center">
@@ -36,30 +47,18 @@
 		<div class="container">
 			<div class="row">
 				<div class="col" align="right">
-					<nav aria-label="Page navigation example">
-						<ul class="pagination justify-content-end">
-							<li class="page-item"><a class="page-link" href="#">Previous</a></li>
-							<li class="page-item"><a class="page-link" href="#">1</a></li>
-							<li class="page-item"><a class="page-link" href="#">2</a></li>
-							<li class="page-item"><a class="page-link" href="#">3</a></li>
-							<li class="page-item"><a class="page-link" href="#">Next</a></li>
-						</ul>
-					</nav>
-					<!-- add ページング処理 -->
-					<!--
+					<!-- ページング処理 -->
 					<nav aria-label="Page navigation example">
 						<ul class="pagination justify-content-end">
 							<div th:if="${page.totalPages > 0}" th:each="pageNumber : ${pageNumbers}">
     							<li class="page-item">
-    								<a th:href="@{/checkOrderConfirm(size=${page.size}, page=${pageNumber})}"
+    								<a th:href="@{/checkOrderConfirm_page(size=${page.size}, page=${pageNumber})}"
         								th:text=${pageNumber}
     	   								th:class=page-link "${pageNumber==page.number + 1} ? active"></a>
 								</li>
 							</div>
 						</ul>
 					</nav>
-					-->
-					<!-- end -->
 				</div>
 			</div>
 			<table class="table table-bordered">
@@ -75,8 +74,8 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr th:if="${!#lists.isEmpty(checkOrderConfirmForm.displayList)}" th:each="order,detail : ${checkOrderConfirmForm.displayList}">
-					<!--<tr th:each="order,detail : ${checkOrderConfirmForm.displayList}">-->
+					<tr th:each="order,detail : ${page.content}">
+					<!--<tr th:if="${!#lists.isEmpty(checkOrderConfirmForm.displayList)}" th:each="order,detail : ${checkOrderConfirmForm.displayList}">-->
 						<td class="align-middle text-center">
 							<div class="p-1 bg-warning">仮発注</div>
 						</td>

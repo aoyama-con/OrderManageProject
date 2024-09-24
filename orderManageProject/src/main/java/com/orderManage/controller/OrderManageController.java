@@ -6,8 +6,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.orderManage.controller.object.CheckOrderConfirmForm;
+import com.orderManage.controller.object.CheckOrderConfirmSubForm;
 import com.orderManage.controller.object.CheckOrderStatusSubForm;
 import com.orderManage.controller.object.OrderConfirmForm;
 import com.orderManage.controller.object.OrderHistoryForm;
@@ -555,29 +560,20 @@ public class OrderManageController {
 	/**
 	 * 発注確認画面遷移時に制御するコントローラー
 	 * 
+	 * @param object　発注入力画面Form
+	 * @param bindingResult
+	 * @param referer
 	 * @param model　パラメータ受け渡し制御Model
+	 * 
 	 * @return  発注確認画面
 	 */
 	@RequestMapping("/checkOrderConfirm")
 	public String checkOrderConfirm(@ModelAttribute @Validated OrderInputForm object, BindingResult bindingResult, 
 			@RequestHeader(value = "referer", required = false) final String referer, 
-			Model model) {
-	/*
-	public String checkOrderConfirm(@RequestHeader(value = "referer", required = false) final String referer,
-    		@RequestParam(required = false) String orderId,
-    		Model model) {
-    */
-	/*
-	public String checkOrderConfirm(@RequestHeader(value = "referer", required = false) final String referer,
-		@RequestParam(required = false) String orderId,
-		@RequestParam("page") int page,
-		@RequestParam("size") int size,
-		Model model) {
-	*/   	
-	   	
+			Model model) {  	
 	    
 		logger.info("発注確認画面遷移処理　開始");
-
+	
 		StoreInfo storeInfo = (StoreInfo)smarejiSession.getAttribute("s_StoresInfo");
 		OrderSessionInfo orderSessionInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
 		String identificationNo = null;
@@ -621,31 +617,21 @@ public class OrderManageController {
 
 			smarejiSession.setAttribute("orderAmount_", object.getOrderAmount_());
 		}
-		
-		
-		/*
-		int currentPage = page;
-		int pageSize= size;
-		*/
 
 		// セッションから情報を取得
-		// 発注入力画面で設定した情報
-		OrderSessionInfo sOrderInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
+		// 発注入力画面で設定した情報 TODO 不要なら削除すること
+		// OrderSessionInfo sOrderInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
 		// スタッフ名（ログインユーザ名＝発注者名）
 		StaffInfo sStaffInfo = (StaffInfo)smarejiSession.getAttribute("s_StaffInfo");
-				
-		//TODO sOrderInfoがNULLになるので動作確認用に発注管理番号を設定（本来は呼び出し元から受け渡しされる）
-		 String orderControlNumber = sOrderInfo.getOrderControlNumber(); // TODO 同一メソッド内で払い出された番号なのでセッションから取り出す必要はないが
-//		String orderControlNumber = "999"; 
 		
 		// 画面表示情報取得
-		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, orderControlNumber, sStaffInfo.getStaffName());
+		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, identificationNo, sStaffInfo.getStaffName());
 
-		/*
 		// ページング処理
-		Page<CheckOrderConfirmSubForm> pageable =checkOrderConfirmService
-				.test(PageRequest.of(currentPage - 1, pageSize), form);
-		
+		// TODO 定数化、発注確定からの戻りの場合はセッションからcurrentPageを取得する
+		int currentPage = 1;
+		int pageSize= 20;
+		Page<CheckOrderConfirmSubForm> pageable = checkOrderConfirmService.paging(PageRequest.of(currentPage - 1, pageSize), form);
 		model.addAttribute("page", pageable);
 		
 		int totalPages = pageable.getTotalPages();
@@ -653,7 +639,6 @@ public class OrderManageController {
 			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
 			model.addAttribute("pageNumbers", pageNumbers);
 		}
-		*/
 		
 		// 画面に設定する
 		model.addAttribute("checkOrderConfirmForm", form);
@@ -662,7 +647,56 @@ public class OrderManageController {
 		
         return "checkOrderConfirm";
 	}
+	
+	/**
+	 * 発注確認画面ページング時に制御するコントローラー
+	 * 
+	 * @param page　ページ
+	 * @param size　サイズ
+	 * @param referer
+	 * @param model　パラメータ受け渡し制御Model
+	 * 
+	 * @return  発注確認画面
+	 */
+	@RequestMapping("/checkOrderConfirm_page")
+	public String checkOrderConfirm_page(@RequestParam("page") int page,
+			@RequestParam("size") int size,
+			@RequestHeader(value = "referer", required = false) final String referer,
+			Model model) {	
+	    
+		logger.info("発注確認画面遷移処理　開始");
+	
+		// TODO 発注確認画面内のページングではデータを取得する必要はなし。checkOrderConfirmで取得したデータをセッションに格納するようにし、ここではそれに対してページングを行うようにする
+		// セッションから情報を取得
+		// 発注入力画面で設定した情報
+		OrderSessionInfo sOrderInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
+		// スタッフ名（ログインユーザ名＝発注者名）
+		StaffInfo sStaffInfo = (StaffInfo)smarejiSession.getAttribute("s_StaffInfo");
+		//発注管理番号
+		String orderControlNumber = sOrderInfo.getOrderControlNumber(); 
+		
+		// 画面表示情報取得
+		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, orderControlNumber, sStaffInfo.getStaffName());
 
+		// ページング処理
+		int currentPage = page;
+		int pageSize= size;
+		Page<CheckOrderConfirmSubForm> pageable = checkOrderConfirmService.paging(PageRequest.of(currentPage - 1, pageSize), form);
+		model.addAttribute("page", pageable);
+		
+		int totalPages = pageable.getTotalPages();
+		if(totalPages > 0) {
+			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+			model.addAttribute("pageNumbers", pageNumbers);
+		}
+		
+		// 画面に設定する
+		model.addAttribute("checkOrderConfirmForm", form);
+		
+		logger.info("発注確認画面遷移処理　終了");
+		
+        return "checkOrderConfirm";
+	}
 	/**
 	 * 発注確定画面遷移時に制御するコントローラー
 	 * 

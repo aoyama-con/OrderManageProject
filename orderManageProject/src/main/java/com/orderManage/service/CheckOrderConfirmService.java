@@ -4,12 +4,17 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.orderManage.controller.object.CheckOrderConfirmForm;
@@ -51,12 +56,9 @@ public class CheckOrderConfirmService extends OrderManageService {
 	/* ステータス(5:仮発注) */
     private final String STATUS_TENTATIVE_ORDER = "5";
 	
-	/* 1ページ表示数(デフォルト値50) */
-	private final int DEF_MAX_DISP_AMOUNT = 20;
-
-	/* ページ番号(デフォルト値1) */
-	private final int DEF_CUR_PAGE = 1;
-	
+	/* 発注データ取得上限件数 */
+    private final int DATA_LIMIT_CNT = 1000;
+    
 	/**
 	 * 仕入先情報を取得
 	 * 
@@ -176,11 +178,15 @@ public class CheckOrderConfirmService extends OrderManageService {
 		getParam.add("identificationNo"); // 発注管理番号
 		param.setFields(getParam);
 		
+		// 取得件数
+		param.setLimit(DATA_LIMIT_CNT);
+		
 		// ソート順（発注日（昇順）、発注ID（昇順））
 		param.setSort("orderedDate:asc," + "storageInfoId:asc");
 		
 		// 発注一覧を取得(API)
 		purchaseOrdersInfoList = smarejiApiAccess.getPurchaseOrdersInfo(smarejiUser.getContract().getId(), param);
+		logger.info("発注一覧取得API取得件数：" + purchaseOrdersInfoList.size());
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
 		// テスト用の発注一覧取得
 		//purchaseOrdersInfoList = smarejiApiAccessMock.getPurchaseOrdersInfo("dummyid");
@@ -197,6 +203,7 @@ public class CheckOrderConfirmService extends OrderManageService {
 			resultModel.setStorageInfoId(orderInfo.getStorageInfoId());
 			resultList.add(resultModel);
 		}
+		logger.info("発注管理番号：" + orderControlNumber + "、" + "発注取得件数：" + resultList.size());
 		
 		logger.info("getPurchaseOrdersInfo:発注一覧報取得　処理終了");
 		
@@ -272,9 +279,6 @@ public class CheckOrderConfirmService extends OrderManageService {
 		// 仕入先一覧取得API
 		Map<String, String> supplierMap = getSupplierInfo(smarejiUser);
 		
-		// スタッフ一覧取得API
-		Map<String, String> staffMap = getStaffInfo(smarejiUser);
-		
 		// 発注一覧取得API（取得条件：契約ID、ステータス"5：仮発注"、発注管理番号）
 		List<PurchaseOrdersInfo> purchaseOrdersInfoList = getPurchaseOrdersInfoList(smarejiUser, orderControlNumber);
 		
@@ -305,7 +309,7 @@ public class CheckOrderConfirmService extends OrderManageService {
 			subForm.setOrderId(purchaseOrdersInfo.getStorageInfoId());		// 発注ID
 			subForm.setOrderedDate(purchaseOrdersInfo.getOrderedDate());	// 発注日		
 			subForm.setSupplierName(supplierName);							// 仕入先名		
-			subForm.setOrderStaffName(staffName);							// 発注者名
+			subForm.setOrderStaffName(staffName);							// 発注者名（ログインユーザ名）
 			subForm.setOrderCount(decimalFormat.format(countSum));			// 発注点数
 			subForm.setOrderAmountSum(decimalFormat.format(amountSum.setScale(1, RoundingMode.HALF_UP))); // 発注金額合計（小数点以下第二位を四捨五入）
 			displayList.add(subForm);
@@ -318,18 +322,16 @@ public class CheckOrderConfirmService extends OrderManageService {
 		return checkOrderConfirmForm;
 	}
 	
-
 	/**
 	 * ページング処理
 	 * 
 	 * @param pageable 
-	 * @param form
+	 * @param form 発注確認画面Form
 	 * @return
 	 */
-	/**
-	public Page<CheckOrderConfirmSubForm> test(Pageable pageable, CheckOrderConfirmForm form) {
+	public Page<CheckOrderConfirmSubForm> paging(Pageable pageable, CheckOrderConfirmForm form) {
 
-		List<CheckOrderConfirmSubForm> purchaseOrderInfoList = form.getDisplayList();
+		List<CheckOrderConfirmSubForm> dispList = form.getDisplayList();
 
 		int pageSize = pageable.getPageSize();
 		int currentPage = pageable.getPageNumber();
@@ -337,16 +339,15 @@ public class CheckOrderConfirmService extends OrderManageService {
 
 		List<CheckOrderConfirmSubForm> list;
 	
-		if(purchaseOrderInfoList.size() < startItem) {
+		if(dispList.size() < startItem) {
 			list = Collections.emptyList();
 		} else {
-			int toIndex = Math.min(startItem + pageSize , purchaseOrderInfoList.size());
-			list = purchaseOrderInfoList.subList(startItem, toIndex);
+			int toIndex = Math.min(startItem + pageSize , dispList.size());
+			list = dispList.subList(startItem, toIndex);
 		}
 		
-		Page<CheckOrderConfirmSubForm> purchaseOrdersInfoPage = new PageImpl<CheckOrderConfirmSubForm>(list, PageRequest.of(currentPage, pageSize),purchaseOrderInfoList.size());
-		return purchaseOrdersInfoPage;
+		Page<CheckOrderConfirmSubForm> checkOrderConfirmPage = new PageImpl<CheckOrderConfirmSubForm>(list, PageRequest.of(currentPage, pageSize),dispList.size());
+		return checkOrderConfirmPage;
 		
 	}
-	**/
 }
