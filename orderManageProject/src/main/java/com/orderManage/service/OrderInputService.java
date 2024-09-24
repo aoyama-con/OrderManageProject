@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import com.orderManage.controller.object.OrderInputForm;
 import com.orderManage.controller.object.OrderInputSubForm;
 import com.orderManage.model.api.CategorieInfo;
+import com.orderManage.model.api.DeliveryStore;
+import com.orderManage.model.api.OrderProducts;
 import com.orderManage.model.api.ProductImageInfo;
 import com.orderManage.model.api.ProductsInfo;
 import com.orderManage.model.api.PurchaseOrdersInfo;
@@ -26,6 +28,7 @@ import com.orderManage.model.param.ParamEntryPurchaseOrderProduct;
 import com.orderManage.model.param.ParamEntryPurchaseOrderStore;
 import com.orderManage.model.param.ParamProductImage;
 import com.orderManage.model.param.ParamProductInfo;
+import com.orderManage.model.param.ParamPurchaseOrderInfo;
 import com.orderManage.model.param.ParamStockInfo;
 import com.orderManage.model.param.ParamSupplierInfo;
 import com.orderManage.model.param.ParamSupplierProduct;
@@ -674,6 +677,23 @@ public class OrderInputService extends OrderManageService {
 			String orderId = (String) map.get(order.getKey());
 			
 			
+			// 発注情報取得
+			ParamPurchaseOrderInfo paramPurchaseOrdersInfo = new ParamPurchaseOrderInfo();
+			List<String> getParam = new ArrayList<String>();
+			getParam.add("storageInfoId");
+			getParam.add("recipientOrderId");
+			getParam.add("orderedDate");
+			getParam.add("identificationNo");
+			getParam.add("staffId");
+//			getParam.add("products");
+			paramPurchaseOrdersInfo.setFields(getParam);
+//			paramPurchaseOrdersInfo.setWith_products("none");
+			paramPurchaseOrdersInfo.setWith_products("all");
+//			paramPurchaseOrdersInfo.setWith_stores("none");
+			paramPurchaseOrdersInfo.setWith_stores("all");
+			
+			PurchaseOrdersInfo purchaseOrdersInfo = smarejiApiAccess.getPurchaseOrderInfo(smarejiUser.getContract().getId(), orderId, paramPurchaseOrdersInfo);			
+			
 			// 発注登録内容設定
 			ParamUpdatePurchaseOrder paramUpdatePurchaseOrder = new ParamUpdatePurchaseOrder();
 			// 発注先ID
@@ -704,13 +724,24 @@ public class OrderInputService extends OrderManageService {
 				// テスト商品12 設定
 				ParamUpdatePurchaseOrderProduct op = new ParamUpdatePurchaseOrderProduct();
 //				op.setProductId(value[0]);
-				op.setStorageInfoProductId(value[0]);
+//				op.setStorageInfoProductId(value[0]);	// TODO
+
+				List<DeliveryStore> store = null;
+				for (int k = 0; k < purchaseOrdersInfo.getProducts().size(); k++) {
+					OrderProducts products = purchaseOrdersInfo.getProducts().get(k);
+					if (value[0].equals(products.getProductId())) {
+						op.setStorageInfoProductId(products.getStorageInfoProductId());
+						store = products.getDeliveryStore();
+					}
+				}
+				
 				// コスト　NULL不可
 	//			op.setCost("400");
 				ArrayList<ParamUpdatePurchasOrderDeliveryStore> dsList = new ArrayList<ParamUpdatePurchasOrderDeliveryStore>();
 				ParamUpdatePurchasOrderDeliveryStore ds = new ParamUpdatePurchasOrderDeliveryStore();
-				ds.setStorageInfoDeliveryProductId(value[0]);
-				ds.setStoreId(storeId);
+//				ds.setStorageInfoDeliveryProductId(value[0]);	// TODO
+				ds.setStorageInfoDeliveryProductId(store.get(0).getStorageInfoDeliveryProductId());	// TODO 必ず0でいいか
+//				ds.setStoreId(storeId);
 				// 発注数量
 				ds.setQuantity(value[1]);
 				dsList.add(ds);
@@ -724,20 +755,21 @@ public class OrderInputService extends OrderManageService {
 			// 発注対象店舗 array ///////////////////////////////////////////////////////////
 			ArrayList<ParamUpdatePurchaseOrderStore> osList = new ArrayList<ParamUpdatePurchaseOrderStore>();
 			ParamUpdatePurchaseOrderStore os = new ParamUpdatePurchaseOrderStore();
-			os.setStorageInfoDeliveryId(storeId);
-			os.setStorageStoreId(storeId);
+//			os.setStorageInfoDeliveryId(storeId);	// TODO
+			os.setStorageInfoDeliveryId(purchaseOrdersInfo.getStores().get(0).getStorageInfoDeliveryId());	// TODO 必ず0でいいか
+//			os.setStorageStoreId(storeId);
 			osList.add(os);
 			paramUpdatePurchaseOrder.setStores(osList);
 			//////////////////////////////////////////////////////////////////////////////
 			
 
-			PurchaseOrdersInfo purchaseOrdersInfo = smarejiApiAccess.updatePurchaseOrder(smarejiUser.getContract().getId(), orderId, paramUpdatePurchaseOrder);
+			PurchaseOrdersInfo purchaseOrdersInfoUpdate = smarejiApiAccess.updatePurchaseOrder(smarejiUser.getContract().getId(), orderId, paramUpdatePurchaseOrder);
 			
-			logger.info("発注ID：" + purchaseOrdersInfo.getStorageInfoId());
+			logger.info("発注ID：" + purchaseOrdersInfoUpdate.getStorageInfoId());
 			
-			resultMap.put(order.getKey(), purchaseOrdersInfo.getStorageInfoId());
+			resultMap.put(order.getKey(), purchaseOrdersInfoUpdate.getStorageInfoId());
 
-			storageInfoIdList.add(purchaseOrdersInfo.getStorageInfoId());
+			storageInfoIdList.add(purchaseOrdersInfoUpdate.getStorageInfoId());
 		}
 		
 //		return storageInfoIdList;
