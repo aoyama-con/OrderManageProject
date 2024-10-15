@@ -49,7 +49,6 @@ import com.orderManage.service.OrderManageLoggingService;
 import com.orderManage.service.StoreChoiceService;
 import com.orderManage.service.UtilTestService;
 import com.orderManage.util.DateUtil;
-import com.orderManage.util.StringUtil;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -552,6 +551,11 @@ public class OrderManageController {
 		model.addAttribute("categoryId", orderSessionInfo.getCategoryId());	// TODO
 		model.addAttribute("orderInputForm", form);
 		
+		// TODO
+		// 発注削除
+		List<String> storageInfoIdList = orderSessionInfo.getStorageInfoIdList();
+		orderInputService.deletePurchaseOrder(smarejiUser, storageInfoIdList);
+		
 		logger.info("controller:発注入力画面表示処理_back end");
 
 		return "orderInput";
@@ -574,12 +578,68 @@ public class OrderManageController {
 	    
 		logger.info("発注確認画面遷移処理　開始");
 	
+		// バリデートチェック
+        if (bindingResult.hasErrors()) {
+        	// エラーの場合
+            List<String> errorList = new ArrayList<String>();
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                errorList.add(error.getDefaultMessage());
+            }
+            model.addAttribute("validationError", errorList);
+            object.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));	// TODO objectの使い回しは微妙？
+
+    		model.addAttribute("categoryId", object.getCategoryId());
+
+    		OrderSessionInfo orderSessionInfo =  (OrderSessionInfo) smarejiSession.getAttribute("s_OrderInfo");
+ 
+    		List<DisplayOrderInput> displayOrderInputList = orderSessionInfo.getDisplayOrderInput();
+    		List<OrderInputSubForm> displayList = new ArrayList<OrderInputSubForm>();
+//    		String[] orderAmount = (String[]) smarejiSession.getAttribute("orderAmount_");
+
+    		// 検索結果が1件で発注点を未入力の場合、配列が0となってしまうので
+    		int amoutLength = 0;
+    		if (object.getOrderAmount_() != null && object.getOrderAmount_().length > 0) {
+    			amoutLength = object.getOrderAmount_().length;
+    		}
+    		
+    		for (int i = 0; i < displayOrderInputList.size(); i++) {
+    			OrderInputSubForm display = new OrderInputSubForm();
+    			display.setGroupCode(displayOrderInputList.get(i).getGroupCode());
+    			display.setProductImage(displayOrderInputList.get(i).getProductImage());
+    			display.setProductInfo(displayOrderInputList.get(i).getProductInfo());
+    			display.setProductId(displayOrderInputList.get(i).getProductId());
+    			display.setProductCode(displayOrderInputList.get(i).getProductCode());
+    			display.setProductName(displayOrderInputList.get(i).getProductName());
+    			display.setSupplierName(displayOrderInputList.get(i).getSupplierName());
+    			display.setCategoryName(displayOrderInputList.get(i).getCategoryName());
+    			display.setStockAmount(displayOrderInputList.get(i).getStockAmount());
+//    			display.setOrderAmount(displayOrderInputList.get(i).getOrderAmount());
+    			display.setOrderPoint(displayOrderInputList.get(i).getOrderPoint());
+    			
+    			display.setSupplierId(displayOrderInputList.get(i).getSupplierId());
+
+//    			display.setOrderAmount(orderAmount[i]);
+    			if (i < amoutLength) {
+    				display.setOrderAmount(object.getOrderAmount_()[i]);
+    			}
+    			
+    			displayList.add(display);
+    		}
+    		
+    		object.setDisplayList(displayList);
+    		
+            model.addAttribute("orderInputForm", object);
+            
+            // TODO エラーの場合、検索結果がからになってしまう
+            return "orderInput";
+        }
+ 
 		StoreInfo storeInfo = (StoreInfo)smarejiSession.getAttribute("s_StoresInfo");
 		OrderSessionInfo orderSessionInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
 		String identificationNo = null;
 		List<String> storageInfoIdList = new ArrayList<String>();
 		
-		if (StringUtil.isEmpty(orderSessionInfo.getOrderControlNumber())) {
+//		if (StringUtil.isEmpty(orderSessionInfo.getOrderControlNumber())) {
 			Long datetime = System.currentTimeMillis();
 			identificationNo = datetime.toString();
 
@@ -608,15 +668,15 @@ public class OrderManageController {
 			smarejiSession.setAttribute("orderAmount_", object.getOrderAmount_());
 			smarejiSession.setAttribute("orderMap", orderMap);
 
-		} else {
-			identificationNo = orderSessionInfo.getOrderControlNumber();
-			Map<String, String> map = (Map<String, String>) smarejiSession.getAttribute("orderMap");
-			
-			// 仮発注更新
-			Map<String, String> orderMap = orderInputService.updatePurchaseOrder(smarejiUser, object, storeInfo.getStoreId(), identificationNo, map);
-
-			smarejiSession.setAttribute("orderAmount_", object.getOrderAmount_());
-		}
+//		} else {
+//			identificationNo = orderSessionInfo.getOrderControlNumber();
+//			Map<String, String> map = (Map<String, String>) smarejiSession.getAttribute("orderMap");
+//			
+//			// 仮発注更新
+//			Map<String, String> orderMap = orderInputService.updatePurchaseOrder(smarejiUser, object, storeInfo.getStoreId(), identificationNo, map);
+//
+//			smarejiSession.setAttribute("orderAmount_", object.getOrderAmount_());
+//		}
 
 		// セッションから情報を取得
 		// 発注入力画面で設定した情報 TODO 不要なら削除すること

@@ -36,14 +36,20 @@ public class OrderInputForm implements Serializable {
     /** 発注情報リスト */
     private List<OrderInputSubForm> displayList;
 
-    // 商品ID
+    /** 商品ID */
     private String[] productId_;
 
-    //  仕入先ID
+    /** 仕入先ID */
     private String[] supplierId_;
     
-    // 発注点数
+    /** 発注点数 */
     private String[] orderAmount_;
+    
+    
+    /** 処理種別 */
+    private String type;
+    
+    
     
 	/**
      * 
@@ -66,6 +72,64 @@ public class OrderInputForm implements Serializable {
     	return result;
     }
 
+    /**
+     * 
+     * @return
+     */
+    @AssertTrue(message = "発注する商品を１つ以上選択してから発注に進んでください。")
+    public boolean isValidOrderAmount_required() {
+    	boolean result = false;
+
+    	// 発注確認に進む場合のみチェックする
+    	if ("1".equals(type)) {
+	    	if (orderAmount_ != null && orderAmount_.length > 0) {
+	    		for (int i = 0; i < orderAmount_.length; i++) {
+	    			if (StringUtil.isNotEmpty(orderAmount_[i])) {
+	    				result = true;
+	    				break;
+	    			}
+	    		}
+	    	}
+    	} else {
+    		result = true;
+    	}
+    	
+    	return result;
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    @AssertTrue(message = "発注点数を入力する場合は１以上の整数で入力してください。")
+    public boolean isValidOrderAmount_numeric() {
+    	boolean result = true;
+
+    	// 発注確認に進む場合のみチェックする
+    	if ("1".equals(type)) {
+	    	if (orderAmount_ != null && orderAmount_.length > 0) {
+	    		for (int i = 0; i < orderAmount_.length; i++) {
+	    			if (StringUtil.isNotEmpty(orderAmount_[i])) {
+		    			try {
+		    				int amount = Integer.parseInt(orderAmount_[i]);
+		    				if (amount < 1) {
+		    					result = false;
+		    					break;
+		    				}
+		    			} catch (Exception ex) {
+		    				result = false;
+		    				break;
+		    			}
+	    			}
+	    		}
+	    	}
+    	}
+    	
+    	return result;
+    }
+    
+    
+    
 	public Map<String, String> getCategoryInfos() {
 		return categoryInfos;
 	}
@@ -152,5 +216,13 @@ public class OrderInputForm implements Serializable {
 
 	public void setOrderAmount_(String[] orderAmount_) {
 		this.orderAmount_ = orderAmount_;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 }
