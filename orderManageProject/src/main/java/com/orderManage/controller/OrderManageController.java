@@ -684,9 +684,13 @@ public class OrderManageController {
 		// スタッフ名（ログインユーザ名＝発注者名）
 		StaffInfo sStaffInfo = (StaffInfo)smarejiSession.getAttribute("s_StaffInfo");
 		
+		// 画面表示情報をセッションから削除
+		smarejiSession.removeAttribute("s_OrderConfirmDisplayInfo");		
 		// 画面表示情報取得
 		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, identificationNo, sStaffInfo.getStaffName());
-
+		// 画面表示情報をセッションに格納
+		smarejiSession.setAttribute("s_OrderConfirmDisplayInfo", form);
+		
 		// ページング処理
 		// TODO 定数化、発注確定からの戻りの場合はセッションからcurrentPageを取得する
 		int currentPage = 1;
@@ -726,18 +730,9 @@ public class OrderManageController {
 	    
 		logger.info("発注確認画面遷移処理　開始");
 	
-		// TODO 発注確認画面内のページングではデータを取得する必要はなし。checkOrderConfirmで取得したデータをセッションに格納するようにし、ここではそれに対してページングを行うようにする
-		// セッションから情報を取得
-		// 発注入力画面で設定した情報
-		OrderSessionInfo sOrderInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
-		// スタッフ名（ログインユーザ名＝発注者名）
-		StaffInfo sStaffInfo = (StaffInfo)smarejiSession.getAttribute("s_StaffInfo");
-		//発注管理番号
-		String orderControlNumber = sOrderInfo.getOrderControlNumber(); 
+		// セッションから画面表示情報取得
+		CheckOrderConfirmForm form = (CheckOrderConfirmForm)smarejiSession.getAttribute("s_OrderConfirmDisplayInfo");
 		
-		// 画面表示情報取得
-		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, orderControlNumber, sStaffInfo.getStaffName());
-
 		// ページング処理
 		int currentPage = page;
 		int pageSize= size;
