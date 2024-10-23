@@ -48,8 +48,8 @@ public class StoreChoiceService extends OrderManageService {
 		paramStoresInfo.setFields(getParam);
 		//　ソート順
 		paramStoresInfo.setSort("storeId");
-		// 取得上限数
-		paramStoresInfo.setLimit(3);
+//		// 取得上限数
+//		paramStoresInfo.setLimit(3);
 		
 		storeInfoList = smarejiApiAccess.getStoresInfo(smarejiUser.getContract().getId(), paramStoresInfo);
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
