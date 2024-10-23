@@ -101,7 +101,7 @@ public class OrderInputForm implements Serializable {
      * 
      * @return
      */
-    @AssertTrue(message = "発注点数を入力する場合は１以上の整数で入力してください。")
+    @AssertTrue(message = "発注点数を入力する場合は１以上、かつ、99999以下の整数で入力してください。")
     public boolean isValidOrderAmount_numeric() {
     	boolean result = true;
 
@@ -112,7 +112,7 @@ public class OrderInputForm implements Serializable {
 	    			if (StringUtil.isNotEmpty(orderAmount_[i])) {
 		    			try {
 		    				int amount = Integer.parseInt(orderAmount_[i]);
-		    				if (amount < 1) {
+		    				if (amount < 1 || amount > 99999) {
 		    					result = false;
 		    					break;
 		    				}
