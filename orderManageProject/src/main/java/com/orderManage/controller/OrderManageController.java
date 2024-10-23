@@ -404,6 +404,27 @@ public class OrderManageController {
 		// 部門一覧を発注入力画面に設定する
 		form.setCategoryInfos(categoryMap);
 
+
+		
+		
+		form.setDisplayList(new ArrayList<OrderInputSubForm>());	// TODO NULLだと落ちるので空のオブジェクト
+		
+		// ページング処理
+		int currentPage = 1;
+		int pageSize= 20;
+		Page<OrderInputSubForm> pageable = orderInputService.paging(PageRequest.of(currentPage - 1, pageSize), form);
+		model.addAttribute("page", pageable);
+		
+		int totalPages = pageable.getTotalPages();
+		if(totalPages > 0) {
+			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+			model.addAttribute("pageNumbers", pageNumbers);
+		}
+
+		
+		
+		
+		
 		model.addAttribute("orderInputForm", form);
 
 		smarejiSession.setAttribute("categoryInfos", categoryMap);
@@ -456,6 +477,29 @@ public class OrderManageController {
 		form.setProductId(object.getProductId());
 		form.setProductCode(object.getProductCode());
 		form.setProductName(object.getProductName());
+		
+
+		
+		
+		smarejiSession.setAttribute("s_OrderInputDisplayInfo", form);	// TODO　s_OrderInfo
+		
+		
+		
+		// ページング処理
+		int currentPage = 1;
+		int pageSize= 20;
+		Page<OrderInputSubForm> pageable = orderInputService.paging(PageRequest.of(currentPage - 1, pageSize), form);
+		model.addAttribute("page", pageable);
+		
+		int totalPages = pageable.getTotalPages();
+		if(totalPages > 0) {
+			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+			model.addAttribute("pageNumbers", pageNumbers);
+		}
+		
+		
+		
+		
 		
 		model.addAttribute("categoryId", object.getCategoryId());	// TODO
 		model.addAttribute("orderInputForm", form);
@@ -541,12 +585,33 @@ public class OrderManageController {
 			
 			display.setSupplierId(displayOrderInputList.get(i).getSupplierId());
 
-			display.setOrderAmount(orderAmount[i]);
+			if (i < orderAmount.length) {	// TODO とりあえず動くようにしているので後で修正する
+				display.setOrderAmount(orderAmount[i]);
+			}
 			
 			displayList.add(display);
 		}
 		
 		form.setDisplayList(displayList);
+
+
+		
+		
+		// ページング処理
+		int currentPage = 1;
+		int pageSize= 20;
+		Page<OrderInputSubForm> pageable = orderInputService.paging(PageRequest.of(currentPage - 1, pageSize), form);
+		model.addAttribute("page", pageable);
+		
+		int totalPages = pageable.getTotalPages();
+		if(totalPages > 0) {
+			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+			model.addAttribute("pageNumbers", pageNumbers);
+		}
+
+		
+		
+		
 		
 		model.addAttribute("categoryId", orderSessionInfo.getCategoryId());	// TODO
 		model.addAttribute("orderInputForm", form);
@@ -559,6 +624,45 @@ public class OrderManageController {
 		logger.info("controller:発注入力画面表示処理_back end");
 
 		return "orderInput";
+	}
+
+	/**
+	 * 
+	 * @param page
+	 * @param size
+	 * @param referer
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("/orderInput_page")
+	public String orderInput_page(@RequestParam("page") int page,
+			@RequestParam("size") int size,
+			@RequestHeader(value = "referer", required = false) final String referer,
+			Model model) {	
+	    
+		logger.info("発注入力画面遷移処理　開始");
+	
+		// セッションから画面表示情報取得
+		OrderInputForm form = (OrderInputForm)smarejiSession.getAttribute("s_OrderInputDisplayInfo");	// TODO s_OrderInfoから取得でなくていいのか
+		
+		// ページング処理
+		int currentPage = page;
+		int pageSize= size;
+		Page<OrderInputSubForm> pageable = orderInputService.paging(PageRequest.of(currentPage - 1, pageSize), form);
+		model.addAttribute("page", pageable);
+		
+		int totalPages = pageable.getTotalPages();
+		if(totalPages > 0) {
+			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+			model.addAttribute("pageNumbers", pageNumbers);
+		}
+		
+		// 画面に設定する
+		model.addAttribute("orderInputForm", form);
+		
+		logger.info("発注入力画面遷移処理　終了");
+		
+        return "orderInput";
 	}
 
 	/**

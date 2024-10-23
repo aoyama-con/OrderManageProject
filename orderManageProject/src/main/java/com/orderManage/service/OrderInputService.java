@@ -1,6 +1,7 @@
 package com.orderManage.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -8,6 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.orderManage.controller.object.OrderInputForm;
@@ -783,4 +788,33 @@ public class OrderInputService extends OrderManageService {
 		}
 	}
 
+	
+	/**
+	 * ページング処理
+	 * 
+	 * @param pageable 
+	 * @param form 発注確認画面Form
+	 * @return
+	 */
+	public Page<OrderInputSubForm> paging(Pageable pageable, OrderInputForm form) {
+
+		List<OrderInputSubForm> dispList = form.getDisplayList();
+
+		int pageSize = pageable.getPageSize();
+		int currentPage = pageable.getPageNumber();
+		int startItem = currentPage * pageSize;
+
+		List<OrderInputSubForm> list;
+	
+		if(dispList.size() < startItem) {
+			list = Collections.emptyList();
+		} else {
+			int toIndex = Math.min(startItem + pageSize , dispList.size());
+			list = dispList.subList(startItem, toIndex);
+		}
+		
+		Page<OrderInputSubForm> orderInputPage = new PageImpl<OrderInputSubForm>(list, PageRequest.of(currentPage, pageSize),dispList.size());
+		return orderInputPage;
+		
+	}
 }

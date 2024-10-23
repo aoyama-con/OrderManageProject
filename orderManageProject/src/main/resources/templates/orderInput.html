@@ -103,11 +103,20 @@
 			<div class="col" align="right">
 				<nav aria-label="Page navigation example">
 					<ul class="pagination justify-content-end">
+						<!--
 						<li class="page-item"><a class="page-link" href="#">Previous</a></li>
 						<li class="page-item"><a class="page-link" href="#">1</a></li>
 						<li class="page-item"><a class="page-link" href="#">2</a></li>
 						<li class="page-item"><a class="page-link" href="#">3</a></li>
 						<li class="page-item"><a class="page-link" href="#">Next</a></li>
+						-->
+						<div th:if="${page.totalPages > 0}" th:each="pageNumber : ${pageNumbers}">
+							<li class="page-item">
+								<a th:href="@{/orderInput_page(size=${page.size}, page=${pageNumber})}"
+    								th:text=${pageNumber}
+	   								th:class=page-link "${pageNumber==page.number + 1} ? active"></a>
+							</li>
+						</div>
 					</ul>
 				</nav>
 			</div>
@@ -125,6 +134,7 @@
 			</thead>
 			<tbody>
 				<tr th:each="order : ${orderInputForm.displayList}">
+<!--				<tr th:each="order : ${page.content}">-->
 					<td class="align-middle text-center" th:text="${order.groupCode}"></td>
 					<td class="align-middle text-left">
 						<table width="100%" style="margin :0;">
