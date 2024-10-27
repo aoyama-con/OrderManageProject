@@ -863,14 +863,18 @@ public class OrderManageController {
 	 * @return　発注確定画面
 	 */
 	@RequestMapping("/orderConfirm")
-    public String orderConfirm(@RequestParam(required = false) String orderId, @RequestHeader(value = "referer", required = false) final String referer,
+    public String orderConfirm(@RequestParam(required = false) String orderId, 
+    		@RequestHeader(value = "referer", required = false) final String referer,
     		Model model) {
 		
 		// TODO テスト用
-		orderId = "27";
-
+		//orderId = "27";
+		
+		// 店舗情報を取得
+		StoreInfo storeInfo = (StoreInfo) smarejiSession.getAttribute("s_StoresInfo");
+		
 		// 画面表示情報取得
-		OrderConfirmForm form = orderConfirmService.getDisplayInfo(smarejiUser, orderId);
+		OrderConfirmForm form = orderConfirmService.getDisplayInfo(smarejiUser, orderId, storeInfo.getStoreId());
 
 		// 画面に返す
 		model.addAttribute("orderConfirmForm", form);

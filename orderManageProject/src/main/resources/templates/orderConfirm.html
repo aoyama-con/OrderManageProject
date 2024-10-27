@@ -86,7 +86,8 @@
 					<td class="align-middle text-end" th:text="${order.thisWeekNumberSales}"></td>-->
 					<td class="align-middle text-end" th:text="${order.stockAmount}"></td>
 					<!--<td class="align-middle text-right" th:text="${order.stockDays}"></td>-->
-					<td class="align-middle text-center"><input type="text" name="orderCnt1" id="orderCnt1" /></td>
+					<!--<td class="align-middle text-center"><input type="text" name="orderCnt1" id="orderCnt1" /></td>-->
+					<td class="align-middle text-center"><input type="text" name="orderingPoint" th:value="${order.orderingPoint}"></td>
 				</tr>
 			</tbody>
 		</table>

@@ -57,16 +57,14 @@ public class OrderConfirmService extends OrderManageService {
 	 * 
 	 * @param smarejiUser スマレジユーザ情報
 	 * @param orderId 発注ID
+	 * @param storeId 店舗ID
 	 * @return CheckOrderConfirmForm 発注確定画面Formリスト
 	 */	
-	public OrderConfirmForm getDisplayInfo(SmarejiUser smarejiUser, String orderId) {
+	public OrderConfirmForm getDisplayInfo(SmarejiUser smarejiUser, String orderId, String storeId) {
 		
 		logger.info("getDisplayInfoList:発注確認画面初期表示情報取得　処理開始");
 		
 		OrderConfirmForm orderConfirmForm = new OrderConfirmForm();
-		
-		
-		
 		List<OrderConfirmSubForm> displayList = new ArrayList<OrderConfirmSubForm>();
 		
 		// 発注情報取得API
@@ -79,9 +77,9 @@ public class OrderConfirmService extends OrderManageService {
 		List<ProductImageInfo> productImageInfoList = getProductImageInfo(smarejiUser, orderId);
 
 		// 在庫一覧API
-		List<StockInfo> stockInfoList = getStockAmountList(smarejiUser);
+		List<StockInfo> stockInfoList = getStockAmountList(smarejiUser, storeId);
 
-		//2024/08/05 機能削減のためコメントアウト
+//2024/08/05 機能削減のためコメントアウト//////////////////////////////////////////////////////////////////////
 		// システム日付取得
 //		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");        
 //        GregorianCalendar gc = new GregorianCalendar();
@@ -101,8 +99,8 @@ public class OrderConfirmService extends OrderManageService {
 //		
 //		// 4週取引一覧取得API
 //		List<TransactionsInfo> fourTransactionsInfoList = getTransactionsInfo(smarejiUser, getFromDate(5), getToDate(4));
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		
 		// 発注対象商品
 		for (OrderProducts product : purchaseOrdersInfo.getProducts()){
 			
@@ -125,10 +123,8 @@ public class OrderConfirmService extends OrderManageService {
 //			subForm.setProductId(productsInfo.getProductId());
 			// 商品ID設定
 			subForm.setProductId(product.getProductId());
-
 			// 商品CD設定
 			subForm.setProductCd(productsInfo.getProductCode());
-
 			// 商品名設定
 			subForm.setProductName(productsInfo.getProductName());
 
@@ -141,11 +137,10 @@ public class OrderConfirmService extends OrderManageService {
 
 			// 部門名取得API
 			CategorieInfo categorieInfo = getCategoryName(smarejiUser, productsInfo.getCategoryId());
-
 			// 部門名設定
 			subForm.setCategoryName(categorieInfo.getCategoryName());
 
-			//2024/08/05 機能削減のためコメントアウト
+//2024/08/05 機能削減のためコメントアウト///////////////////////////////////////////////////////////////////////
 //			// 販売点数(4週)
 //			BigDecimal fourAmount = new BigDecimal("0");
 //			
@@ -190,13 +185,17 @@ public class OrderConfirmService extends OrderManageService {
 //
 //			// 販売点数(当週)設定
 //			subForm.setThisWeekNumberSales(amount);
-//
-			// 在庫点数設定
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+			// 在庫点数設定 発注した店舗に紐づく商品IDの在庫点数を設定
 			for (StockInfo stockInfo : stockInfoList) {
 				if (stockInfo.getProductId().equals(product.getProductId())) {
-					subForm.setStockAmount(Integer.parseInt(stockInfo.getLayawayStockAmount()));
+					subForm.setStockAmount(Integer.parseInt(stockInfo.getStockAmount()));
 				}
 			}
+			
+			// 発注数量の設定
+			subForm.setOrderingPoint(Integer.valueOf(product.getQuantity()));
 			
 			displayList.add(subForm);
 		}
@@ -268,10 +267,10 @@ public class OrderConfirmService extends OrderManageService {
 	 * 発注取得APIを使用して発注情報を取得する
 	 * 
 	 * @param smarejiUser スマレジユーザ情報
-	 * @param id 発注ID
+	 * @param orderId 発注ID
 	 * @return List 商品ID
 	 */
-	public PurchaseOrdersInfo getOrderInfo(SmarejiUser smarejiUser, String storageInfoId) {
+	public PurchaseOrdersInfo getOrderInfo(SmarejiUser smarejiUser, String orderId) {
 
 		logger.info("getOrderInfo:発注情報取得　処理開始");
 
@@ -292,7 +291,7 @@ public class OrderConfirmService extends OrderManageService {
 		param.setFields(getParam);
 		
 		// 発注情報を取得(API)	  
-		purchaseOrdersInfo = smarejiApiAccess.getPurchaseOrderInfo(smarejiUser.getContract().getId(), "27", param);
+		purchaseOrdersInfo = smarejiApiAccess.getPurchaseOrderInfo(smarejiUser.getContract().getId(), orderId, param);
 		/** テスト用 ローカルで動かす用mockを使用 *****************/
 		// テスト用の発注情報取得
 		//purchaseOrdersInfo = smarejiApiAccessMock.getPurchaseOrderInfo("dummyid");
@@ -385,10 +384,10 @@ public class OrderConfirmService extends OrderManageService {
 	 * 在庫一覧取得APIを使用して発注情報を取得する
 	 * 
 	 * @param smarejiUser スマレジユーザ情報
-	 * @param id 発注ID
-	 * @return Map 商品ID・在庫数
+	 * @param storeId 店舗ID
+	 * @return List 在庫一覧リスト
 	 */
-	public List<StockInfo> getStockAmountList(SmarejiUser smarejiUser) {
+	public List<StockInfo> getStockAmountList(SmarejiUser smarejiUser, String storeId) {
 
 		logger.info("getStockAmountList:在庫一覧取得　処理開始");
 
@@ -399,7 +398,9 @@ public class OrderConfirmService extends OrderManageService {
 
 		// 在庫一取得のためのパラメータを設定
 		List<String> getParam = new ArrayList<String>();
-
+		
+		// 店舗IDの設定
+		paramStockInfo.setStore_id(Integer.valueOf(storeId));
 		// 取得する項目
 		getParam.add("productId");
 		getParam.add("stockAmount");
