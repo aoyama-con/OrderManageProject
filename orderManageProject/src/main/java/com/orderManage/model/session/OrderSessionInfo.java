@@ -1,7 +1,9 @@
 package com.orderManage.model.session;
 
 import java.util.List;
+import java.util.Map;
 
+import com.orderManage.controller.object.OrderInputSubForm;
 import com.orderManage.model.service.DisplayOrderInput;
 import com.orderManage.model.service.Pagination;
 
@@ -19,6 +21,14 @@ public class OrderSessionInfo {
 	private List<String> storageInfoIdList;
 	/* 商品情報一覧（表示） */
 	private List<DisplayOrderInput> displayOrderInput;
+	
+	// TODO formと合わせてこっちを使ってみる
+	/** */
+	private List<OrderInputSubForm> displayList;
+	
+	/** */
+	private Map<String, String[]> orderAmount;
+	
 
 	/* 検索条件 ****************************************/
 	/* 部門ID */
@@ -127,6 +137,17 @@ public class OrderSessionInfo {
 	public void setTotalPrice(String totalPrice) {
 		this.totalPrice = totalPrice;
 	}
-	
-	
+
+	public List<OrderInputSubForm> getDisplayList() {
+		return displayList;
+	}
+	public void setDisplayList(List<OrderInputSubForm> displayList) {
+		this.displayList = displayList;
+	}
+	public Map<String, String[]> getOrderAmount() {
+		return orderAmount;
+	}
+	public void setOrderAmount(Map<String, String[]> orderAmount) {
+		this.orderAmount = orderAmount;
+	}
 }

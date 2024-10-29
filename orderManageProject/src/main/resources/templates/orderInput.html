@@ -133,8 +133,8 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr th:each="order : ${orderInputForm.displayList}">
-<!--				<tr th:each="order : ${page.content}">-->
+<!--				<tr th:each="order : ${orderInputForm.displayList}">-->
+				<tr th:each="order : ${page.content}">
 					<td class="align-middle text-center" th:text="${order.groupCode}"></td>
 					<td class="align-middle text-left">
 						<table width="100%" style="margin :0;">
