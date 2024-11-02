@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.orderManage.controller.object.CheckOrderConfirmForm;
 import com.orderManage.controller.object.CheckOrderConfirmSubForm;
+import com.orderManage.controller.object.CheckOrderStatusForm;
 import com.orderManage.controller.object.CheckOrderStatusSubForm;
 import com.orderManage.controller.object.OrderConfirmForm;
 import com.orderManage.controller.object.OrderHistoryForm;
@@ -928,7 +929,8 @@ public class OrderManageController {
 	 * @return　発注状況確認画面
 	 */
 	@RequestMapping("/checkOrderStatus")
-    public String checkOrderStatus(@RequestHeader(value = "referer", required = false) final String referer,
+    public String checkOrderStatus(
+    		@RequestHeader(value = "referer", required = false) final String referer,
     		@RequestParam(required = false) String user_id,
 	        @RequestParam(required = false) String password,
 	        @RequestParam(required = false) String orderId,
@@ -961,10 +963,81 @@ public class OrderManageController {
 			model.addAttribute("supplierName",displayTrue.getSupplierName());
 
 			
-			List<CheckOrderStatusSubForm> matome = checkOrderStatusService.getMeisai(smarejiUser, orderId);
+			/*List<CheckOrderStatusSubForm> matome = checkOrderStatusService.getMeisai(smarejiUser, orderId);
 			model.addAttribute("meisai",matome);
 			
+			return "checkOrderStatus";*/
+			
+			//CheckOrderStatusForm matome = checkOrderStatusService.getMeisai(smarejiUser, orderId);
+			CheckOrderStatusForm matome = checkOrderStatusService.getMeisai(smarejiUser, orderId1);
+			
+			// ページング処理
+			int currentPage = 1;
+			int pageSize= 20;
+			Page<CheckOrderStatusSubForm> pageable = checkOrderStatusService.paging(PageRequest.of(currentPage - 1, pageSize), matome);
+			model.addAttribute("page", pageable);
+			
+			int totalPages = pageable.getTotalPages();
+			if(totalPages > 0) {
+				List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+				model.addAttribute("pageNumbers", pageNumbers);
+			}
+			
+			model.addAttribute("orderId", matome.getOrderId());
+			model.addAttribute("meisai" ,pageable.getContent());
+			
 			return "checkOrderStatus";
+	}
+
+	@RequestMapping("/checkOrderStatus_page")
+	public String checkOrderStatus_page(
+    		@RequestHeader(value = "referer", required = false) final String referer,
+ 	        @RequestParam(required = false) String orderId,
+	        @RequestParam("page") int page,
+			@RequestParam("size") int size,
+			Model model) {	
+		
+	   
+		
+		String orderId1 = orderId;
+		
+		 OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession.getAttribute("orderHistorySession");
+		
+	    List<OrderHistorySubForm> display = session1.getDisplayList();
+	    
+	    OrderHistorySubForm displayTrue = new OrderHistorySubForm();
+	    
+	    for (int i=0; i<display.size(); i++){
+	    	if (display.get(i).getOrderId().equals(orderId1)) {
+	    		displayTrue.setOrderId(display.get(i).getOrderId());
+	    		displayTrue.setOrderDate(display.get(i).getOrderDate());
+	    		displayTrue.setStaffName(display.get(i).getStaffName());
+	    		displayTrue.setSupplierName(display.get(i).getSupplierName());
+	    	}
+	    }
+	    
+	    
+		model.addAttribute("orderedDate", displayTrue.getOrderDate());
+		model.addAttribute("hatyusha", displayTrue.getStaffName());
+		model.addAttribute("supplierName",displayTrue.getSupplierName());
+		
+		CheckOrderStatusForm matome = checkOrderStatusService.getMeisai(smarejiUser, orderId1);
+		
+		int currentPage = page;
+		int pageSize= size;
+		Page<CheckOrderStatusSubForm> pageable = checkOrderStatusService.paging(PageRequest.of(currentPage - 1, pageSize), matome);
+		model.addAttribute("page", pageable);
+		
+		int totalPages = pageable.getTotalPages();
+		if(totalPages > 0) {
+			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+			model.addAttribute("pageNumbers", pageNumbers);
+		}
+		
+		model.addAttribute("orderId", matome.getOrderId());
+		model.addAttribute("meisai" ,pageable.getContent());
+		
+		return "checkOrderStatus";
 	}
 
 //	/**
