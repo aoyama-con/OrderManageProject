@@ -19,6 +19,28 @@
 		$('#dateFrom').datepicker();
 		$('#dateTo').datepicker();
 	});
+	
+	function msg(type) {
+		if(type=="logout"){
+		    var tf1 = window.confirm('入力内容は保存されません。終了してもよろしいでしょうか？');
+		    if(tf1==true){
+				location.href="/orderManageProject/login";
+			    document.form.submit();
+			    }
+			else{
+				}		    
+	    }
+		else if(type=="back"){
+		var tf2 = window.confirm('発注履歴画面に戻りますか？');
+		    if(tf2==true){
+				location.href="/orderManageProject/orderHistory";
+			    document.form.submit();
+			    }
+			else{
+				}
+	    }
+    }
+	
 </script>
 
 <head>
@@ -30,8 +52,7 @@
 	<div class="container">
 		<BR>
 		　<div align="right">
-			<form role="form" id="logout" th:action="@{/logout}" method="post">
-				<button type="submit" class="btn btn-primary" style="width:100px">ログアウト</button>
+				<button type="button" class="btn btn-primary" style="width:100px" id="btn" onclick="msg('logout')">ログアウト</button>
 			</form>
 		　</div>
 		<div align="center">
@@ -85,36 +106,76 @@
 				</thead>
 				    <tbody>
         </tdcolspan="2">
-						<tr th:inline="text" th:each="m1:${meisai}" >
-							<td align="center" style="vertical-align:middle">[[${m1.GroupCode}]]</td>
+						<tr th:each="order,stat :${meisai}" >
+							<td align="center" style="vertical-align:middle">[[${order.GroupCode}]]</td>
 							<td align="left" width="61px" style="vertical-align:middle; border-right:none; padding-left:2px">
-								<img th:src="${m1.url}" width="50" height="50">
+								<img th:src="${order.url}" width="50" height="50">
 							</td>
-							<td style="vertical-align:middle; border-left:none; padding-left:0px">[[${m1.ProductId}]]-[[${m1.ProductCode}]]<br>[[${m1.ProductName}]]</td>
-							<td align="center" style="vertical-align:middle">[[${m1.CategoryName}]]</td>
-							<td align="right" style="vertical-align:middle">[[${m1.Quantity}]]</td>
+							<td style="vertical-align:middle; border-left:none; padding-left:0px">[[${order.ProductId}]]-[[${order.ProductCode}]]<br>[[${order.ProductName}]]</td>
+							<td align="center" style="vertical-align:middle">[[${order.CategoryName}]]</td>
+							<td align="right" style="vertical-align:middle">[[${order.Quantity}]]</td>
 						<tr> 
 				    </tbody>
 			</table>
 			<div class="row">
 				<div class="col" align="right">
+				  <!-- ページング処理 -->
 					<nav aria-label="Page navigation example">
 						<ul class="pagination justify-content-end">
-							<li class="page-item"><a class="page-link" href="#">Previous</a></li>
-							<li class="page-item"><a class="page-link" href="#">1</a></li>
-							<li class="page-item"><a class="page-link" href="#">2</a></li>
-							<li class="page-item"><a class="page-link" href="#">3</a></li>
-							<li class="page-item"><a class="page-link" href="#">Next</a></li>
+		                    <div>
+						        <li class="page-item">
+							        <div th:if="${page.number == 0}" >
+							            <form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${page.number  + 1})} "method="post" th:id="page+${page.number  + 1}">
+							                <input type="submit" th:class=page-link "${page.number=page.number + 1} ? active" th:value=前へ th:id="page+${page.number  + 1}">
+							                <input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${page.number + 1}">
+							            </form>	
+							         </div>
+							         <div th:if="${page.number > 0}" >
+							             <form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${page.number})} "method="post" th:id="page+${page.number}">
+							                 <input type="submit" th:class=page-link "${page.number==page.number - 1} ? active" th:value=前へ th:id="page+${page.number}">
+							                 <input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${page.number - 1}">	
+							             </form>
+							         <div>
+							    </li>
+							</div>
+							<div th:if="${page.totalPages > 0}" th:each="pageNumber : ${pageNumbers}">
+    							<li class="page-item">
+    								<form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${pageNumber})} "method="post" th:id="page+${pageNumber}">
+        								<input type="submit" th:class=page-link "${pageNumber==page.number + 1} ? active" th:value="${pageNumber}" th:id="page+${pageNumber}">
+    	   								<input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${pageNumber}">
+    	   							</form>
+								</li>
+							</div>
+							<div>	
+						        <li class="page-item">
+							        <div th:if="${page.totalPages == 1 }" >
+							            <form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${page.number  + 1})} "method="post" th:id="page+${page.number  + 1}">
+							                <input type="submit" th:class=page-link "${page.number=page.number + 1} ? active" th:value=次へ th:id="page+${page.number  + 1}">
+							                <input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${page.number + 1}">
+							            </form>	
+							        </div>
+							        <div th:if="${page.totalPages > page.number + 1}" >
+							            <form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${page.number + 2})} "method="post" th:id="page+${page.number  + 2}">
+							                <input type="submit" th:class=page-link "${page.number=page.number + 2} ? active" th:value=次へ th:id="page+${page.number  + 2}">
+							                <input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${page.number + 2}">
+							            </form>	
+							        </div>
+							        <div th:if="${page.totalPages == page.number + 1}" >
+							            <form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${page.number  + 1})} "method="post" th:id="page+${page.number  + 1}">
+							                <input type="submit" th:class=page-link "${page.number==page.number  + 1} ? active" th:value=次へ th:id="page+${page.number  + 1}">
+							                <input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${page.number  + 1}">	
+							            </form>
+							        <div>
+							    </li>
+							</div>
 						</ul>
-					</nav>
+					</nav>		
 				</div>
 			</div>
 		</div>
 		　<td>
 			<div align="right">
-			　<form method="post" th:action="@{/orderHistory}">
-				　<input type="submit" class="btn btn-primary" style="width:100px" value="戻る">
-			　</form>
+			    <button type="button" class="btn btn-primary" style="width:100px" id="btn" onclick="msg('back')">戻る</button>
 			</div>
 		　</td>
 </body>

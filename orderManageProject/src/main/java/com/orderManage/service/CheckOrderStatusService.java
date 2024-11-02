@@ -1,10 +1,16 @@
 package com.orderManage.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.orderManage.controller.object.CheckOrderStatusForm;
 import com.orderManage.controller.object.CheckOrderStatusSubForm;
 import com.orderManage.model.api.CategorieInfo;
 import com.orderManage.model.api.ProductImageInfo;
@@ -218,7 +224,7 @@ public class CheckOrderStatusService extends OrderManageService {
 				 //画像が登録されていない商品にダミー画像を設定する。 
 				 for (int u=0; u<productImageInfoListTrue.size(); u++){
 					  if(productImageInfoListTrue.get(u).getUrl().equals("")){
-						  productImageInfoListTrue.get(u).setUrl("http://localhost:8080/img/no_image.png");
+						  productImageInfoListTrue.get(u).setUrl("http://localhost:8080/orderManageProject/img/no_image.png");
 					  }
 				  }
 				  				  		    
@@ -227,7 +233,7 @@ public class CheckOrderStatusService extends OrderManageService {
 			return productImageInfoListTrue;
 		}
 		 
-	 public List<CheckOrderStatusSubForm> getMeisai(SmarejiUser smarejiUser, String orderId) {
+	 public CheckOrderStatusForm getMeisai(SmarejiUser smarejiUser, String orderId) {
 		
 		/**
 		 * 発注状況画面 全メソッドを動かして明細部の情報を総取得する。
@@ -272,7 +278,8 @@ public class CheckOrderStatusService extends OrderManageService {
 		    
 		    
 			List<CheckOrderStatusSubForm> CheckOrderStatusSubForm = new ArrayList<CheckOrderStatusSubForm>();
-			
+			CheckOrderStatusForm CheckOrderStatusForm = new CheckOrderStatusForm();
+
 			
 			//取得件数分のデータを表示用サブフォームに詰め替える
 			for (int i=0; i<roop; i++) {
@@ -290,11 +297,41 @@ public class CheckOrderStatusService extends OrderManageService {
 		    CheckOrderStatusSubForm.add(COSF);
 		    logger.info(String.valueOf(i)+"終了");
 			}
+			
+			CheckOrderStatusForm.setDisplayList(CheckOrderStatusSubForm);
+			CheckOrderStatusForm.setOrderId(orderId);
 		     
 			logger.info("getMeisai:発注状況画面明細部情報一覧取得 処理終了");
 			
-		    return CheckOrderStatusSubForm;	        
+		    return CheckOrderStatusForm;	        
 	}
 	
-   
+	 /**
+		 * ページング処理
+		 * 
+		 * @param pageable 
+		 * @param form 発注状況画面Form
+		 * @return
+		 */
+		public Page<CheckOrderStatusSubForm> paging(Pageable pageable, CheckOrderStatusForm form) {
+
+			List<CheckOrderStatusSubForm> dispList = form.getDisplayList();
+
+			int pageSize = pageable.getPageSize();
+			int currentPage = pageable.getPageNumber();
+			int startItem = currentPage * pageSize;
+
+			List<CheckOrderStatusSubForm> list;
+		
+			if(dispList.size() < startItem) {
+				list = Collections.emptyList();
+			} else {
+				int toIndex = Math.min(startItem + pageSize , dispList.size());
+				list = dispList.subList(startItem, toIndex);
+			}
+			
+			Page<CheckOrderStatusSubForm> CheckOrderStatusPage = new PageImpl<CheckOrderStatusSubForm>(list, PageRequest.of(currentPage, pageSize),dispList.size());
+			return CheckOrderStatusPage;
+			
+		}
 }
