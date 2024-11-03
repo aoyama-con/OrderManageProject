@@ -1,18 +1,34 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-	integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+
+<link th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css}" rel="stylesheet"  
+	integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"/>
+<script th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js}"
 	integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
 	crossorigin="anonymous"></script>
-<script th:src="@{/js/common.js}"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css">
+<link rel="stylesheet" th:href="@{https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css}"/>
 <!-- jQuery本体 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script th:src="@{https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js}"></script>
 <!-- jQuery UI -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script th:src="@{https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js}"></script>
 <!-- 日本語化ファイル -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/i18n/jquery.ui.datepicker-ja.min.js"></script>
+<script th:src="@{https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/i18n/jquery.ui.datepicker-ja.min.js}"></script>
+<!-- 検索モーダル制御 -->
+<script type="text/javascript" th:src="@{/js/modal.js}"></script>
+<script th:src="@{/js/common.js}"></script>
+
+<script>
+	function func(type) {
+		document.form.type.value = type;
+alert(type)
+		if (type == "0") {
+			document.form.submit();
+		} else if (type == "1") {
+			$('#form').attr('action', '/orderManageProject/checkOrderConfirm');
+			document.form.submit();
+		}
+	}
+</script>
 
 <head>
 	<meta charset="UTF-8">
@@ -23,16 +39,31 @@
 	<div class="container">
 		<BR>
 		<div align="right">
-			<button type="button" class="btn btn-primary">ログアウト</button>
+			<form method="post" th:action="@{/logout}" id="logoutForm">
+				<input type="button" id ="logout" class="btn btn-primary" value="ログアウト">
+			</form>
 		</div>
 
 		<div align="center">
 			<h2>発注確定</h2>
 		</div>
-	</div>
-	<BR>
 		
-	<div class="container">
+		<BR>
+		<div class="container">
+			<table>
+				<tr th:if="${validationError}" th:each="error : ${validationError}">
+					<td style="color:red;" th:text="${error}"></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="container-sm">
+		<form th:action="@{/orderConfirm_Order}" th:method="post" th:object="${orderConfirmForm}" name="form" id="form">
+		<input type="hidden" name="type" value="" />
+
+		<p class="border-bottom" align="center">
+		</p>
+		<BR>
 		<table class="table table-bordered">
 			<thead class="table-info">
 				<tr>
@@ -40,24 +71,7 @@
 					<th scope="col" class="align-middle text-center">商品ID/商品CD/商品名</th>
 					<th scope="col" class="align-middle text-center">仕入先</th>
 					<th scope="col" class="align-middle text-center">部門名</th>
-					<!--<th colspan="5" scope="col" class="text-center" style="padding :0;">
-						<table width="100%" class="table table-bordered" style="margin :0;">
-							<thead>
-								<tr>
-									<th colspan="5" class="table-info align-middle text-center">販売点数(合計)</th>
-								</tr>
-								<tr>
-									<th class="table-info align-middle text-center">4週</th>
-									<th class="table-info align-middle text-center">3週</th>
-									<th class="table-info align-middle text-center">2週</th>
-									<th class="table-info align-middle text-center">前週</th>
-									<th class="table-info align-middle text-center">当週</th>
-								</tr>
-							</thead>
-						</table>-->
-					</th>
 					<th scope="col" class="align-middle text-center">在庫点数<BR></th>
-					<!--<th scope="col" class="align-middle text-center">在庫日数<BR>当週</th>-->
 					<th scope="col" class="align-middle text-center">発注点数</th>
 				</tr>
 			</thead>
@@ -79,25 +93,15 @@
 					</td>
 					<td class="align-middle text-center" th:text="${order.supplierName}"></td>
 					<td class="align-middle text-center" th:text="${order.categoryName}"></td>
-					<!--<td class="align-middle text-right" th:text="${order.fourWeekNumberSales}"></td>
-					<td class="align-middle text-end" th:text="${order.threeWeekNumberSales}"></td>
-					<td class="align-middle text-end" th:text="${order.towWeekNumberSales}"></td>
-					<td class="align-middle text-end" th:text="${order.oneWeekNumberSales}"></td>
-					<td class="align-middle text-end" th:text="${order.thisWeekNumberSales}"></td>-->
 					<td class="align-middle text-end" th:text="${order.stockAmount}"></td>
-					<!--<td class="align-middle text-right" th:text="${order.stockDays}"></td>-->
-					<!--<td class="align-middle text-center"><input type="text" name="orderCnt1" id="orderCnt1" /></td>-->
-					<td class="align-middle text-center"><input type="text" name="orderingPoint" th:value="${order.orderingPoint}"></td>
+					<td class="align-middle text-center"><input type="text" name="orderingPoint_" th:value="${order.orderingPoint}"></td>
 				</tr>
 			</tbody>
 		</table>
-	</div>
-	<div class="container">
-		<div class="row">
-			<div align="right">
-				<button type="button" class="btn btn-primary">戻る</button>
-				<button type="button" class="btn btn-primary">発注確定</button>
-			</div>
+		</form>
+		<div align="right">
+			<button type="button" class="btn btn-primary" onclick="func('1')">戻る</button>
+			<button type="button" class="btn btn-primary" onclick="func('0')">発注確定</button>
 		</div>
 	</div>
 </body>

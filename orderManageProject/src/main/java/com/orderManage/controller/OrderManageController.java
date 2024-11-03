@@ -27,6 +27,7 @@ import com.orderManage.controller.object.CheckOrderConfirmSubForm;
 import com.orderManage.controller.object.CheckOrderStatusForm;
 import com.orderManage.controller.object.CheckOrderStatusSubForm;
 import com.orderManage.controller.object.OrderConfirmForm;
+import com.orderManage.controller.object.OrderConfirmSubForm;
 import com.orderManage.controller.object.OrderHistoryForm;
 import com.orderManage.controller.object.OrderHistorySubForm;
 import com.orderManage.controller.object.OrderInputForm;
@@ -363,7 +364,7 @@ public class OrderManageController {
 	 * @return 発注入力画面 orderDate
 	 */
 	@RequestMapping("/orderInput")
-  public String orderInput(@ModelAttribute @Validated StoreChoiceForm object, BindingResult bindingResult, 
+	public String orderInput(@ModelAttribute @Validated StoreChoiceForm object, BindingResult bindingResult, 
 		  @RequestHeader(value = "referer", required = false) final String referer, 
 		  Model model) {
 
@@ -441,7 +442,7 @@ public class OrderManageController {
 	 * @return
 	 */
 	@RequestMapping("/orderInput_self")
-  public String orderInput_self(@ModelAttribute @Validated OrderInputForm object, BindingResult bindingResult, 
+	public String orderInput_self(@ModelAttribute @Validated OrderInputForm object, BindingResult bindingResult, 
 		  @RequestHeader(value = "referer", required = false) final String referer, 
 		  Model model) {
 
@@ -828,6 +829,7 @@ public class OrderManageController {
 		
         return "checkOrderConfirm";
 	}
+
 	/**
 	 * 発注確定画面遷移時に制御するコントローラー
 	 * 
@@ -842,16 +844,74 @@ public class OrderManageController {
 		// TODO テスト用
 		//orderId = "27";
 		
+		// 画面表示情報をセッションから削除
+		smarejiSession.removeAttribute("s_OrderDisplayInfo");		
+
 		// 店舗情報を取得
 		StoreInfo storeInfo = (StoreInfo) smarejiSession.getAttribute("s_StoresInfo");
 		
 		// 画面表示情報取得
 		OrderConfirmForm form = orderConfirmService.getDisplayInfo(smarejiUser, orderId, storeInfo.getStoreId());
 
+		// セッションに画面内容を設定(発注IDを追加で設定)
+		form.setOrderId(orderId);
+		smarejiSession.setAttribute("s_OrderDisplayInfo", form);
+		
+		// 発注IDの引き渡し
+		model.addAttribute("orderId", orderId);
+
 		// 画面に返す
 		model.addAttribute("orderConfirmForm", form);
 		
         return "orderConfirm";
+	}
+	
+	/**
+	 * 発注確定処理を行う
+	 * 
+	 * @param model　パラメータ受け渡し制御Model
+	 * @return　発注確定画面
+	 */
+	@RequestMapping("/orderConfirm_Order")
+    public String orderConfirm_Order(@ModelAttribute @Validated OrderConfirmForm object, BindingResult bindingResult, 
+    		@RequestHeader(value = "referer", required = false) final String referer,
+    		Model model) {
+		
+		logger.info("controller:発注確定画面　登録処理_order start");
+
+		OrderConfirmForm form = new OrderConfirmForm();
+
+		// バリデートチェック
+        if (bindingResult.hasErrors()) {
+        	// エラーの場合
+            List<String> errorList = new ArrayList<String>();
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                errorList.add(error.getDefaultMessage());
+            }
+            model.addAttribute("validationError", errorList);
+            //object.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));	// TODO objectの使い回しは微妙？
+            model.addAttribute("orderConfirmForm", object);
+
+    		// ページング処理でNULLだと落ちるので空のオブジェクト
+    		form.setDisplayList(new ArrayList<OrderConfirmSubForm>());
+
+             return "orderConfirm";
+        }
+
+        // セッションから発注情報を取得
+        form = (OrderConfirmForm)smarejiSession.getAttribute("s_OrderDisplayInfo");
+		//　発注点数が変更されている場合は発注点を変更する
+
+        
+		// 発注更新処理(仮発注→発注済)
+		
+		// 仕入先にメールを飛ばす or メールが存在しない場合は発注書のテンプレートを出力する（FAX用）
+
+		// 仮発注が残っているかどうかで遷移先が分かれる
+        
+        logger.info("controller:発注確定画面　登録処理_order end");
+        
+        return "checkOrderConfirm";
 	}
 
 	/**
