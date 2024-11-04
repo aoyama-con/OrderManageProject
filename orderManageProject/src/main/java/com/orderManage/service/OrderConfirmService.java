@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.orderManage.controller.object.OrderConfirmForm;
 import com.orderManage.controller.object.OrderConfirmSubForm;
 import com.orderManage.model.api.CategorieInfo;
+import com.orderManage.model.api.DeliveryStore;
 import com.orderManage.model.api.OrderProducts;
 import com.orderManage.model.api.ProductImageInfo;
 import com.orderManage.model.api.ProductsInfo;
@@ -21,6 +22,9 @@ import com.orderManage.model.param.ParamProductInfo;
 import com.orderManage.model.param.ParamPurchaseOrderInfo;
 import com.orderManage.model.param.ParamStockInfo;
 import com.orderManage.model.param.ParamSupplierInfo;
+import com.orderManage.model.param.ParamUpdatePurchasOrderDeliveryStore;
+import com.orderManage.model.param.ParamUpdatePurchaseOrder;
+import com.orderManage.model.param.ParamUpdatePurchaseOrderProduct;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.util.SmarejiApiAccess;
 import com.orderManage.util.SmarejiApiAccessMock;
@@ -523,4 +527,140 @@ public class OrderConfirmService extends OrderManageService {
 //
 //		return transactionsInfoList;
 //	}
+	
+	/**
+	 * 発注更新を行う
+	 * 
+	 * 発注確定画面にて入力された発注に対して発注済みとする
+	 * 
+	 * @param smarejiUser スマレジユーザ情報
+	 * @param orderId 発注ID
+	 * @param storeId 店舗ID
+	 * @param OrderConfirmList 発注確定画面情報
+	 * @return List<SuppliersInfo> 
+	 */
+
+	public PurchaseOrdersInfo updatePurchaseOrder(SmarejiUser smarejiUser, String orderId, String storeId,
+			List<OrderConfirmSubForm> OrderConfirmList) {
+		
+		// 発注情報の取得
+		PurchaseOrdersInfo purchaseOrdersInfo = getOrderInfo(smarejiUser, orderId);
+		
+		// 発注更新内容設定
+		ParamUpdatePurchaseOrder paramUpdatePurchaseOrder = new ParamUpdatePurchaseOrder();
+		// ステータス
+		paramUpdatePurchaseOrder.setStatus("2");
+		// 発注処理時のスタッフID
+		paramUpdatePurchaseOrder.setStaffId(smarejiUser.getContract().getUser_id());
+		// 税丸め（0:四捨五入、1:切り捨て、2:切り上げ） 更新時必須とエラーが発生のため
+		paramUpdatePurchaseOrder.setRoundingDivision("0");
+
+		// 発注対象商品リスト（products）
+		ArrayList<ParamUpdatePurchaseOrderProduct> opList = new ArrayList<ParamUpdatePurchaseOrderProduct>(); 
+		// 発注配送商品リスト（products.deliveryStore）
+		ArrayList<ParamUpdatePurchasOrderDeliveryStore> dsList = new ArrayList<ParamUpdatePurchasOrderDeliveryStore>();
+		
+		// 発注対象商品(products)
+		ParamUpdatePurchaseOrderProduct op;
+		// 発注配送商品(products.deliveryStore)
+		ParamUpdatePurchasOrderDeliveryStore ds;
+
+		// 発注確定画面にて入力された発注内容を更新（発注点数）
+		for (OrderConfirmSubForm order : OrderConfirmList) {
+
+			//　該当の商品IDを発注情報から探す(発注対象商品)
+			for ( OrderProducts orderProducts : purchaseOrdersInfo.getProducts()) {
+				// 商品情報初期化
+				dsList = new ArrayList<ParamUpdatePurchasOrderDeliveryStore>();
+				op = new ParamUpdatePurchaseOrderProduct();
+
+				// 発注IDが同じものを探す
+				if (orderProducts.getProductId().equals(order.getProductId())) {
+
+					// 発注商品ID(自動採番)設定
+					op.setStorageInfoProductId(orderProducts.getStorageInfoProductId());
+					
+					//　該当の店舗IDを発注情報から探す(発注配送商品)
+					for (DeliveryStore deliveryStore :orderProducts.getDeliveryStore()) {
+						// 発注配送商品初期化
+						ds = new ParamUpdatePurchasOrderDeliveryStore();
+						
+						// 店舗IDが同じものを探す
+						if (deliveryStore.getStoreId().equals(storeId)) {
+							// 発注配送商品ID(自動採番)設定
+							ds.setStorageInfoDeliveryProductId(deliveryStore.getStorageInfoDeliveryProductId());
+							// 発注点数設定
+							ds.setQuantity(String.valueOf(order.getOrderingPoint()));
+						}
+						dsList.add(ds);
+					}
+					
+					// products.deliveryStore設定
+					op.setDeliveryStore(dsList);
+					// products設定
+					opList.add(op);
+				}
+			}
+		}
+		
+		// 発注対象商品の設定
+		paramUpdatePurchaseOrder.setProducts(opList);
+		// 発注対象店舗の設定（nullを設定しないとエラーとなる）
+		paramUpdatePurchaseOrder.setStores(null);
+
+		
+		// 発注対象商品 array ///////////////////////////////////////////////////////////		
+//		// テスト商品12 設定
+////		ParamUpdatePurchaseOrderProduct op = new ParamUpdatePurchaseOrderProduct();
+//		// 発注商品ID 更新の場合は指定　登録時自動採番した値
+//		op.setStorageInfoProductId("32");
+//		// 商品ID NULL設定不可
+////		op.setProductId("8000010");
+//		// コスト NULL設定不可
+////		op.setCost("400");
+//		ParamUpdatePurchasOrderDeliveryStore ds = new ParamUpdatePurchasOrderDeliveryStore();
+//		ds.setStorageInfoDeliveryProductId("32");
+////		ds.setStoreId("3");
+//		ds.setQuantity("500");
+//		dsList.add(ds);
+//		op.setDeliveryStore(dsList);
+//		opList.add(op);
+//		
+//		// テスト商品１ 設定
+//		dsList = new ArrayList<ParamUpdatePurchasOrderDeliveryStore>();
+//		op = new ParamUpdatePurchaseOrderProduct();
+//		// 発注商品ID 更新の場合は指定　登録時自動採番した値
+//		op.setStorageInfoProductId("33");
+//		// 商品ID NULL設定不可
+////		op.setProductId("8000001");
+//		// コスト NULL設定不可
+////		op.setCost("50");
+//		ds = new ParamUpdatePurchasOrderDeliveryStore();
+//		ds.setStorageInfoDeliveryProductId("33");
+////		ds.setStoreId("3");
+//		ds.setQuantity("600");
+//		dsList.add(ds);
+//		op.setDeliveryStore(dsList);
+//		opList.add(op);
+//		
+//		paramUpdatePurchaseOrder.setProducts(opList);
+		//////////////////////////////////////////////////////////////////////////////
+
+		// 発注対象店舗 array ///////////////////////////////////////////////////////////
+//		ArrayList<ParamUpdatePurchaseOrderStore> osList = new ArrayList<ParamUpdatePurchaseOrderStore>();
+//		ParamUpdatePurchaseOrderStore os = new ParamUpdatePurchaseOrderStore();
+////		// 発注配送店舗ID 更新の場合は指定　登録時に自動更新した値
+//		os.setStorageInfoDeliveryId("19");
+////		// 配送店舗ID NULL設定不可
+//////		os.setStorageStoreId("3");
+//////		ds.setQuantity("200");
+//		osList.add(os);
+//		paramUpdatePurchaseOrder.setStores(osList);
+		//////////////////////////////////////////////////////////////////////////////
+		
+		purchaseOrdersInfo = smarejiApiAccess.updatePurchaseOrder(smarejiUser.getContract().getId(), orderId, 
+				paramUpdatePurchaseOrder);
+
+		return purchaseOrdersInfo;
+	}
 }

@@ -841,8 +841,10 @@ public class OrderManageController {
     		@RequestHeader(value = "referer", required = false) final String referer,
     		Model model) {
 		
-		// TODO テスト用
+		// テスト用
 		//orderId = "27";
+		
+		/** TODO 発注確認 or 発注確定　どちらから来たか判定して処理を行う必要がある **/
 		
 		// 画面表示情報をセッションから削除
 		smarejiSession.removeAttribute("s_OrderDisplayInfo");		
@@ -880,6 +882,8 @@ public class OrderManageController {
 		logger.info("controller:発注確定画面　登録処理_order start");
 
 		OrderConfirmForm form = new OrderConfirmForm();
+		OrderConfirmForm updateForm = new OrderConfirmForm();
+		List<OrderConfirmSubForm> updateList = new ArrayList<OrderConfirmSubForm>();
 
 		// バリデートチェック
         if (bindingResult.hasErrors()) {
@@ -893,17 +897,31 @@ public class OrderManageController {
             model.addAttribute("orderConfirmForm", object);
 
     		// ページング処理でNULLだと落ちるので空のオブジェクト
-    		form.setDisplayList(new ArrayList<OrderConfirmSubForm>());
+            form.setDisplayList(new ArrayList<OrderConfirmSubForm>());
 
              return "orderConfirm";
         }
 
         // セッションから発注情報を取得
         form = (OrderConfirmForm)smarejiSession.getAttribute("s_OrderDisplayInfo");
-		//　発注点数が変更されている場合は発注点を変更する
-
+        // セッションから店舗情報を取得
+     	StoreInfo storeInfo = (StoreInfo) smarejiSession.getAttribute("s_StoresInfo");
         
+		//　発注点数更新
+        int i = 0;
+        for (OrderConfirmSubForm orderConfirmSubForm : form.getDisplayList()) {
+        	// 画面に表示されている発注点数に設定する
+        	orderConfirmSubForm.setOrderingPoint(Integer.valueOf(object.getOrderingPoint_()[i]));
+        	updateList.add(orderConfirmSubForm);
+        	i++;
+        }
+
+        // セッション内容の更新(発注点数)
+        form.setDisplayList(updateList);
+     	smarejiSession.setAttribute("s_OrderDisplayInfo", form);
+
 		// 発注更新処理(仮発注→発注済)
+        orderConfirmService.updatePurchaseOrder(smarejiUser, form.getOrderId(), storeInfo.getStoreId(), updateList);
 		
 		// 仕入先にメールを飛ばす or メールが存在しない場合は発注書のテンプレートを出力する（FAX用）
 

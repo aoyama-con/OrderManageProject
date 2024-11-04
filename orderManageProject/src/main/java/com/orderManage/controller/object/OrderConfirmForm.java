@@ -88,4 +88,5 @@ public class OrderConfirmForm implements Serializable {
 	public void setOrderingPoint_(String[] orderingPoint_) {
 		this.orderingPoint_ = orderingPoint_;
 	}
+
 }
