@@ -633,7 +633,7 @@ public class OrderInputService extends OrderManageService {
 	 * ページング処理
 	 * 
 	 * @param pageable 
-	 * @param form 発注確認画面Form
+	 * @param form 発注入力画面Form
 	 * @return
 	 */
 	public Page<OrderInputSubForm> paging(Pageable pageable, OrderInputForm form) {

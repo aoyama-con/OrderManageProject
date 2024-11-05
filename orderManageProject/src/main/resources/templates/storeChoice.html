@@ -75,7 +75,6 @@
 							<td class="align-middle text-center">
 								<select id="sotre_list" name="storeId" class="form-select"
 									aria-label="Default select example">
-<!--									<option value="0" selected></option>	-->
 									<option value="" selected></option>
 									<option th:each="storeInfo:${storeChoiceForm.storeInfos}" th:value="${storeInfo.key}"
 										th:text="${storeInfo.value}" th:selected="${storeInfo.key == storeId}">
@@ -83,15 +82,6 @@
 								</select>
 							</td>
 						</tr>
-						<!-- 発注日は削除されたためコメントアウト　20240430
-						<tr>
-							<td class="align-middle text-left">発注日</td>
-							<td class="align-middle text-left">
-								<input type="date" name="orderDate" id="dateFrom" th:value="${storeChoiceForm.orderDate}">
-								<input type="hidden" name="sysDate" th:value="${storeChoiceForm.sysDate}">
-							</td>
-						</tr>
-						-->
 					</tbody>
 				</table>
 			</div>
@@ -101,8 +91,6 @@
 				<table>
 					<tr>
 						<td>
-
-<!--							<button type="submit" class="btn btn-primary">発注入力</button>-->
 							<button type="button" class="btn btn-primary" onclick="funcOrderInput()">発注入力</button>
 		</form>
 		</td>
