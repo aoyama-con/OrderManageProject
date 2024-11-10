@@ -853,11 +853,62 @@ public class OrderManageController {
 		
 		// 仕入先にメールを飛ばす or メールが存在しない場合は発注書のテンプレートを出力する（FAX用）
 
-		// 仮発注が残っているかどうかで遷移先が分かれる
-        
+
+        // 発注確認画面の画面表示情報を取得
+     	CheckOrderConfirmForm checkOrderConfirmForm = (CheckOrderConfirmForm)smarejiSession.getAttribute("s_OrderConfirmDisplayInfo");
+        List<CheckOrderConfirmSubForm> displayList = checkOrderConfirmForm.getDisplayList();
+
+        //発注更新した発注情報は削除画面表示から削除する
+     	int listNo = 0;
+        for (CheckOrderConfirmSubForm list : displayList) {
+        	// 発注IDが同じ場合は削除する
+        	if (list.getOrderId().equals(form.getOrderId())) {
+        		displayList.remove(listNo);
+        		break;
+        	}
+        	listNo++;
+        }
         logger.info("controller:発注確定画面　登録処理_order end");
         
-        return "checkOrderConfirm";
+		// 遷移先判定処理　TODO
+        if (referer.contains("orderConfirm")) {
+        	if (checkOrderConfirmForm.getDisplayList().size() >= 1) {
+        		// 発注情報が残っている場合は発注確認画面に遷移
+        		
+                // 画面表示再設定
+                checkOrderConfirmForm.setDisplayList(displayList);
+
+                // 画面表示情報をセッションに格納
+        		smarejiSession.setAttribute("s_OrderConfirmDisplayInfo", checkOrderConfirmForm);
+
+        		// ページング処理
+        		// TODO 定数化、発注確定からの戻りの場合はセッションからcurrentPageを取得する
+        		int currentPage = 1;
+        		int pageSize= 20;
+        		Page<CheckOrderConfirmSubForm> pageable = checkOrderConfirmService.paging(PageRequest.of(currentPage - 1, pageSize), 
+        				checkOrderConfirmForm);
+        		model.addAttribute("page", pageable);
+        		
+        		int totalPages = pageable.getTotalPages();
+        		if(totalPages > 0) {
+        			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+        			model.addAttribute("pageNumbers", pageNumbers);
+        		}
+             	// 画面に設定する
+             	model.addAttribute("checkOrderConfirmForm", checkOrderConfirmForm);
+
+        		return "checkOrderConfirm";
+        	} else {
+        		// 発注情報が残っていない場合、発注履歴画面に遷移　TODO 
+        		return "orderHistory";
+        	}
+        } else if (referer.contains("orderHistory")) {
+        	// 発注履歴画面から遷移してきた場合、発注履歴画面に遷移　TODO
+        	return "orderHistory";
+        } else {
+        	// 意図しない画面遷移のためエラー　TODO
+        	return "error";
+        }
 	}
 
 	/**
