@@ -1,6 +1,7 @@
 package com.orderManage.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -412,7 +413,12 @@ public class OrderManageController {
 
 		// 入力チェックエラーの場合の為に部門一覧をセッションに保持しておく
 		smarejiSession.setAttribute("categoryInfos", categoryMap);
-        
+
+		// TODO
+		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
+		orderSessionInfo.setOrderInputForm(form);
+		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
+		
 		logger.info("controller:発注入力画面表示処理 end");
 		
 		return "orderInput";
@@ -508,6 +514,11 @@ public class OrderManageController {
 		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
 		orderSessionInfo.setOrderInputForm(form);
 		
+		// TODO
+		smarejiSession.setAttribute("orderInputPage", "1");
+		Map<String, String[]> orderAmountMap = new HashMap<String, String[]>();
+		orderSessionInfo.setOrderAmountMap(orderAmountMap);
+		
 		// セッションに検索条件と検索結果を保持
 		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
 		
@@ -596,10 +607,31 @@ public class OrderManageController {
 			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
 			model.addAttribute("pageNumbers", pageNumbers);
 		}
+
+		// TODO
+		Map<String, String[]> orderAmountMap = orderSessionInfo.getOrderAmountMap();
+		String orderAmount[] = orderAmountMap.get(String.valueOf(page));
+		List<OrderInputSubForm> displayList = form.getDisplayList();
+		for (int i = 0, j = 0; i < displayList.size(); i++) {
+			if (i >= (page - 1) * pagesize_orderinput || page * pagesize_orderinput < i) {
+				if (orderAmount != null && orderAmount.length != 0 && orderAmount.length > j) {
+					displayList.get(i).setOrderAmount(orderAmount[j]);
+					j++;
+				}
+			}
+		}
+		form.setDisplayList(displayList);
+		
 		
 		// 画面に設定する
 		model.addAttribute("categoryId", form.getCategoryId());
 		model.addAttribute("orderInputForm", form);
+		
+		// TODO
+		String orderInputPage = (String) smarejiSession.getAttribute("orderInputPage");
+		orderAmountMap.put(orderInputPage, object.getOrderAmount_());
+		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
+		smarejiSession.setAttribute("orderInputPage", String.valueOf(page));
 		
 		logger.info("発注入力画面遷移処理　終了");
 		
@@ -638,9 +670,9 @@ public class OrderManageController {
 
     		OrderSessionInfo orderSessionInfo =  (OrderSessionInfo) smarejiSession.getAttribute("s_OrderInfo");
     		OrderInputForm form = orderSessionInfo.getOrderInputForm();
-    		
     		object.setDisplayList(form.getDisplayList());
-            model.addAttribute("orderInputForm", object);
+
+    		model.addAttribute("orderInputForm", object);
             
     		// ページング処理
     		int currentPage = 1;
@@ -665,8 +697,14 @@ public class OrderManageController {
 		Long datetime = System.currentTimeMillis();
 		identificationNo = datetime.toString();
 
+		// TODO
+		String orderInputPage = (String) smarejiSession.getAttribute("orderInputPage");  
+		Map<String, String[]> orderAmountMap = orderSessionInfo.getOrderAmountMap();
+		orderAmountMap.put(orderInputPage, object.getOrderAmount_());
+		
 		// 仮発注登録
-		Map<String, String> orderMap = orderInputService.entryPurchaseOrder(smarejiUser, object, storeInfo.getStoreId(), identificationNo);
+//		Map<String, String> orderMap = orderInputService.entryPurchaseOrder_old(smarejiUser, object, storeInfo.getStoreId(), identificationNo);
+		Map<String, String> orderMap = orderInputService.entryPurchaseOrder(smarejiUser, storeInfo.getStoreId(), identificationNo, orderSessionInfo.getOrderInputForm().getDisplayList(), orderAmountMap, pagesize_orderinput);
 
 		Iterator<Map.Entry<String, String>> it = orderMap.entrySet().iterator();
 
@@ -680,8 +718,8 @@ public class OrderManageController {
 		orderSessionInfo.setStorageInfoIdList(storageInfoIdList);	// 発注ID
 		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
 		
-		smarejiSession.setAttribute("orderAmount_", object.getOrderAmount_());	// TODO 修正中
-		smarejiSession.setAttribute("orderMap", orderMap);	// TODO 修正中
+//		smarejiSession.setAttribute("orderAmount_", object.getOrderAmount_());	// TODO 修正中
+//		smarejiSession.setAttribute("orderMap", orderMap);	// TODO 修正中
 
 		// セッションから情報を取得
 		// 発注入力画面で設定した情報 TODO 不要なら削除すること

@@ -501,49 +501,179 @@ public class OrderInputService extends OrderManageService {
 		return orderInputForm;
 	}
 
+//	/**
+//	 * 
+//	 * @param smarejiUser
+//	 * @param object
+//	 * @param storeId
+//	 * @param identificationNo
+//	 * @return
+//	 */
+//	public Map<String, String> entryPurchaseOrder_old(SmarejiUser smarejiUser, OrderInputForm object, String storeId, String identificationNo) {
+//
+//		Map<String, String> resultMap = new HashMap<String, String>();
+//		List<String> storageInfoIdList = new ArrayList<String>();
+//		Map<String, List<String[]>> orderMap = new HashMap<String, List<String[]>>();
+//
+//		String[] orderAmount = object.getOrderAmount_();
+//		String[] productId = object.getProductId_();
+//		String[] supplierId = object.getSupplierId_();
+//
+//		
+//		
+//		if (orderAmount == null || orderAmount.length == 0) {
+////			return storageInfoIdList;
+//			return resultMap;
+//		}
+//		
+//		for (int i = 0; i < object.getOrderAmount_().length; i++) {
+//			if (StringUtils.isEmpty(orderAmount[i])) {
+//				continue;
+//			}
+//
+//			// 仕入先が存在する場合
+//			if (orderMap.containsKey(supplierId[i])) {
+//				List<String[]> orderList = orderMap.get(supplierId[i]);
+//				orderList.add(new String[] { productId[i], orderAmount[i] });
+//				orderMap.put(supplierId[i], orderList);
+//			// 仕入先が存在しない場合
+//			} else {
+//				List<String[]> orderList = new ArrayList<String[]>();
+//				orderList.add(new String[] { productId[i], orderAmount[i] });
+//				orderMap.put(supplierId[i], orderList);
+//			}
+//		}
+//
+//		
+//		Iterator<Map.Entry<String, List<String[]>>> it = orderMap.entrySet().iterator();
+//		
+//		while (it.hasNext()) {
+//			
+//			Map.Entry<String, List<String[]>> order = it.next();
+//			
+//			// 発注登録内容設定
+//			ParamEntryPurchaseOrder paramEntryPurchaseOrder = new ParamEntryPurchaseOrder();
+//			// 発注先ID
+//			paramEntryPurchaseOrder.setRecipientOrderId(order.getKey());	// 仕入先
+//			// 発注日
+//			paramEntryPurchaseOrder.setOrderedDate(DateUtil.getSysDateYyyyMmDd());	// システム日付
+////			// メモ
+////			paramEntryPurchaseOrder.setMemo("共通ライブラリテストメモ");
+//			// 識別番号 現在時刻（UNIXTIME）を使用
+////			Long datetime = System.currentTimeMillis();
+////			paramEntryPurchaseOrder.setIdentificationNo(datetime.toString());
+//			paramEntryPurchaseOrder.setIdentificationNo(identificationNo);
+////			// 税丸め（0:四捨五入、1:切り捨て、2:切り上げ）
+////			paramEntryPurchaseOrder.setRoundingDivision("0");
+//			// ステータス
+//			paramEntryPurchaseOrder.setStatus("5");
+//			// 発注処理時のスタッフID
+//			paramEntryPurchaseOrder.setStaffId(smarejiUser.getContract().getUser_id());
+//			
+//			// 発注対象商品 array ///////////////////////////////////////////////////////////
+//			ArrayList<ParamEntryPurchaseOrderProduct> opList = new ArrayList<ParamEntryPurchaseOrderProduct>(); 
+//
+//			List<String[]> valueList = order.getValue();
+//
+//			for (int j = 0; j < valueList.size(); j++) {
+//				String[] value = valueList.get(j);
+//				
+//				// テスト商品12 設定
+//				ParamEntryPurchaseOrderProduct op = new ParamEntryPurchaseOrderProduct();
+//				op.setProductId(value[0]);
+//				// コスト　NULL不可
+//	//			op.setCost("400");
+//				ArrayList<ParamEntryPurchaseOrderDeliveryStore> dsList = new ArrayList<ParamEntryPurchaseOrderDeliveryStore>();
+//				ParamEntryPurchaseOrderDeliveryStore ds = new ParamEntryPurchaseOrderDeliveryStore();
+//				ds.setStoreId(storeId);
+//				// 発注数量
+//				ds.setQuantity(value[1]);
+//				dsList.add(ds);
+//				op.setDeliveryStore(dsList);
+//				opList.add(op);
+//			}
+//			
+//			paramEntryPurchaseOrder.setProducts(opList);
+//			//////////////////////////////////////////////////////////////////////////////
+//
+//			// 発注対象店舗 array ///////////////////////////////////////////////////////////
+//			ArrayList<ParamEntryPurchaseOrderStore> osList = new ArrayList<ParamEntryPurchaseOrderStore>();
+//			ParamEntryPurchaseOrderStore os = new ParamEntryPurchaseOrderStore();
+//			os.setStorageStoreId(storeId);
+//			osList.add(os);
+//			paramEntryPurchaseOrder.setStores(osList);
+//			//////////////////////////////////////////////////////////////////////////////
+//			
+//
+//			PurchaseOrdersInfo purchaseOrdersInfo = smarejiApiAccess.entryPurchaseOrder(smarejiUser.getContract().getId(), paramEntryPurchaseOrder);
+//			
+//			logger.info("発注ID：" + purchaseOrdersInfo.getStorageInfoId());
+//			
+//			storageInfoIdList.add(purchaseOrdersInfo.getStorageInfoId());
+//			
+//			resultMap.put(order.getKey(), purchaseOrdersInfo.getStorageInfoId());
+//		}
+//		
+//		return resultMap;
+//	}
+
 	/**
 	 * 
 	 * @param smarejiUser
-	 * @param object
 	 * @param storeId
 	 * @param identificationNo
+	 * @param displayList
+	 * @param orderAmountMap
+	 * @param pagesize
 	 * @return
 	 */
-	public Map<String, String> entryPurchaseOrder(SmarejiUser smarejiUser, OrderInputForm object, String storeId, String identificationNo) {
+	public Map<String, String> entryPurchaseOrder(SmarejiUser smarejiUser, String storeId, String identificationNo , List<OrderInputSubForm> displayList, Map<String, String[]> orderAmountMap, int pagesize) {
 
-		Map<String, String> resultMap = new HashMap<String, String>();
-		List<String> storageInfoIdList = new ArrayList<String>();
-		Map<String, List<String[]>> orderMap = new HashMap<String, List<String[]>>();
+		Map<String, String> resultMap = new HashMap<String, String>();	// 返却用のオブジェクト
+		List<String> storageInfoIdList = new ArrayList<String>();	// 発注IDリスト
+		Map<String, List<String[]>> orderMap = new HashMap<String, List<String[]>>();	// 
 
-		String[] orderAmount = object.getOrderAmount_();
-		String[] productId = object.getProductId_();
-		String[] supplierId = object.getSupplierId_();
+		int preidx = 0;
+		String[] orderAmount = null;
+		for (int i = 0, j = 0; i < displayList.size(); i++, j++) {
 
-		
-		
-		if (orderAmount == null || orderAmount.length == 0) {
-//			return storageInfoIdList;
-			return resultMap;
-		}
-		
-		for (int i = 0; i < object.getOrderAmount_().length; i++) {
-			if (StringUtils.isEmpty(orderAmount[i])) {
+			// 
+			int idx = i / pagesize + 1;
+
+			if (preidx != idx) {
+				orderAmount = orderAmountMap.get(String.valueOf(idx));
+				j = 0;
+				preidx = idx;
+			}
+
+			// 発注点が存在しない場合はスキップ
+			if (orderAmount == null || orderAmount.length == 0) {
 				continue;
 			}
 
+			// 発注点が0の場合はスキップ
+			if (StringUtils.isEmpty(orderAmount[j]) || "0".equals(orderAmount[j])) {
+				continue;
+			}
+			
+			String supplierId = displayList.get(i).getSupplierId();
+			String productId = displayList.get(i).getProductId();
 			// 仕入先が存在する場合
-			if (orderMap.containsKey(supplierId[i])) {
-				List<String[]> orderList = orderMap.get(supplierId[i]);
-				orderList.add(new String[] { productId[i], orderAmount[i] });
-				orderMap.put(supplierId[i], orderList);
+			if (orderMap.containsKey(supplierId)) {
+				List<String[]> orderList = orderMap.get(supplierId);
+				orderList.add(new String[] { productId, orderAmount[j] });
+				orderMap.put(supplierId, orderList);
 			// 仕入先が存在しない場合
 			} else {
 				List<String[]> orderList = new ArrayList<String[]>();
-				orderList.add(new String[] { productId[i], orderAmount[i] });
-				orderMap.put(supplierId[i], orderList);
+				orderList.add(new String[] { productId, orderAmount[j] });
+				orderMap.put(supplierId, orderList);
+			}
+
+			if (j == pagesize - 1) {
+				orderAmount = null;
 			}
 		}
-
 		
 		Iterator<Map.Entry<String, List<String[]>>> it = orderMap.entrySet().iterator();
 		
@@ -557,14 +687,9 @@ public class OrderInputService extends OrderManageService {
 			paramEntryPurchaseOrder.setRecipientOrderId(order.getKey());	// 仕入先
 			// 発注日
 			paramEntryPurchaseOrder.setOrderedDate(DateUtil.getSysDateYyyyMmDd());	// システム日付
-//			// メモ
-//			paramEntryPurchaseOrder.setMemo("共通ライブラリテストメモ");
-			// 識別番号 現在時刻（UNIXTIME）を使用
-//			Long datetime = System.currentTimeMillis();
-//			paramEntryPurchaseOrder.setIdentificationNo(datetime.toString());
+			// 識別番号
 			paramEntryPurchaseOrder.setIdentificationNo(identificationNo);
-//			// 税丸め（0:四捨五入、1:切り捨て、2:切り上げ）
-//			paramEntryPurchaseOrder.setRoundingDivision("0");
+			// 税丸め（0:四捨五入、1:切り捨て、2:切り上げ）
 			// ステータス
 			paramEntryPurchaseOrder.setStatus("5");
 			// 発注処理時のスタッフID
@@ -578,11 +703,8 @@ public class OrderInputService extends OrderManageService {
 			for (int j = 0; j < valueList.size(); j++) {
 				String[] value = valueList.get(j);
 				
-				// テスト商品12 設定
 				ParamEntryPurchaseOrderProduct op = new ParamEntryPurchaseOrderProduct();
 				op.setProductId(value[0]);
-				// コスト　NULL不可
-	//			op.setCost("400");
 				ArrayList<ParamEntryPurchaseOrderDeliveryStore> dsList = new ArrayList<ParamEntryPurchaseOrderDeliveryStore>();
 				ParamEntryPurchaseOrderDeliveryStore ds = new ParamEntryPurchaseOrderDeliveryStore();
 				ds.setStoreId(storeId);

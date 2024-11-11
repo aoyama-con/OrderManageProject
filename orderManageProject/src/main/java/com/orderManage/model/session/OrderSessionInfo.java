@@ -28,7 +28,7 @@ public class OrderSessionInfo {
 //	private List<OrderInputSubForm> displayList;
 	
 	/** */
-	private Map<String, String[]> orderAmount;
+	private Map<String, String[]> orderAmountMap;
 
 	/** */
 	private OrderInputForm orderInputForm;
@@ -149,11 +149,11 @@ public class OrderSessionInfo {
 //	public void setDisplayList(List<OrderInputSubForm> displayList) {
 //		this.displayList = displayList;
 //	}
-	public Map<String, String[]> getOrderAmount() {
-		return orderAmount;
+	public Map<String, String[]> getOrderAmountMap() {
+		return orderAmountMap;
 	}
-	public void setOrderAmount(Map<String, String[]> orderAmount) {
-		this.orderAmount = orderAmount;
+	public void setOrderAmountMap(Map<String, String[]> orderAmountMap) {
+		this.orderAmountMap = orderAmountMap;
 	}
 	public OrderInputForm getOrderInputForm() {
 		return orderInputForm;

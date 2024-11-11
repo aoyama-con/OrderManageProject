@@ -51,7 +51,20 @@ public class OrderInputForm implements Serializable {
     
     
     
-	/**
+//    @AssertTrue(message = "検索後に発注に進んで下さい")
+//    public boolean isValidDidsplayList() {
+//    	boolean result = true;
+//
+//    	if ("1".equals(type)) {	// TODO @Validateを外して対応できるかも
+//    		if (displayList == null || displayList.size() == 0) {
+//    			result =false;
+//    		}
+//    	}
+//    	
+//    	return result;
+//    }
+
+    /**
      * 
      * @return
      */
@@ -59,43 +72,45 @@ public class OrderInputForm implements Serializable {
     public boolean isValidSearchConditionEmpty() {
     	boolean result = true;
 
-    	if (StringUtil.isEmpty(categoryId)
-    			&& StringUtil.isEmpty(groupCode)
-    			&& StringUtil.isEmpty(supplierProductNo)
-    			&& StringUtil.isEmpty(productId)
-    			&& StringUtil.isEmpty(productCode)
-    			&& StringUtil.isEmpty(productName)
-    			) {
-    		result = false;
-    	}
-    	
-    	return result;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    @AssertTrue(message = "発注する商品を１つ以上選択してから発注に進んでください。")
-    public boolean isValidOrderAmount_required() {
-    	boolean result = false;
-
-    	// 発注確認に進む場合のみチェックする
-    	if ("1".equals(type)) {	// TODO @Validateを外して対応できるかも
-	    	if (orderAmount_ != null && orderAmount_.length > 0) {
-	    		for (int i = 0; i < orderAmount_.length; i++) {
-	    			if (StringUtil.isNotEmpty(orderAmount_[i])) {
-	    				result = true;
-	    				break;
-	    			}
-	    		}
+    	if ("0".equals(type)) {	// TODO @Validateを外して対応できるかも
+	    	if (StringUtil.isEmpty(categoryId)
+	    			&& StringUtil.isEmpty(groupCode)
+	    			&& StringUtil.isEmpty(supplierProductNo)
+	    			&& StringUtil.isEmpty(productId)
+	    			&& StringUtil.isEmpty(productCode)
+	    			&& StringUtil.isEmpty(productName)
+	    			) {
+	    		result = false;
 	    	}
-    	} else {
-    		result = true;
     	}
     	
     	return result;
     }
+
+//    /**
+//     * 
+//     * @return
+//     */
+//    @AssertTrue(message = "発注する商品を１つ以上選択してから発注に進んでください。")
+//    public boolean isValidOrderAmount_required() {
+//    	boolean result = false;
+//
+//    	// 発注確認に進む場合のみチェックする
+//    	if ("1".equals(type)) {	// TODO @Validateを外して対応できるかも
+//	    	if (orderAmount_ != null && orderAmount_.length > 0) {
+//	    		for (int i = 0; i < orderAmount_.length; i++) {
+//	    			if (StringUtil.isNotEmpty(orderAmount_[i])) {
+//	    				result = true;
+//	    				break;
+//	    			}
+//	    		}
+//	    	}
+//    	} else {
+//    		result = true;
+//    	}
+//    	
+//    	return result;
+//    }
     
     /**
      * 
