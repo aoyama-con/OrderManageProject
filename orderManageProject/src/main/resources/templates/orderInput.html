@@ -32,6 +32,7 @@
 		}
 	}
 	function func_page(size, page) {
+		document.form.type.value = "3";
 		$('#form').attr('action', '/orderManageProject/orderInput_page?size=' + size + '&page=' + page);
 		document.form.submit();
 	}

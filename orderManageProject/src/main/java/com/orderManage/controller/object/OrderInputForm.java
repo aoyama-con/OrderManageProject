@@ -121,7 +121,7 @@ public class OrderInputForm implements Serializable {
     	boolean result = true;
 
     	// 発注確認に進む場合のみチェックする
-    	if ("1".equals(type)) {	// TODO @Validateを外して対応できるかも
+    	if ("1".equals(type) || "3".equals(type)) {	// TODO @Validateを外して対応できるかも
 	    	if (orderAmount_ != null && orderAmount_.length > 0) {
 	    		for (int i = 0; i < orderAmount_.length; i++) {
 	    			if (StringUtil.isNotEmpty(orderAmount_[i])) {
