@@ -49,20 +49,6 @@ public class OrderInputForm implements Serializable {
     /** 処理種別 */
     private String type;
     
-    
-    
-//    @AssertTrue(message = "検索後に発注に進んで下さい")
-//    public boolean isValidDidsplayList() {
-//    	boolean result = true;
-//
-//    	if ("1".equals(type)) {	// TODO @Validateを外して対応できるかも
-//    		if (displayList == null || displayList.size() == 0) {
-//    			result =false;
-//    		}
-//    	}
-//    	
-//    	return result;
-//    }
 
     /**
      * 
@@ -72,7 +58,7 @@ public class OrderInputForm implements Serializable {
     public boolean isValidSearchConditionEmpty() {
     	boolean result = true;
 
-    	if ("0".equals(type)) {	// TODO @Validateを外して対応できるかも
+    	if ("0".equals(type)) {
 	    	if (StringUtil.isEmpty(categoryId)
 	    			&& StringUtil.isEmpty(groupCode)
 	    			&& StringUtil.isEmpty(supplierProductNo)
@@ -121,7 +107,7 @@ public class OrderInputForm implements Serializable {
     	boolean result = true;
 
     	// 発注確認に進む場合のみチェックする
-    	if ("1".equals(type) || "3".equals(type)) {	// TODO @Validateを外して対応できるかも
+    	if ("1".equals(type) || "3".equals(type)) {
 	    	if (orderAmount_ != null && orderAmount_.length > 0) {
 	    		for (int i = 0; i < orderAmount_.length; i++) {
 	    			if (StringUtil.isNotEmpty(orderAmount_[i])) {

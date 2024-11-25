@@ -414,9 +414,15 @@ public class OrderManageController {
 		// 入力チェックエラーの場合の為に部門一覧をセッションに保持しておく
 		smarejiSession.setAttribute("categoryInfos", categoryMap);
 
-		// TODO
+		// TODO いきなり発注に進むとかやると落ちるので
 		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
 		orderSessionInfo.setOrderInputForm(form);
+
+		// TODO いきなり発注に進むとかやると落ちるので
+		smarejiSession.setAttribute("orderInputPage", "1");
+		Map<String, String[]> orderAmountMap = new HashMap<String, String[]>();
+		orderSessionInfo.setOrderAmountMap(orderAmountMap);
+		
 		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
 		
 		logger.info("controller:発注入力画面表示処理 end");
@@ -511,11 +517,11 @@ public class OrderManageController {
 		model.addAttribute("orderInputForm", form);
 		
 		// セッション用クラス
-		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
+//		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
+		OrderSessionInfo orderSessionInfo = (OrderSessionInfo) smarejiSession.getAttribute("s_OrderInfo");
 		orderSessionInfo.setOrderInputForm(form);
 		
-		// TODO
-		smarejiSession.setAttribute("orderInputPage", "1");
+		smarejiSession.setAttribute("orderInputPage", "1");	// TODO
 		Map<String, String[]> orderAmountMap = new HashMap<String, String[]>();
 		orderSessionInfo.setOrderAmountMap(orderAmountMap);
 		
@@ -570,6 +576,16 @@ public class OrderManageController {
 		// セッション削除
 		smarejiSession.removeAttribute("s_OrderInfo");
 		
+		// TODO いきなり発注に進むとかやると落ちるので
+		orderSessionInfo = new OrderSessionInfo();
+		orderSessionInfo.setOrderInputForm(form);
+
+		// TODO いきなり発注に進むとかやると落ちるので
+		smarejiSession.setAttribute("orderInputPage", "1");
+		Map<String, String[]> orderAmountMap = new HashMap<String, String[]>();
+		orderSessionInfo.setOrderAmountMap(orderAmountMap);
+		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
+
 		logger.info("controller:発注入力画面表示処理_back end");
 
 		return "orderInput";
@@ -588,12 +604,49 @@ public class OrderManageController {
 	public String orderInput_page(@RequestParam("page") int page,
 			@RequestParam("size") int size,
 			@RequestHeader(value = "referer", required = false) final String referer,
-			Model model, @ModelAttribute OrderInputForm object) {	
+			Model model, @ModelAttribute @Validated OrderInputForm object, BindingResult bindingResult) {	
 	    
 		logger.info("発注入力画面遷移処理　開始");
 	
 		// セッションから画面表示情報取得
 		OrderSessionInfo orderSessionInfo = (OrderSessionInfo) smarejiSession.getAttribute("s_OrderInfo");
+		String orderInputPage = (String) smarejiSession.getAttribute("orderInputPage");	// TODO
+
+		// バリデートチェック
+        if (bindingResult.hasErrors()) {
+        	// エラーの場合
+            List<String> errorList = new ArrayList<String>();
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                errorList.add(error.getDefaultMessage());
+            }
+            model.addAttribute("validationError", errorList);
+            
+            // セッションに保持した部門一覧を取得し、設定する
+            object.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));
+    		model.addAttribute("categoryId", object.getCategoryId());
+
+//    		OrderSessionInfo orderSessionInfo =  (OrderSessionInfo) smarejiSession.getAttribute("s_OrderInfo");
+    		OrderInputForm form = orderSessionInfo.getOrderInputForm();
+    		object.setDisplayList(form.getDisplayList());
+
+    		model.addAttribute("orderInputForm", object);
+            
+    		// ページング処理
+//    		int currentPage = 1;
+    		int currentPage = Integer.parseInt(orderInputPage);
+    		int pageSize= pagesize_orderinput;
+    		Page<OrderInputSubForm> pageable = orderInputService.paging(PageRequest.of(currentPage - 1, pageSize), form);
+    		model.addAttribute("page", pageable);
+    		
+    		int totalPages = pageable.getTotalPages();
+    		if(totalPages > 0) {
+    			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+    			model.addAttribute("pageNumbers", pageNumbers);
+    		}
+
+            return "orderInput";
+        }
+ 
 		OrderInputForm form = orderSessionInfo.getOrderInputForm();
 		
 		// ページング処理
@@ -627,8 +680,6 @@ public class OrderManageController {
 		model.addAttribute("categoryId", form.getCategoryId());
 		model.addAttribute("orderInputForm", form);
 		
-		// TODO
-		String orderInputPage = (String) smarejiSession.getAttribute("orderInputPage");
 		orderAmountMap.put(orderInputPage, object.getOrderAmount_());
 		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
 		smarejiSession.setAttribute("orderInputPage", String.valueOf(page));
@@ -655,6 +706,9 @@ public class OrderManageController {
 	    
 		logger.info("発注確認画面遷移処理　開始");
 	
+		OrderSessionInfo orderSessionInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
+		String orderInputPage = (String) smarejiSession.getAttribute("orderInputPage");	// TODO
+
 		// バリデートチェック
         if (bindingResult.hasErrors()) {
         	// エラーの場合
@@ -668,14 +722,15 @@ public class OrderManageController {
             object.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));
     		model.addAttribute("categoryId", object.getCategoryId());
 
-    		OrderSessionInfo orderSessionInfo =  (OrderSessionInfo) smarejiSession.getAttribute("s_OrderInfo");
+//    		OrderSessionInfo orderSessionInfo =  (OrderSessionInfo) smarejiSession.getAttribute("s_OrderInfo");
     		OrderInputForm form = orderSessionInfo.getOrderInputForm();
     		object.setDisplayList(form.getDisplayList());
 
     		model.addAttribute("orderInputForm", object);
             
     		// ページング処理
-    		int currentPage = 1;
+//    		int currentPage = 1;
+    		int currentPage = Integer.parseInt(orderInputPage);
     		int pageSize= pagesize_orderinput;
     		Page<OrderInputSubForm> pageable = orderInputService.paging(PageRequest.of(currentPage - 1, pageSize), form);
     		model.addAttribute("page", pageable);
@@ -690,20 +745,17 @@ public class OrderManageController {
         }
  
 		StoreInfo storeInfo = (StoreInfo)smarejiSession.getAttribute("s_StoresInfo");
-		OrderSessionInfo orderSessionInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
+
 		String identificationNo = null;
 		List<String> storageInfoIdList = new ArrayList<String>();
 		
 		Long datetime = System.currentTimeMillis();
 		identificationNo = datetime.toString();
 
-		// TODO
-		String orderInputPage = (String) smarejiSession.getAttribute("orderInputPage");  
 		Map<String, String[]> orderAmountMap = orderSessionInfo.getOrderAmountMap();
 		orderAmountMap.put(orderInputPage, object.getOrderAmount_());
 		
 		// 仮発注登録
-//		Map<String, String> orderMap = orderInputService.entryPurchaseOrder_old(smarejiUser, object, storeInfo.getStoreId(), identificationNo);
 		Map<String, String> orderMap = orderInputService.entryPurchaseOrder(smarejiUser, storeInfo.getStoreId(), identificationNo, orderSessionInfo.getOrderInputForm().getDisplayList(), orderAmountMap, pagesize_orderinput);
 
 		Iterator<Map.Entry<String, String>> it = orderMap.entrySet().iterator();
@@ -718,9 +770,6 @@ public class OrderManageController {
 		orderSessionInfo.setStorageInfoIdList(storageInfoIdList);	// 発注ID
 		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
 		
-//		smarejiSession.setAttribute("orderAmount_", object.getOrderAmount_());	// TODO 修正中
-//		smarejiSession.setAttribute("orderMap", orderMap);	// TODO 修正中
-
 		// セッションから情報を取得
 		// 発注入力画面で設定した情報 TODO 不要なら削除すること
 		// OrderSessionInfo sOrderInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
