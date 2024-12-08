@@ -61,10 +61,9 @@ public class OrderConfirmService extends OrderManageService {
 	 * 
 	 * @param smarejiUser スマレジユーザ情報
 	 * @param orderId 発注ID
-	 * @param storeId 店舗ID
 	 * @return CheckOrderConfirmForm 発注確定画面Formリスト
 	 */	
-	public OrderConfirmForm getDisplayInfo(SmarejiUser smarejiUser, String orderId, String storeId) {
+	public OrderConfirmForm getDisplayInfo(SmarejiUser smarejiUser, String orderId) {
 		
 		logger.info("getDisplayInfoList:発注確認画面初期表示情報取得　処理開始");
 		
@@ -73,6 +72,9 @@ public class OrderConfirmService extends OrderManageService {
 		
 		// 発注情報取得API
 		PurchaseOrdersInfo purchaseOrdersInfo = getOrderInfo(smarejiUser, orderId);
+		
+		// 店舗IDの取得　発注IDに紐づく商品の店舗は店舗選択画面により一つのため、発注情報から店舗IDを取得する
+		String storeId = purchaseOrdersInfo.getProducts().get(0).getDeliveryStore().get(0).getStoreId();
 
 		// 仕入れ先取得　
 		List<SuppliersInfo> suppliersInfoList = getSuppliersInfoList(smarejiUser);
@@ -535,20 +537,22 @@ public class OrderConfirmService extends OrderManageService {
 	 * 
 	 * @param smarejiUser スマレジユーザ情報
 	 * @param orderId 発注ID
-	 * @param storeId 店舗ID
 	 * @param OrderConfirmList 発注確定画面情報
 	 * @return List<SuppliersInfo> 
 	 */
 
-	public PurchaseOrdersInfo updatePurchaseOrder(SmarejiUser smarejiUser, String orderId, String storeId,
+	public PurchaseOrdersInfo updatePurchaseOrder(SmarejiUser smarejiUser, String orderId,
 			List<OrderConfirmSubForm> OrderConfirmList) {
 		
 		// 発注情報の取得
 		PurchaseOrdersInfo purchaseOrdersInfo = getOrderInfo(smarejiUser, orderId);
 		
+		// 店舗IDの取得　発注IDに紐づく商品の店舗は店舗選択画面により一つのため、発注情報から店舗IDを取得する
+		String storeId = purchaseOrdersInfo.getProducts().get(0).getDeliveryStore().get(0).getStoreId(); 
+		
 		// 発注更新内容設定
 		ParamUpdatePurchaseOrder paramUpdatePurchaseOrder = new ParamUpdatePurchaseOrder();
-		// ステータス
+		// ステータス 発注済み=2
 		paramUpdatePurchaseOrder.setStatus("2");
 		// 発注処理時のスタッフID
 		paramUpdatePurchaseOrder.setStaffId(smarejiUser.getContract().getUser_id());
