@@ -3,7 +3,6 @@ package com.orderManage.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.orderManage.controller.object.OrderConfirmForm;
@@ -26,8 +25,6 @@ import com.orderManage.model.param.ParamUpdatePurchasOrderDeliveryStore;
 import com.orderManage.model.param.ParamUpdatePurchaseOrder;
 import com.orderManage.model.param.ParamUpdatePurchaseOrderProduct;
 import com.orderManage.model.session.SmarejiUser;
-import com.orderManage.util.SmarejiApiAccess;
-import com.orderManage.util.SmarejiApiAccessMock;
 
 /**
  * 発注確定画面サービスクラス
@@ -38,18 +35,6 @@ import com.orderManage.util.SmarejiApiAccessMock;
  */
 @Service
 public class OrderConfirmService extends OrderManageService {
-
-	/* ログ設定 ※定義必須*/
-	@Autowired
-	OrderManageLoggingService logger;
-	
-	/* スマレジAPIアクセスクラス定義 ※定義必須*/
-	@Autowired
-	SmarejiApiAccess smarejiApiAccess;
-	
-	/* スマレジAPIアクセスクラス定義 ※定義必須*/
-	@Autowired
-	SmarejiApiAccessMock smarejiApiAccessMock;
 
 	//2024/08/05 機能削減のためコメントアウト
 	/* 一週間の日数*/
