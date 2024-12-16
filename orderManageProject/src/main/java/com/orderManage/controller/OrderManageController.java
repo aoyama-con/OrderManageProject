@@ -517,7 +517,6 @@ public class OrderManageController {
 		model.addAttribute("orderInputForm", form);
 		
 		// セッション用クラス
-//		OrderSessionInfo orderSessionInfo = new OrderSessionInfo();
 		OrderSessionInfo orderSessionInfo = (OrderSessionInfo) smarejiSession.getAttribute("s_OrderInfo");
 		orderSessionInfo.setOrderInputForm(form);
 		
@@ -625,14 +624,29 @@ public class OrderManageController {
             object.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));
     		model.addAttribute("categoryId", object.getCategoryId());
 
-//    		OrderSessionInfo orderSessionInfo =  (OrderSessionInfo) smarejiSession.getAttribute("s_OrderInfo");
     		OrderInputForm form = orderSessionInfo.getOrderInputForm();
-    		object.setDisplayList(form.getDisplayList());
+
+    		List<OrderInputSubForm> displayList = form.getDisplayList();
+    		int pageNumber = Integer.parseInt(orderInputPage);
+    		int startIdx = (pageNumber - 1) * pagesize_orderinput;
+    		int endIdx = pageNumber * pagesize_orderinput - 1;
+    		String[] orderAmount = object.getOrderAmount_();
+
+    		for (int i = 0, j = 0; i < displayList.size(); i++) {
+    			if (i < startIdx) {
+    				continue;
+    			}
+    			if (i > endIdx) {
+    				break;
+    			}
+    			displayList.get(i).setOrderAmount(orderAmount[j++]);
+    		}
+    		
+    		object.setDisplayList(displayList);
 
     		model.addAttribute("orderInputForm", object);
             
     		// ページング処理
-//    		int currentPage = 1;
     		int currentPage = Integer.parseInt(orderInputPage);
     		int pageSize= pagesize_orderinput;
     		Page<OrderInputSubForm> pageable = orderInputService.paging(PageRequest.of(currentPage - 1, pageSize), form);
@@ -722,14 +736,29 @@ public class OrderManageController {
             object.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));
     		model.addAttribute("categoryId", object.getCategoryId());
 
-//    		OrderSessionInfo orderSessionInfo =  (OrderSessionInfo) smarejiSession.getAttribute("s_OrderInfo");
     		OrderInputForm form = orderSessionInfo.getOrderInputForm();
-    		object.setDisplayList(form.getDisplayList());
+
+    		List<OrderInputSubForm> displayList = form.getDisplayList();
+    		int pageNumber = Integer.parseInt(orderInputPage);
+    		int startIdx = (pageNumber - 1) * pagesize_orderinput;
+    		int endIdx = pageNumber * pagesize_orderinput - 1;
+    		String[] orderAmount = object.getOrderAmount_();
+
+    		for (int i = 0, j = 0; i < displayList.size(); i++) {
+    			if (i < startIdx) {
+    				continue;
+    			}
+    			if (i > endIdx) {
+    				break;
+    			}
+    			displayList.get(i).setOrderAmount(orderAmount[j++]);
+    		}
+    		
+    		object.setDisplayList(displayList);
 
     		model.addAttribute("orderInputForm", object);
             
     		// ページング処理
-//    		int currentPage = 1;
     		int currentPage = Integer.parseInt(orderInputPage);
     		int pageSize= pagesize_orderinput;
     		Page<OrderInputSubForm> pageable = orderInputService.paging(PageRequest.of(currentPage - 1, pageSize), form);
