@@ -50,6 +50,7 @@ import com.orderManage.service.OrderInputService;
 import com.orderManage.service.OrderManageLoggingService;
 import com.orderManage.service.StoreChoiceService;
 import com.orderManage.service.UtilTestService;
+import com.orderManage.util.StringUtil;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -689,6 +690,22 @@ public class OrderManageController {
 		}
 		form.setDisplayList(displayList);
 		
+		
+		// TODO 発注点の入力があるかチェックする
+		for (int i = 0; i < displayList.size(); i++) {
+			if (StringUtil.isNotEmpty(displayList.get(i).getOrderAmount())) {
+				form.setInputFlag("true");
+				break;
+			}
+		}
+		if (object.getOrderAmount_() != null && object.getOrderAmount_().length > 0) {
+			for (int i = 0; i < object.getOrderAmount_().length; i++) {
+				if (StringUtil.isNotEmpty(object.getOrderAmount_()[i])) {
+					form.setInputFlag("true");
+					break;
+				}
+			}
+		}
 		
 		// 画面に設定する
 		model.addAttribute("categoryId", form.getCategoryId());

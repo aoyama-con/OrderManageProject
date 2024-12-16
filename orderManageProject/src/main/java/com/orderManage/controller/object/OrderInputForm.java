@@ -45,11 +45,13 @@ public class OrderInputForm implements Serializable {
     /** 発注点数 */
     private String[] orderAmount_;
     
-    
+    // その他処理制御用
     /** 処理種別 */
     private String type;
     
-
+    /** 非表示のページに発注点が入力されているか */
+    private String inputFlag;
+    
     /**
      * 
      * @return
@@ -58,6 +60,7 @@ public class OrderInputForm implements Serializable {
     public boolean isValidSearchConditionEmpty() {
     	boolean result = true;
 
+    	// 検索時の場合のみチェックする
     	if ("0".equals(type)) {
 	    	if (StringUtil.isEmpty(categoryId)
 	    			&& StringUtil.isEmpty(groupCode)
@@ -73,31 +76,35 @@ public class OrderInputForm implements Serializable {
     	return result;
     }
 
-//    /**
-//     * 
-//     * @return
-//     */
-//    @AssertTrue(message = "発注する商品を１つ以上選択してから発注に進んでください。")
-//    public boolean isValidOrderAmount_required() {
-//    	boolean result = false;
-//
-//    	// 発注確認に進む場合のみチェックする
-//    	if ("1".equals(type)) {	// TODO @Validateを外して対応できるかも
-//	    	if (orderAmount_ != null && orderAmount_.length > 0) {
-//	    		for (int i = 0; i < orderAmount_.length; i++) {
-//	    			if (StringUtil.isNotEmpty(orderAmount_[i])) {
-//	    				result = true;
-//	    				break;
-//	    			}
-//	    		}
-//	    	}
-//    	} else {
-//    		result = true;
-//    	}
-//    	
-//    	return result;
-//    }
-    
+    /**
+     * 
+     * @return
+     */
+	@AssertTrue(message = "発注する商品を１つ以上選択してから発注に進んでください。")
+	public boolean isValidOrderAmount_required() {
+		boolean result = false;
+
+		// 発注確認に進む場合のみチェックする
+		if ("1".equals(type)) {
+	    	if (orderAmount_ != null && orderAmount_.length > 0) {
+	    		for (int i = 0; i < orderAmount_.length; i++) {
+	    			if (StringUtil.isNotEmpty(orderAmount_[i])) {
+	    				result = true;
+	    				break;
+	    			}
+	    		}
+	    	}
+	    	
+	    	if ("true".equals(inputFlag)) {
+	    		result = true;
+	    	}
+		} else {
+			result = true;
+		}
+ 
+		return result;
+	}
+
     /**
      * 
      * @return
@@ -106,7 +113,7 @@ public class OrderInputForm implements Serializable {
     public boolean isValidOrderAmount_numeric() {
     	boolean result = true;
 
-    	// 発注確認に進む場合のみチェックする
+    	// 発注確認に進む、または、ページングの場合のみチェックする
     	if ("1".equals(type) || "3".equals(type)) {
 	    	if (orderAmount_ != null && orderAmount_.length > 0) {
 	    		for (int i = 0; i < orderAmount_.length; i++) {
@@ -128,8 +135,6 @@ public class OrderInputForm implements Serializable {
     	
     	return result;
     }
-    
-    
     
 	public Map<String, String> getCategoryInfos() {
 		return categoryInfos;
@@ -225,5 +230,13 @@ public class OrderInputForm implements Serializable {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getInputFlag() {
+		return inputFlag;
+	}
+
+	public void setInputFlag(String inputFlag) {
+		this.inputFlag = inputFlag;
 	}
 }

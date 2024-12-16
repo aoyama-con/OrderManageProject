@@ -69,6 +69,7 @@
 	<div class="container-sm">
 		<form th:action="@{/orderInput_self}" th:method="post" th:object="${orderInputForm}" name="form" id="form">
 			<input type="hidden" name="type" value="" />
+			<input type="hidden" name="inputFlag" th:value="${orderInputForm.inputFlag}" />
 
 		<p class="border-bottom" align="center">
 		</p>
