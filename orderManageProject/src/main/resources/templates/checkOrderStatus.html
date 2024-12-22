@@ -83,17 +83,6 @@
 		<BR>
 
 		<div class="container">
-			<div class="row">
-				<div class="col" align="right">
-					3件/1ページ
-					&nbsp;&nbsp;&nbsp;
-					<select name="count">
-						<option value="50">50件</option>
-						<option value="100">100件</option>
-						<option value="150">150件</option>
-					</select>
-				</div>
-			</div>
 
 			<table class="table table-bordered">
 				<thead class="table-info">
@@ -123,21 +112,16 @@
 					<nav aria-label="Page navigation example">
 						<ul class="pagination justify-content-end">
 		                    <div>
-						        <li class="page-item">
-							        <div th:if="${page.number == 0}" >
-							            <form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${page.number  + 1})} "method="post" th:id="page+${page.number  + 1}">
-							                <input type="submit" th:class=page-link "${page.number=page.number + 1} ? active" th:value=前へ th:id="page+${page.number  + 1}">
-							                <input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${page.number + 1}">
-							            </form>	
-							         </div>
-							         <div th:if="${page.number > 0}" >
-							             <form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${page.number})} "method="post" th:id="page+${page.number}">
-							                 <input type="submit" th:class=page-link "${page.number==page.number - 1} ? active" th:value=前へ th:id="page+${page.number}">
-							                 <input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${page.number - 1}">	
-							             </form>
-							         <div>
-							    </li>
+						    <li class="page-item">
+							<div th:if="${page.number>0}" >
+							<form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${page.number})} "method="post" th:id="page+${page.number}">
+							<input type="submit" th:class=page-link "${page.number==page.number - 1} ? active" th:value=前へ th:id="page+${page.number}">
+							<input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${page.number - 1}">	
+							</form>
+							<div>
+							</li>
 							</div>
+							
 							<div th:if="${page.totalPages > 0}" th:each="pageNumber : ${pageNumbers}">
     							<li class="page-item">
     								<form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${pageNumber})} "method="post" th:id="page+${pageNumber}">
@@ -146,27 +130,16 @@
     	   							</form>
 								</li>
 							</div>
+							
 							<div>	
-						        <li class="page-item">
-							        <div th:if="${page.totalPages == 1 }" >
-							            <form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${page.number  + 1})} "method="post" th:id="page+${page.number  + 1}">
-							                <input type="submit" th:class=page-link "${page.number=page.number + 1} ? active" th:value=次へ th:id="page+${page.number  + 1}">
-							                <input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${page.number + 1}">
-							            </form>	
-							        </div>
-							        <div th:if="${page.totalPages > page.number + 1}" >
-							            <form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${page.number + 2})} "method="post" th:id="page+${page.number  + 2}">
-							                <input type="submit" th:class=page-link "${page.number=page.number + 2} ? active" th:value=次へ th:id="page+${page.number  + 2}">
-							                <input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${page.number + 2}">
-							            </form>	
-							        </div>
-							        <div th:if="${page.totalPages == page.number + 1}" >
-							            <form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${page.number  + 1})} "method="post" th:id="page+${page.number  + 1}">
-							                <input type="submit" th:class=page-link "${page.number==page.number  + 1} ? active" th:value=次へ th:id="page+${page.number  + 1}">
-							                <input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${page.number  + 1}">	
-							            </form>
-							        <div>
-							    </li>
+						    <li class="page-item">
+							<div th:if="${page.totalPages > page.number + 1}" >
+							<form th:action="@{/checkOrderStatus_page(size=${page.size}, page=${page.number + 2})} "method="post" th:id="page+${page.number  + 2}">
+							<input type="submit" th:class=page-link "${page.number=page.number + 2} ? active" th:value=次へ th:id="page+${page.number  + 2}">
+							<input type="hidden" th:value="${orderId}" name="orderId" th:id="page+${page.number + 2}">
+							</form>	
+							</div>
+							</li>
 							</div>
 						</ul>
 					</nav>		

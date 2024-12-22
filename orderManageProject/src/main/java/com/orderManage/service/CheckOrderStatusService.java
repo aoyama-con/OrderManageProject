@@ -320,7 +320,7 @@ public class CheckOrderStatusService extends OrderManageService {
 			int pageSize = pageable.getPageSize();
 			int currentPage = pageable.getPageNumber();
 			int startItem = currentPage * pageSize;
-
+			
 			List<CheckOrderStatusSubForm> list;
 		
 			if(dispList.size() < startItem) {
