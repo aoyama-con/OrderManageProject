@@ -36,6 +36,13 @@
 		$('#form').attr('action', '/orderManageProject/orderInput_page?size=' + size + '&page=' + page);
 		document.form.submit();
 	}
+
+	$(function(){
+		$('#logout').click(function(){
+			logout('ログアウトします。よろしいですか？');
+		});		
+	});
+		
 </script>
 
 <link th:href="@{/css/orderInput.css}" rel="stylesheet">
