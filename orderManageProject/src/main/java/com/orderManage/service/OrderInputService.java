@@ -48,6 +48,9 @@ import com.orderManage.util.StringUtil;
 @Service
 public class OrderInputService extends OrderManageService {
 
+	private static int API_LIMIT = 1000;
+	private static int API_LIMIT_LOOP = API_LIMIT;
+	
 	/**
 	 * 
 	 * @param smarejiUser
@@ -59,10 +62,10 @@ public class OrderInputService extends OrderManageService {
 		
 		List<ProductImageInfo> productImageInfoList = new ArrayList<ProductImageInfo>();
 		
-		// 部門一覧を取得(API)
+		// 商品画像を取得(API)
 		ParamProductImage paramProductImage = new ParamProductImage();
 		
-		// 部門一覧取得のためのパラメータを設定
+		// 商品画像取得のためのパラメータを設定
 		List<String> getParam = new ArrayList<String>();
 		getParam.add("productId");
 		getParam.add("url");
@@ -70,14 +73,24 @@ public class OrderInputService extends OrderManageService {
 		paramProductImage.setFields(getParam);
 		//　ソート順
 		paramProductImage.setSort("productId");
-//		// 取得上限数
-//		paramProductImage.setLimit(3);
+		// 取得上限数
+		paramProductImage.setLimit(API_LIMIT_LOOP);
+
+		for (int page = 1;; page++) {
+			paramProductImage.setPage(page);
+			
+			List<ProductImageInfo> list = smarejiApiAccess.getProductsImage(smarejiUser.getContract().getId(), paramProductImage);
+			/** テスト用 ローカルで動かす用mockを使用 *****************/ 
+			// テスト用の部門一覧取得
+	//		productImageInfoList = smarejiApiAccessMock.getProductsImageInfo("dummyid", paramproductImage);
+			/***********************************************/
+
+			if (list == null || list.size() == 0) {
+				break;
+			}
 		
-		productImageInfoList = smarejiApiAccess.getProductsImage(smarejiUser.getContract().getId(), paramProductImage);
-		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-		// テスト用の部門一覧取得
-//		productImageInfoList = smarejiApiAccessMock.getProductsImageInfo("dummyid", paramproductImage);
-		/***********************************************/
+			productImageInfoList.addAll(list);
+		}
 		
 		Iterator<ProductImageInfo> it = productImageInfoList.iterator();
 		Map<String, String> productImageInfoMap = new LinkedHashMap<String, String>();
@@ -115,8 +128,8 @@ public class OrderInputService extends OrderManageService {
 		paramCategorieInfo.setFields(getParam);
 		//　ソート順
 		paramCategorieInfo.setSort("categoryId");
-//		// 取得上限数
-//		paramCategorieInfo.setLimit(3);
+		// 取得上限数
+		paramCategorieInfo.setLimit(API_LIMIT);
 		
 		categoryInfoList = smarejiApiAccess.getCategoriesInfo(smarejiUser.getContract().getId(), paramCategorieInfo);
 		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
@@ -161,13 +174,24 @@ public class OrderInputService extends OrderManageService {
 		getParam.add("supplierName");
 		getParam.add("supplierAbbr");
 		param.setFields(getParam);
+		param.setLimit(API_LIMIT_LOOP);
 		
-		// 仕入先一覧を取得(API)
-		supplierInfoList = smarejiApiAccess.getSuppliersInfo(smarejiUser.getContract().getId(), param);
-		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-		// テスト用の仕入先一覧取得
-//		supplierInfoList = smarejiApiAccessMock.getSuppliersInfo("dummyid");
-		/***********************************************/
+		for (int page = 1;; page++) {
+			param.setPage(page);
+			
+			// 仕入先一覧を取得(API)
+			List<SuppliersInfo> list = smarejiApiAccess.getSuppliersInfo(smarejiUser.getContract().getId(), param);
+			/** テスト用 ローカルで動かす用mockを使用 *****************/ 
+			// テスト用の仕入先一覧取得
+	//		supplierInfoList = smarejiApiAccessMock.getSuppliersInfo("dummyid");
+			/***********************************************/
+
+			if (list == null || list.size() == 0) {
+				break;
+			}
+			
+			supplierInfoList.addAll(list);
+		}
 		
 		logger.info("getSupplierInfo:仕入先情報取得　処理終了");
 		
@@ -185,7 +209,7 @@ public class OrderInputService extends OrderManageService {
 		
 		List<SuppliersProductsInfo> suppliersProductsInfoList = new ArrayList<SuppliersProductsInfo>();
 		
-		// 仕入先一覧取得パラメータを設定
+		// 仕入先商品一覧取得パラメータを設定
 		ParamSupplierProduct param = new ParamSupplierProduct();
 
 		// 取得項目
@@ -194,6 +218,7 @@ public class OrderInputService extends OrderManageService {
 		getParam.add("categoryId");
 		getParam.add("productId");
 		param.setFields(getParam);
+		param.setLimit(API_LIMIT_LOOP);
 		
 		// AND検索はできないので条件は指定しない
 //		if (StringUtil.isNotEmpty(categoryId)) {
@@ -203,50 +228,61 @@ public class OrderInputService extends OrderManageService {
 		if (StringUtil.isNotEmpty(productId)) {
 			param.setProduct_id(productId);
 		}
-		
-		// 仕入先商品一覧を取得(API)
-		suppliersProductsInfoList = smarejiApiAccess.getSuppliersProductsInfo(smarejiUser.getContract().getId(), supplierId, param);
-		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-		// テスト用の仕入先商品一覧取得
-//		suppliersProductsInfoList = smarejiApiAccessMock.getSuppliersProductsInfo("dummyid", supplierId, param);
-		/***********************************************/
+
+		for (int page = 1;; page++) {
+			param.setPage(page);
+			
+			// 仕入先商品一覧を取得(API)
+			List<SuppliersProductsInfo> list = smarejiApiAccess.getSuppliersProductsInfo(smarejiUser.getContract().getId(), supplierId, param);
+			/** テスト用 ローカルで動かす用mockを使用 *****************/ 
+			// テスト用の仕入先商品一覧取得
+	//		suppliersProductsInfoList = smarejiApiAccessMock.getSuppliersProductsInfo("dummyid", supplierId, param);
+			/***********************************************/
+			
+			if (list == null || list.size() == 0) {
+				break;
+			}
+			
+			suppliersProductsInfoList.addAll(list);
+		}
 		
 		logger.info("getSuppliersProductsInfo:仕入先商品一覧取得　処理終了");
 		
 		return suppliersProductsInfoList;
 	}
 	
-	/**
-	 * 
-	 * @param smarejiUser
-	 * @return
-	 */
-	public ProductsInfo getProductInfo(SmarejiUser smarejiUser, String productId) {
-		
-		logger.info("getProductInfo:商品情報取得　処理開始");
-		
-		// 仕入先一覧取得パラメータを設定
-		ParamProductInfo param = new ParamProductInfo();
-
-		// 取得項目
-		List<String> getParam = new ArrayList<String>();
-		getParam.add("productId");
-		getParam.add("categoryId");
-		getParam.add("productCode");
-		getParam.add("productName");
-		getParam.add("groupCode");
-		getParam.add("orderPoint");
-		param.setFields(getParam);
-		
-		// 商品情報を取得(API)
-		ProductsInfo productsInfo = smarejiApiAccess.getProductInfo(smarejiUser.getContract().getId(), productId, param);
-		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-		// テスト用の商品情報取得
-//		ProductsInfo productsInfo = smarejiApiAccessMock.getProductInfo("dummyid", productId, param);
-		/***********************************************/
-		
-		return productsInfo;
-	}
+//	/**
+//	 * 
+//	 * @param smarejiUser
+//	 * @return
+//	 */
+//	public ProductsInfo getProductInfo(SmarejiUser smarejiUser, String productId) {
+//		
+//		logger.info("getProductInfo:商品情報取得　処理開始");
+//		
+//		// 仕入先一覧取得パラメータを設定
+//		ParamProductInfo param = new ParamProductInfo();
+//
+//		// 取得項目
+//		List<String> getParam = new ArrayList<String>();
+//		getParam.add("productId");
+//		getParam.add("categoryId");
+//		getParam.add("productCode");
+//		getParam.add("productName");
+//		getParam.add("groupCode");
+//		getParam.add("orderPoint");
+//		param.setFields(getParam);
+////		param.setLimit(1000);
+//		
+//		// 商品情報を取得(API)
+//		ProductsInfo productsInfo = smarejiApiAccess.getProductInfo(smarejiUser.getContract().getId(), productId, param);
+//		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
+//		// テスト用の商品情報取得
+////		ProductsInfo productsInfo = smarejiApiAccessMock.getProductInfo("dummyid", productId, param);
+//		/***********************************************/
+//		
+//		return productsInfo;
+//	}
 	
 	/**
 	 * 
@@ -273,7 +309,7 @@ public class OrderInputService extends OrderManageService {
 		param.setFields(getParam);
 		
 		// 取得上限数
-		param.setLimit(1000);
+		param.setLimit(API_LIMIT_LOOP);
 
 		if (StringUtil.isNotEmpty(categoryId)) {
 			param.setCategory_id(Integer.parseInt(categoryId));
@@ -291,12 +327,22 @@ public class OrderInputService extends OrderManageService {
 			param.setSupplier_product_no(supplierProductNo);
 		}
 		
-		// 商品一覧を取得(API)
-		productsInfoList = smarejiApiAccess.getProductsInfo(smarejiUser.getContract().getId(), param);
-		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-		// テスト用の商品情報取得
-//		productsInfoList = smarejiApiAccessMock.getProductInfo("dummyid", param);
-		/***********************************************/
+		for (int page = 1;; page++) {
+			param.setPage(page);
+			
+			// 商品一覧を取得(API)
+			List<ProductsInfo> list = smarejiApiAccess.getProductsInfo(smarejiUser.getContract().getId(), param);
+			/** テスト用 ローカルで動かす用mockを使用 *****************/ 
+			// テスト用の商品情報取得
+//			productsInfoList = smarejiApiAccessMock.getProductInfo("dummyid", param);
+			/***********************************************/
+
+			if (list == null || list.size() == 0) {
+				break;
+			}
+			
+			productsInfoList.addAll(list);
+		}
 		
 		Iterator<ProductsInfo> it = productsInfoList.iterator();
 		Map<String, ProductsInfo> productsInfoMap = new LinkedHashMap<String, ProductsInfo>();
@@ -331,15 +377,26 @@ public class OrderInputService extends OrderManageService {
 		getParam.add("productId");
 		getParam.add("stockAmount");
 		param.setFields(getParam);
-		
+		param.setLimit(API_LIMIT_LOOP);
+
 		param.setStore_id(Integer.parseInt(storeId));
+
+		for (int page = 1;; page++) {
+			param.setPage(page);
 		
-		// 在庫一覧を取得(API)
-		stocksInfoList = smarejiApiAccess.getStocksInfo(smarejiUser.getContract().getId(), param);
-		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-		// テスト用の在庫一覧取得
-//		stocksInfoList = smarejiApiAccessMock.getStockInfo("dummyid");
-		/***********************************************/
+			// 在庫一覧を取得(API)
+			List<StockInfo> list = smarejiApiAccess.getStocksInfo(smarejiUser.getContract().getId(), param);
+			/** テスト用 ローカルで動かす用mockを使用 *****************/ 
+			// テスト用の在庫一覧取得
+	//		stocksInfoList = smarejiApiAccessMock.getStockInfo("dummyid");
+			/***********************************************/
+
+			if (list == null || list.size() == 0) {
+				break;
+			}
+			
+			stocksInfoList.addAll(list);
+		}
 		
 		Iterator<StockInfo> it = stocksInfoList.iterator();
 		Map<String, String> stocksInfoMap = new LinkedHashMap<String, String>();
@@ -430,8 +487,8 @@ public class OrderInputService extends OrderManageService {
 			
 				SuppliersProductsInfo suppliersProducts = suppliersProductsIt.next();
 
-				logger.info("商品ID：" + suppliersProducts.getProductId());
-				logger.info("部門ID：" + suppliersProducts.getCategoryId());
+//				logger.info("商品ID：" + suppliersProducts.getProductId());
+//				logger.info("部門ID：" + suppliersProducts.getCategoryId());
 				
 				OrderInputSubForm subForm = new OrderInputSubForm();
 

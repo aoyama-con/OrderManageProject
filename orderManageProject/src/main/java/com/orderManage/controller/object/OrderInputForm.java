@@ -118,6 +118,12 @@ public class OrderInputForm implements Serializable {
 	    	if (orderAmount_ != null && orderAmount_.length > 0) {
 	    		for (int i = 0; i < orderAmount_.length; i++) {
 	    			if (StringUtil.isNotEmpty(orderAmount_[i])) {
+	    				
+	    				if (!StringUtil.isHalfNumeric(orderAmount_[i])) {
+	    					result = false;
+	    					break;
+	    				}
+	    				
 		    			try {
 		    				int amount = Integer.parseInt(orderAmount_[i]);
 		    				if (amount < 1 || amount > 99999) {

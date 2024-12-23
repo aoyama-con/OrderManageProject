@@ -162,7 +162,7 @@
 					<td class="align-middle text-center" th:text="${order.supplierName}"></td><input type="hidden" name="supplierId_" th:value="${order.supplierId}" />
 					<td class="align-middle text-center" th:text="${order.categoryName}"></td>
 					<td class="align-middle text-end" th:text="${order.stockAmount}"></td>
-					<td class="align-middle text-center"><input type="text" name="orderAmount_" th:value="${order.orderAmount}">(<span th:text="${order.orderPoint}"></span>)</td>
+					<td class="align-middle text-center"><input type="text" name="orderAmount_" th:value="${order.orderAmount}" style="text-align:right">(<span th:text="${order.orderPoint}"></span>)</td>
 				</tr>
 			</tbody>
 		</table>
