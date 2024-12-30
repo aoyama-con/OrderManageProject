@@ -740,111 +740,147 @@ public class OrderManageController {
 		OrderSessionInfo orderSessionInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
 		String orderInputPage = (String) smarejiSession.getAttribute("orderInputPage");	// TODO
 
-		// バリデートチェック
-        if (bindingResult.hasErrors()) {
-        	// エラーの場合
-            List<String> errorList = new ArrayList<String>();
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                errorList.add(error.getDefaultMessage());
-            }
-            model.addAttribute("validationError", errorList);
+		// 遷移先判定、発注入力からの遷移と発注確定からの戻り時処理を分岐させる 20241230 中川
+		if (referer.contains("orderInput")) {
+			// 発注入力画面からの遷移　20241230
+			// バリデートチェック
+			if (bindingResult.hasErrors()) {
+				// エラーの場合
+				List<String> errorList = new ArrayList<String>();
+				for (ObjectError error : bindingResult.getAllErrors()) {
+					errorList.add(error.getDefaultMessage());
+				}
+				model.addAttribute("validationError", errorList);
             
-            // セッションに保持した部門一覧を取得し、設定する
-            object.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));
-    		model.addAttribute("categoryId", object.getCategoryId());
+				// セッションに保持した部門一覧を取得し、設定する
+				object.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));
+				model.addAttribute("categoryId", object.getCategoryId());
 
-    		OrderInputForm form = orderSessionInfo.getOrderInputForm();
+				OrderInputForm form = orderSessionInfo.getOrderInputForm();
 
-    		List<OrderInputSubForm> displayList = form.getDisplayList();
-    		int pageNumber = Integer.parseInt(orderInputPage);
-    		int startIdx = (pageNumber - 1) * pagesize_orderinput;
-    		int endIdx = pageNumber * pagesize_orderinput - 1;
-    		String[] orderAmount = object.getOrderAmount_();
+				List<OrderInputSubForm> displayList = form.getDisplayList();
+				int pageNumber = Integer.parseInt(orderInputPage);
+				int startIdx = (pageNumber - 1) * pagesize_orderinput;
+				int endIdx = pageNumber * pagesize_orderinput - 1;
+				String[] orderAmount = object.getOrderAmount_();
 
-    		for (int i = 0, j = 0; i < displayList.size(); i++) {
-    			if (i < startIdx) {
-    				continue;
-    			}
-    			if (i > endIdx) {
-    				break;
-    			}
-    			displayList.get(i).setOrderAmount(orderAmount[j++]);
-    		}
+				for (int i = 0, j = 0; i < displayList.size(); i++) {
+					if (i < startIdx) {
+						continue;
+					}
+					if (i > endIdx) {
+						break;
+					}
+					displayList.get(i).setOrderAmount(orderAmount[j++]);
+				}
     		
-    		object.setDisplayList(displayList);
+				object.setDisplayList(displayList);
 
-    		model.addAttribute("orderInputForm", object);
-            
-    		// ページング処理
-    		int currentPage = Integer.parseInt(orderInputPage);
-    		int pageSize= pagesize_orderinput;
-    		Page<OrderInputSubForm> pageable = orderInputService.paging(PageRequest.of(currentPage - 1, pageSize), form);
-    		model.addAttribute("page", pageable);
+				model.addAttribute("orderInputForm", object);
+				
+				// ページング処理
+				int currentPage = Integer.parseInt(orderInputPage);
+				int pageSize= pagesize_orderinput;
+				Page<OrderInputSubForm> pageable = orderInputService.paging(PageRequest.of(currentPage - 1, pageSize), form);
+				model.addAttribute("page", pageable);
     		
-    		int totalPages = pageable.getTotalPages();
-    		if(totalPages > 0) {
-    			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
-    			model.addAttribute("pageNumbers", pageNumbers);
-    		}
+				int totalPages = pageable.getTotalPages();
+				if(totalPages > 0) {
+					List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+					model.addAttribute("pageNumbers", pageNumbers);
+				}
 
-            return "orderInput";
-        }
- 
-		StoreInfo storeInfo = (StoreInfo)smarejiSession.getAttribute("s_StoresInfo");
+				return "orderInput";
+			}
+			StoreInfo storeInfo = (StoreInfo)smarejiSession.getAttribute("s_StoresInfo");
 
-		String identificationNo = null;
-		List<String> storageInfoIdList = new ArrayList<String>();
-		
-		Long datetime = System.currentTimeMillis();
-		identificationNo = datetime.toString();
+			String identificationNo = null;
+			List<String> storageInfoIdList = new ArrayList<String>();
+			
+			Long datetime = System.currentTimeMillis();
+			identificationNo = datetime.toString();
 
-		Map<String, String[]> orderAmountMap = orderSessionInfo.getOrderAmountMap();
-		orderAmountMap.put(orderInputPage, object.getOrderAmount_());
-		
-		// 仮発注登録
-		Map<String, String> orderMap = orderInputService.entryPurchaseOrder(smarejiUser, storeInfo.getStoreId(), identificationNo, orderSessionInfo.getOrderInputForm().getDisplayList(), orderAmountMap, pagesize_orderinput);
+			Map<String, String[]> orderAmountMap = orderSessionInfo.getOrderAmountMap();
+			orderAmountMap.put(orderInputPage, object.getOrderAmount_());
+			
+			// 仮発注登録
+			Map<String, String> orderMap = orderInputService.entryPurchaseOrder(smarejiUser, storeInfo.getStoreId(), identificationNo, orderSessionInfo.getOrderInputForm().getDisplayList(), orderAmountMap, pagesize_orderinput);
 
-		Iterator<Map.Entry<String, String>> it = orderMap.entrySet().iterator();
+			Iterator<Map.Entry<String, String>> it = orderMap.entrySet().iterator();
 
-		// 発注IDリスト
-		while (it.hasNext()) {
-			Map.Entry<String, String> order = it.next();
-			storageInfoIdList.add(order.getValue());
+			// 発注IDリスト
+			while (it.hasNext()) {
+				Map.Entry<String, String> order = it.next();
+				storageInfoIdList.add(order.getValue());
+			}
+			
+			orderSessionInfo.setOrderControlNumber(identificationNo);	// 発注管理番号
+			orderSessionInfo.setStorageInfoIdList(storageInfoIdList);	// 発注ID
+			smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
+			
+			// セッションから情報を取得
+			// 発注入力画面で設定した情報 TODO 不要なら削除すること
+			// OrderSessionInfo sOrderInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
+			// スタッフ名（ログインユーザ名＝発注者名）
+			StaffInfo sStaffInfo = (StaffInfo)smarejiSession.getAttribute("s_StaffInfo");
+			
+			// 画面表示情報をセッションから削除
+			smarejiSession.removeAttribute("s_OrderConfirmDisplayInfo");		
+			// 画面表示情報取得
+			CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, identificationNo, sStaffInfo.getStaffName());
+			// 画面表示情報をセッションに格納
+			smarejiSession.setAttribute("s_OrderConfirmDisplayInfo", form);
+			
+			// ページング処理
+			// TODO 定数化、発注確定からの戻りの場合はセッションからcurrentPageを取得する
+			int currentPage = 1;
+			int pageSize= 20;
+			Page<CheckOrderConfirmSubForm> pageable = checkOrderConfirmService.paging(PageRequest.of(currentPage - 1, pageSize), form);
+			model.addAttribute("page", pageable);
+			
+			int totalPages = pageable.getTotalPages();
+			if(totalPages > 0) {
+				List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+				model.addAttribute("pageNumbers", pageNumbers);
+			}
+			
+			// 画面に設定する
+			model.addAttribute("checkOrderConfirmForm", form);
+		} else if (referer.contains("orderConfirm")) {
+			// 発注確定画面からの遷移　20241230
+			// スタッフ名（ログインユーザ名＝発注者名）
+			StaffInfo sStaffInfo = (StaffInfo)smarejiSession.getAttribute("s_StaffInfo");
+			
+			// セッションから発注管理番号を取得する
+			String identificationNo = orderSessionInfo.getOrderControlNumber();
+
+			// 画面表示情報をセッションから削除
+			smarejiSession.removeAttribute("s_OrderConfirmDisplayInfo");
+			// 画面表示情報取得
+			CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, identificationNo, sStaffInfo.getStaffName());
+			// 画面表示情報をセッションに格納
+			smarejiSession.setAttribute("s_OrderConfirmDisplayInfo", form);
+
+			// ページング処理
+			// TODO 定数化、発注確定からの戻りの場合はセッションからcurrentPageを取得する
+			int currentPage = 1;
+			int pageSize= 20;
+			Page<CheckOrderConfirmSubForm> pageable = checkOrderConfirmService.paging(PageRequest.of(currentPage - 1, pageSize), form);
+			model.addAttribute("page", pageable);
+			
+			int totalPages = pageable.getTotalPages();
+			if(totalPages > 0) {
+				List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+				model.addAttribute("pageNumbers", pageNumbers);
+			}
+			
+			// 画面に設定する
+			model.addAttribute("checkOrderConfirmForm", form);			
+		} else {
+			// 意図しない画面遷移のためエラー　TODO
+        	return "error";
 		}
-		
-		orderSessionInfo.setOrderControlNumber(identificationNo);	// 発注管理番号
-		orderSessionInfo.setStorageInfoIdList(storageInfoIdList);	// 発注ID
-		smarejiSession.setAttribute("s_OrderInfo", orderSessionInfo);
-		
-		// セッションから情報を取得
-		// 発注入力画面で設定した情報 TODO 不要なら削除すること
-		// OrderSessionInfo sOrderInfo = (OrderSessionInfo)smarejiSession.getAttribute("s_OrderInfo");
-		// スタッフ名（ログインユーザ名＝発注者名）
-		StaffInfo sStaffInfo = (StaffInfo)smarejiSession.getAttribute("s_StaffInfo");
-		
-		// 画面表示情報をセッションから削除
-		smarejiSession.removeAttribute("s_OrderConfirmDisplayInfo");		
-		// 画面表示情報取得
-		CheckOrderConfirmForm form = checkOrderConfirmService.getDisplayInfo(smarejiUser, identificationNo, sStaffInfo.getStaffName());
-		// 画面表示情報をセッションに格納
-		smarejiSession.setAttribute("s_OrderConfirmDisplayInfo", form);
-		
-		// ページング処理
-		// TODO 定数化、発注確定からの戻りの場合はセッションからcurrentPageを取得する
-		int currentPage = 1;
-		int pageSize= 20;
-		Page<CheckOrderConfirmSubForm> pageable = checkOrderConfirmService.paging(PageRequest.of(currentPage - 1, pageSize), form);
-		model.addAttribute("page", pageable);
-		
-		int totalPages = pageable.getTotalPages();
-		if(totalPages > 0) {
-			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
-			model.addAttribute("pageNumbers", pageNumbers);
-		}
-		
-		// 画面に設定する
-		model.addAttribute("checkOrderConfirmForm", form);
-		
+
 		logger.info("発注確認画面遷移処理　終了");
 		
         return "checkOrderConfirm";
