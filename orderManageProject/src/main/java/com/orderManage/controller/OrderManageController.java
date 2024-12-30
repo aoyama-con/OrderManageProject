@@ -1266,22 +1266,36 @@ public class OrderManageController {
 			
 			// ページング処理
 			int currentPage = 1;
-			int pageSize= 20;
+			int pageSize= 2;
 			Page<CheckOrderStatusSubForm> pageable = checkOrderStatusService.paging(PageRequest.of(currentPage - 1, pageSize), matome);
 			model.addAttribute("page", pageable);
 			
+			// ページングレイアウト検討
+			int startPage = currentPage;
+			int lastPage = 0;
 			int totalPages = pageable.getTotalPages();
+			
+			if(totalPages > 0 && totalPages < 10) {
+			    lastPage = totalPages;
+		    }else if(totalPages >= 10) {
+		    	lastPage = 10;
+		    }
+	
 			if(totalPages > 0) {
-				List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+				List<Integer> pageNumbers = IntStream.rangeClosed(startPage, lastPage).boxed().collect(Collectors.toList());
 				model.addAttribute("pageNumbers", pageNumbers);
 			}
 			
+			model.addAttribute("startPage", startPage);
+			model.addAttribute("lastPage", lastPage);
 			model.addAttribute("orderId", matome.getOrderId());
 			model.addAttribute("meisai" ,pageable.getContent());
 			
 			return "checkOrderStatus";
+					
+					
 	}
-
+	
 	@RequestMapping("/checkOrderStatus_page")
 	public String checkOrderStatus_page(
     		@RequestHeader(value = "referer", required = false) final String referer,
@@ -1321,12 +1335,52 @@ public class OrderManageController {
 		Page<CheckOrderStatusSubForm> pageable = checkOrderStatusService.paging(PageRequest.of(currentPage - 1, pageSize), matome);
 		model.addAttribute("page", pageable);
 		
+		// ページングレイアウト検討
+		int startPage = 0;
+		int lastPage = 0;
 		int totalPages = pageable.getTotalPages();
+		
+		if(totalPages > 0 && totalPages <= 10) {
+			startPage = 1;
+		    lastPage = totalPages;
+		}else if(totalPages > 10) {
+			if(currentPage <= 6) {
+				startPage = 1;
+			    lastPage = 10;
+			}else if(currentPage > 6 && currentPage+4 <= totalPages) {
+			    startPage = currentPage-5;
+			    lastPage = Math.min(currentPage+4, totalPages);	
+		    }else if(currentPage+3 == totalPages) {
+		        startPage = currentPage-6;
+		    	lastPage = totalPages;   
+		    }else if(currentPage+2 == totalPages) {
+		        startPage = currentPage-7;
+		    	lastPage = totalPages;   	
+		    }else if(currentPage+1 == totalPages) {
+		        startPage = currentPage-8;
+		    	lastPage = totalPages;
+		    }else if(currentPage == totalPages) {
+		    	startPage = currentPage-9;
+		    	lastPage = totalPages;
+		    }
+		}
+
+	    /*}else if(totalPages > 16) {
+			if(currentPage <= 5) {
+				startPage = currentPage;
+			    lastPage = totalPages;
+			}else if(currentPage > 5) 
+			    startPage = currentPage-5;
+			    lastPage = Math.min(totalPages+4, totalPages);	
+		    }*/	
+		
 		if(totalPages > 0) {
-			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+			List<Integer> pageNumbers = IntStream.rangeClosed(startPage, lastPage).boxed().collect(Collectors.toList());
 			model.addAttribute("pageNumbers", pageNumbers);
 		}
 		
+		model.addAttribute("startPage", startPage);
+		model.addAttribute("lastPage", lastPage);
 		model.addAttribute("orderId", matome.getOrderId());
 		model.addAttribute("meisai" ,pageable.getContent());
 		
