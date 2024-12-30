@@ -16,8 +16,9 @@ public class StoreChoiceForm implements Serializable {
     Map<String, String> storeInfos;
 
 	/**
+     * 店舗が選択されているかチェックする。
      * 
-     * @return
+     * @return チェック結果
      */
     @AssertTrue(message = "店舗が選択されていません。店舗を選択してください。")
     public boolean isValidStoreselect() {

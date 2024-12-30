@@ -53,8 +53,9 @@ public class OrderInputForm implements Serializable {
     private String inputFlag;
     
     /**
+     * 検索条件が全て空かのチェックを行う。
      * 
-     * @return
+     * @return チェック結果
      */
     @AssertTrue(message = "検索条件を１つ以上指定してください")
     public boolean isValidSearchConditionEmpty() {
@@ -77,8 +78,9 @@ public class OrderInputForm implements Serializable {
     }
 
     /**
+     * 発注点が全て未入力でないかチェックする。
      * 
-     * @return
+     * @return チェック結果
      */
 	@AssertTrue(message = "発注する商品を１つ以上選択してから発注に進んでください。")
 	public boolean isValidOrderAmount_required() {
@@ -106,8 +108,9 @@ public class OrderInputForm implements Serializable {
 	}
 
     /**
+     * 発注点が値が数値で範囲内かをチェックする。
      * 
-     * @return
+     * @return チェック結果
      */
     @AssertTrue(message = "発注点数を入力する場合は１以上、かつ、99999以下の整数で入力してください。")
     public boolean isValidOrderAmount_numeric() {

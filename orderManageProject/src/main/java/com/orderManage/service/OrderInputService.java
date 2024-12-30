@@ -42,23 +42,29 @@ import com.orderManage.util.StringUtil;
  * 発注入力画面サービスクラス
  * 
  * 発注入力画面での操作を行う
+ * 
  * @author aocon-mac
- *
  */
 @Service
 public class OrderInputService extends OrderManageService {
 
+	/** API引数（取得上限数） */
 	private static int API_LIMIT = 1000;
+
+	/** API引数（取得上限数）ループ時に使用 */
 	private static int API_LIMIT_LOOP = API_LIMIT;
 	
 	/**
+	 * 商品画像一覧を取得
 	 * 
-	 * @param smarejiUser
-	 * @return
+	 * 商品画像一覧APIを使用して商品ID・商品画像URLを取得する
+	 * 
+	 * @param smarejiUser スマレジユーザ情報
+	 * @return 商品画像一覧Map
 	 */
-	public Map<String, String> getProductsImageInfo(SmarejiUser smarejiUser) {
+	public Map<String, String> getProductsImage(SmarejiUser smarejiUser) {
 		
-		logger.info("getProductsImageInfo:商品画像取得　処理開始");
+		logger.info("getProductsImage:商品画像一覧取得　処理開始");
 		
 		List<ProductImageInfo> productImageInfoList = new ArrayList<ProductImageInfo>();
 		
@@ -80,11 +86,6 @@ public class OrderInputService extends OrderManageService {
 			paramProductImage.setPage(page);
 			
 			List<ProductImageInfo> list = smarejiApiAccess.getProductsImage(smarejiUser.getContract().getId(), paramProductImage);
-			/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-			// テスト用の部門一覧取得
-	//		productImageInfoList = smarejiApiAccessMock.getProductsImageInfo("dummyid", paramproductImage);
-			/***********************************************/
-
 			if (list == null || list.size() == 0) {
 				break;
 			}
@@ -95,24 +96,27 @@ public class OrderInputService extends OrderManageService {
 		Iterator<ProductImageInfo> it = productImageInfoList.iterator();
 		Map<String, String> productImageInfoMap = new LinkedHashMap<String, String>();
 		while (it.hasNext()) {
-			// 部門コード、部門名の設定
+			// 商品ID、商品画像URLの設定
 			ProductImageInfo st = it.next();
 			productImageInfoMap.put(st.getProductId(), st.getUrl());
 		}
 		
-		logger.info("getProductsImageInfo:商品画像取得　処理終了");
+		logger.info("getProductsImage:商品画像一覧取得　処理終了");
 		
 		return productImageInfoMap;
 	}
 
 	/**
+	 * 部門一覧を取得
 	 * 
-	 * @param smarejiUser
-	 * @return
+	 * 部門一覧APIを使用して商品ID・商品画像URLを取得する
+	 * 
+	 * @param smarejiUser スマレジユーザ情報
+	 * @return 部門一覧Map
 	 */
 	public Map<String, String> getCategoriesInfo(SmarejiUser smarejiUser) {
 		
-		logger.info("getCategoriesInfo:部門名取得　処理開始");
+		logger.info("getCategoriesInfo:部門一覧取得　処理開始");
 		
 		List<CategorieInfo> categoryInfoList = new ArrayList<CategorieInfo>();
 		
@@ -132,35 +136,31 @@ public class OrderInputService extends OrderManageService {
 		paramCategorieInfo.setLimit(API_LIMIT);
 		
 		categoryInfoList = smarejiApiAccess.getCategoriesInfo(smarejiUser.getContract().getId(), paramCategorieInfo);
-		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-		// テスト用の部門一覧取得
-//		categoryInfoList = smarejiApiAccessMock.getCategoriesInfo("dummyid", paramCategorieInfo);
-		/***********************************************/
 		
 		Iterator<CategorieInfo> it = categoryInfoList.iterator();
 		Map<String, String> categoryInfoMap = new LinkedHashMap<String, String>();
 		while (it.hasNext()) {
-			// 部門コード、部門名の設定
+			// 部門ID、部門名の設定
 			CategorieInfo st = it.next();
 			categoryInfoMap.put(st.getCategoryId(), st.getCategoryName());
 		}
 		
-		logger.info("getCategoriesInfo:部門名取得　処理終了");
+		logger.info("getCategoriesInfo:部門一覧取得　処理終了");
 		
 		return categoryInfoMap;
 	}
 
 	/**
-	 * 仕入先情報を取得
+	 * 仕入先一覧を取得
 	 * 
-	 * 仕入先一覧取得APIを使用して仕入先コード・仕入先名を取得する
+	 * 仕入先一覧取得APIを使用して仕入先一覧を取得する
 	 * 
 	 * @param smarejiUser スマレジユーザ情報
-	 * @return Map 仕入先コード・仕入先名
+	 * @return 仕入先一覧List
 	 */
 	public List<SuppliersInfo> getSupplierInfo(SmarejiUser smarejiUser) {
 		
-		logger.info("getSupplierInfo:仕入先情報取得　処理開始");
+		logger.info("getSupplierInfo:仕入先一覧取得　処理開始");
 		
 		List<SuppliersInfo> supplierInfoList = new ArrayList<SuppliersInfo>();
 		
@@ -181,11 +181,6 @@ public class OrderInputService extends OrderManageService {
 			
 			// 仕入先一覧を取得(API)
 			List<SuppliersInfo> list = smarejiApiAccess.getSuppliersInfo(smarejiUser.getContract().getId(), param);
-			/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-			// テスト用の仕入先一覧取得
-	//		supplierInfoList = smarejiApiAccessMock.getSuppliersInfo("dummyid");
-			/***********************************************/
-
 			if (list == null || list.size() == 0) {
 				break;
 			}
@@ -193,15 +188,21 @@ public class OrderInputService extends OrderManageService {
 			supplierInfoList.addAll(list);
 		}
 		
-		logger.info("getSupplierInfo:仕入先情報取得　処理終了");
+		logger.info("getSupplierInfo:仕入先一覧取得　処理終了");
 		
 		return supplierInfoList;
 	}
 	
 	/**
+	 * 仕入先商品一覧を取得
 	 * 
-	 * @param smarejiUser
-	 * @return
+	 * 仕入先商品一覧取得APIを使用して仕入先商品一覧を取得する
+	 * 
+	 * @param smarejiUser スマレジユーザ情報
+	 * @param supplierId 仕入先ID
+	 * @param categoryId 部門ID
+	 * @param productId 商品ID
+	 * @return 仕入先商品一覧List
 	 */
 	public List<SuppliersProductsInfo> getSuppliersProductsInfo(SmarejiUser smarejiUser, String supplierId, String categoryId, String productId) {
 		
@@ -234,11 +235,6 @@ public class OrderInputService extends OrderManageService {
 			
 			// 仕入先商品一覧を取得(API)
 			List<SuppliersProductsInfo> list = smarejiApiAccess.getSuppliersProductsInfo(smarejiUser.getContract().getId(), supplierId, param);
-			/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-			// テスト用の仕入先商品一覧取得
-	//		suppliersProductsInfoList = smarejiApiAccessMock.getSuppliersProductsInfo("dummyid", supplierId, param);
-			/***********************************************/
-			
 			if (list == null || list.size() == 0) {
 				break;
 			}
@@ -250,52 +246,26 @@ public class OrderInputService extends OrderManageService {
 		
 		return suppliersProductsInfoList;
 	}
-	
-//	/**
-//	 * 
-//	 * @param smarejiUser
-//	 * @return
-//	 */
-//	public ProductsInfo getProductInfo(SmarejiUser smarejiUser, String productId) {
-//		
-//		logger.info("getProductInfo:商品情報取得　処理開始");
-//		
-//		// 仕入先一覧取得パラメータを設定
-//		ParamProductInfo param = new ParamProductInfo();
-//
-//		// 取得項目
-//		List<String> getParam = new ArrayList<String>();
-//		getParam.add("productId");
-//		getParam.add("categoryId");
-//		getParam.add("productCode");
-//		getParam.add("productName");
-//		getParam.add("groupCode");
-//		getParam.add("orderPoint");
-//		param.setFields(getParam);
-////		param.setLimit(1000);
-//		
-//		// 商品情報を取得(API)
-//		ProductsInfo productsInfo = smarejiApiAccess.getProductInfo(smarejiUser.getContract().getId(), productId, param);
-//		/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-//		// テスト用の商品情報取得
-////		ProductsInfo productsInfo = smarejiApiAccessMock.getProductInfo("dummyid", productId, param);
-//		/***********************************************/
-//		
-//		return productsInfo;
-//	}
-	
+
 	/**
+	 * 商品一覧を取得
 	 * 
-	 * @param smarejiUser
-	 * @return
+	 * 商品一覧取得APIを使用して商品一覧を取得する
+	 * 
+	 * @param smarejiUser スマレジユーザ情報
+	 * @param categoryId 部門ID
+	 * @param productCode 商品コード
+	 * @param groupCode グループコード
+	 * @param supplierProductNo 品番
+	 * @return 商品一覧Map
 	 */
-	public Map<String, ProductsInfo> getProductsInfoMap(SmarejiUser smarejiUser, String categoryId, String productCode, String groupCode, String supplierProductNo) {
+	public Map<String, ProductsInfo> getProductsInfo(SmarejiUser smarejiUser, String categoryId, String productCode, String groupCode, String supplierProductNo) {
 		
 		logger.info("getProductsInfo:商品一覧取得　処理開始");
 		
 		List<ProductsInfo> productsInfoList = new ArrayList<ProductsInfo>();
 		
-		// 仕入先一覧取得パラメータを設定
+		// 商品一覧取得パラメータを設定
 		ParamProductInfo param = new ParamProductInfo();
 
 		// 取得項目
@@ -332,11 +302,6 @@ public class OrderInputService extends OrderManageService {
 			
 			// 商品一覧を取得(API)
 			List<ProductsInfo> list = smarejiApiAccess.getProductsInfo(smarejiUser.getContract().getId(), param);
-			/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-			// テスト用の商品情報取得
-//			productsInfoList = smarejiApiAccessMock.getProductInfo("dummyid", param);
-			/***********************************************/
-
 			if (list == null || list.size() == 0) {
 				break;
 			}
@@ -347,28 +312,32 @@ public class OrderInputService extends OrderManageService {
 		Iterator<ProductsInfo> it = productsInfoList.iterator();
 		Map<String, ProductsInfo> productsInfoMap = new LinkedHashMap<String, ProductsInfo>();
 		while (it.hasNext()) {
-			// 仕入先ID、商品IDの設定
-			ProductsInfo sup = it.next();
-			productsInfoMap.put(sup.getProductId(), sup);
+			// 商品ID、商品情報Mapの設定
+			ProductsInfo prd = it.next();
+			productsInfoMap.put(prd.getProductId(), prd);
 		}
 		
 		logger.info("getProductsInfo:商品一覧取得　処理終了");
 		
 		return productsInfoMap;
 	}
-	
+
 	/**
+	 * 在庫一覧を取得
 	 * 
-	 * @param smarejiUser
-	 * @return
+	 * 在庫一覧取得APIを使用して商品ID・在庫数を取得する
+	 * 
+	 * @param smarejiUser スマレジユーザ情報
+	 * @param storeId 店舗ID
+	 * @return 在庫一覧Map
 	 */
-	public Map<String, String> getStocksInfoMap(SmarejiUser smarejiUser, String storeId) {
+	public Map<String, String> getStocksInfo(SmarejiUser smarejiUser, String storeId) {
 	
 		logger.info("getStocksInfo:在庫一覧取得　処理開始");
 		
 		List<StockInfo> stocksInfoList = new ArrayList<StockInfo>();
 		
-		// 仕入先一覧取得パラメータを設定
+		// 在庫一覧取得パラメータを設定
 		ParamStockInfo param = new ParamStockInfo();
 
 		// 取得項目
@@ -386,11 +355,6 @@ public class OrderInputService extends OrderManageService {
 		
 			// 在庫一覧を取得(API)
 			List<StockInfo> list = smarejiApiAccess.getStocksInfo(smarejiUser.getContract().getId(), param);
-			/** テスト用 ローカルで動かす用mockを使用 *****************/ 
-			// テスト用の在庫一覧取得
-	//		stocksInfoList = smarejiApiAccessMock.getStockInfo("dummyid");
-			/***********************************************/
-
 			if (list == null || list.size() == 0) {
 				break;
 			}
@@ -401,7 +365,7 @@ public class OrderInputService extends OrderManageService {
 		Iterator<StockInfo> it = stocksInfoList.iterator();
 		Map<String, String> stocksInfoMap = new LinkedHashMap<String, String>();
 		while (it.hasNext()) {
-			// 仕入先ID、商品IDの設定
+			// 商品ID、在庫数の設定
 			StockInfo sup = it.next();
 			stocksInfoMap.put(sup.getProductId(), sup.getStockAmount());
 		}
@@ -410,86 +374,58 @@ public class OrderInputService extends OrderManageService {
 		
 		return stocksInfoMap;
 	}
-	
+
 	/**
+	 * 発注入力画面検索時情報を取得
 	 * 
-	 * @param smarejiUser
-	 * @return
+	 * 発注入力画面の検索結果を取得する
+	 * 
+	 * @param smarejiUser スマレジユーザ情報
+	 * @param object 発注入力Form
+	 * @param storeId 店舗ID
+	 * @return 発注入力FormList
 	 */
 	public OrderInputForm getDisplayInfo(SmarejiUser smarejiUser, OrderInputForm object, String storeId) {
 
 		OrderInputForm orderInputForm = new OrderInputForm();
 		List<OrderInputSubForm> displayList = new ArrayList<OrderInputSubForm>();
 		
-		logger.info("*************************************************");
-
-		// API
-		// (0)商品画像一覧取得
-		logger.info("(0)商品画像一覧取得");
-
-		Map<String, String> productImageMap = getProductsImageInfo(smarejiUser);
+		// 商品画像一覧取得
+		Map<String, String> productImageMap = getProductsImage(smarejiUser);
 		
 		logger.info("商品画像一覧取得件数：" + productImageMap.size());
 		
-		logger.info("---------------------------------------");
-
-		// API
-		// (0)部門一覧取得
-		logger.info("(0)部門一覧取得");
-
+		// 部門一覧取得
 		Map<String, String> categoriesMap = getCategoriesInfo(smarejiUser);
 		
 		logger.info("部門一覧取得件数：" + categoriesMap.size());
-		
-		logger.info("---------------------------------------");
 
-		// API
-		// (3)商品一覧取得
-		logger.info("(3)商品一覧取得");
-
-		Map<String, ProductsInfo> productsInfoMap= getProductsInfoMap(smarejiUser, object.getCategoryId(), object.getProductCode(), object.getGroupCode(), object.getSupplierProductNo());
+		// 商品一覧取得
+		Map<String, ProductsInfo> productsInfoMap= getProductsInfo(smarejiUser, object.getCategoryId(), object.getProductCode(), object.getGroupCode(), object.getSupplierProductNo());
 
 		logger.info("商品一覧取得件数：" + productsInfoMap.size());
-		
-		logger.info("---------------------------------------");
 
-		// API
-		// (1)仕入先一覧取得
-		logger.info("(1)仕入先一覧取得");
+		// 仕入先一覧取得
 		List<SuppliersInfo> supplierList = getSupplierInfo(smarejiUser);
 
 		logger.info("仕入先一覧取得件数：" + supplierList.size());
 
 		Iterator<SuppliersInfo> supplierIt = supplierList.iterator();
-
 		while (supplierIt.hasNext()) {
 
 			SuppliersInfo supplier = supplierIt.next();
 
-			logger.info("---------------------------------------");
-
-			logger.info("仕入先ID：" + supplier.getSupplierId());
-			logger.info("仕入先名：" + supplier.getSupplierName());
-			logger.info("部門ID：" + object.getCategoryId());
-			logger.info("商品ID：" + object.getProductId());
-			
-			// API
-			// (2)仕入先商品一覧取得
-			logger.info("(2)仕入先商品一覧取得");
+			// 仕入先商品一覧取得
 			List<SuppliersProductsInfo> suppliersProductsList = getSuppliersProductsInfo(smarejiUser, supplier.getSupplierId(), "", object.getProductId());
 
 			logger.info("仕入先商品一覧取得件数：" + suppliersProductsList.size());
 			
 			Iterator<SuppliersProductsInfo> suppliersProductsIt = suppliersProductsList.iterator();
 
-			
 			while (suppliersProductsIt.hasNext()) {
 			
 				SuppliersProductsInfo suppliersProducts = suppliersProductsIt.next();
 
-//				logger.info("商品ID：" + suppliersProducts.getProductId());
-//				logger.info("部門ID：" + suppliersProducts.getCategoryId());
-				
 				OrderInputSubForm subForm = new OrderInputSubForm();
 
 				// 商品情報が取得できない場合は表示対象としない
@@ -529,19 +465,15 @@ public class OrderInputService extends OrderManageService {
 			}
 		}
 
-		logger.info("---------------------------------------");
-
-		// API
-		// (4)在庫一覧取得
-		logger.info("(4)在庫一覧取得");
-		Map<String, String> stocksMap = getStocksInfoMap(smarejiUser, storeId);
+		// 在庫一覧取得
+		Map<String, String> stocksMap = getStocksInfo(smarejiUser, storeId);
 
 		logger.info("在庫一覧取得件数：" + stocksMap.size());
 		
 		for (int i = 0; i < displayList.size(); i++) {
 			OrderInputSubForm subForm = displayList.get(i);
 			
-			if (StringUtil.isEmpty(subForm.getProductId())) {	// TODO
+			if (StringUtil.isEmpty(subForm.getProductId())) {
 				continue;
 			}
 			
@@ -549,8 +481,6 @@ public class OrderInputService extends OrderManageService {
 			subForm.setStockAmount(StringUtil.isEmpty(stockAmount) ? "0": stockAmount);
 		}
 		
-		logger.info("---------------------------------------");
-
 		orderInputForm.setDisplayList(displayList);
 		
 		logger.info("***表示件数：" + displayList.size());
@@ -559,28 +489,32 @@ public class OrderInputService extends OrderManageService {
 	}
 
 	/**
+	 * 発注登録
+	 * <br>
+	 * 発注登録APIを使用して発注入力画面で入力した発注情報を登録する。<br>
+	 * 返却値に仕入先ごとの発注IDを返却する。
 	 * 
-	 * @param smarejiUser
-	 * @param storeId
-	 * @param identificationNo
-	 * @param displayList
-	 * @param orderAmountMap
-	 * @param pagesize
-	 * @return
+	 * @param smarejiUser スマレジユーザ情報
+	 * @param storeId 店舗ID
+	 * @param identificationNo 発注管理番号
+	 * @param displayList 発注入力画面表示情報List
+	 * @param orderAmountMap 発注点Map
+	 * @param pagesize 1ページの表示件数
+	 * @return 発注ID Map
 	 */
 	public Map<String, String> entryPurchaseOrder(SmarejiUser smarejiUser, String storeId, String identificationNo , List<OrderInputSubForm> displayList, Map<String, String[]> orderAmountMap, int pagesize) {
 
 		Map<String, String> resultMap = new HashMap<String, String>();	// 返却用のオブジェクト
-		List<String> storageInfoIdList = new ArrayList<String>();	// 発注IDリスト
-		Map<String, List<String[]>> orderMap = new HashMap<String, List<String[]>>();	// 
+		Map<String, List<String[]>> orderMap = new HashMap<String, List<String[]>>();	// 発注入力Map（仕入先ID、発注点配列で保持）
 
-		int preidx = 0;
-		String[] orderAmount = null;
+		int preidx = 0;	// 処理しているページ
+		String[] orderAmount = null;	// 処理しているページの発注点の配列
 		for (int i = 0, j = 0; i < displayList.size(); i++, j++) {
 
-			// 
+			// 何ページ目か
 			int idx = i / pagesize + 1;
 
+			// 処理するページが変わったか
 			if (preidx != idx) {
 				orderAmount = orderAmountMap.get(String.valueOf(idx));
 				j = 0;
@@ -599,6 +533,7 @@ public class OrderInputService extends OrderManageService {
 			
 			String supplierId = displayList.get(i).getSupplierId();
 			String productId = displayList.get(i).getProductId();
+
 			// 仕入先が存在する場合
 			if (orderMap.containsKey(supplierId)) {
 				List<String[]> orderList = orderMap.get(supplierId);
@@ -611,13 +546,13 @@ public class OrderInputService extends OrderManageService {
 				orderMap.put(supplierId, orderList);
 			}
 
+			// 1ページの表示件数分の処理をした場合
 			if (j == pagesize - 1) {
 				orderAmount = null;
 			}
 		}
 		
 		Iterator<Map.Entry<String, List<String[]>>> it = orderMap.entrySet().iterator();
-		
 		while (it.hasNext()) {
 			
 			Map.Entry<String, List<String[]>> order = it.next();
@@ -667,13 +602,11 @@ public class OrderInputService extends OrderManageService {
 			paramEntryPurchaseOrder.setStores(osList);
 			//////////////////////////////////////////////////////////////////////////////
 			
-
 			PurchaseOrdersInfo purchaseOrdersInfo = smarejiApiAccess.entryPurchaseOrder(smarejiUser.getContract().getId(), paramEntryPurchaseOrder);
 			
 			logger.info("発注ID：" + purchaseOrdersInfo.getStorageInfoId());
 			
-			storageInfoIdList.add(purchaseOrdersInfo.getStorageInfoId());
-			
+			// 仕入先ごとの発注IDを保持する
 			resultMap.put(order.getKey(), purchaseOrdersInfo.getStorageInfoId());
 		}
 		
@@ -681,17 +614,20 @@ public class OrderInputService extends OrderManageService {
 	}
 
 	/**
+	 * 発注削除
 	 * 
-	 * @param smarejiUser
-	 * @param storageInfoIdList
+	 * 発注削除APIを使用して指定した発注IDの発注情報を削除する
+	 * 
+	 * @param smarejiUser スマレジユーザ情報
+	 * @param storageInfoIdList 発注IDリスト
 	 */
 	public void deletePurchaseOrder(SmarejiUser smarejiUser, List<String> storageInfoIdList) {
 		for (int i = 0; i < storageInfoIdList.size(); i++) {
+			// 発注削除API実行
 			smarejiApiAccess.deletePurchaseOrder(smarejiUser.getContract().getId(), storageInfoIdList.get(i));
 		}
 	}
 
-	
 	/**
 	 * ページング処理
 	 * 
