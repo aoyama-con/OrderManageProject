@@ -1039,6 +1039,10 @@ public class OrderManageController {
         int i = 0;
         for (OrderConfirmSubForm orderConfirmSubForm : form.getDisplayList()) {
         	// 画面に表示されている発注点数に設定する
+        	if (object.getOrderingPoint_()[i] == "") {
+        		// 発注点数がブランクの場合は"0"とする
+        		object.getOrderingPoint_()[i] = "0";
+        	}
         	orderConfirmSubForm.setOrderingPoint(Integer.valueOf(object.getOrderingPoint_()[i]));
         	updateList.add(orderConfirmSubForm);
         	i++;
