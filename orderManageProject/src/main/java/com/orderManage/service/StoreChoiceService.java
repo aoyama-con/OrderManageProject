@@ -1,10 +1,10 @@
 package com.orderManage.service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -56,14 +56,18 @@ public class StoreChoiceService extends OrderManageService {
 		
 		storeInfoList = smarejiApiAccess.getStoresInfo(smarejiUser.getContract().getId(), paramStoresInfo);
 		
-		Iterator<StoreInfo> it = storeInfoList.iterator();
-		Map<String, String> storeInfoMap = new LinkedHashMap<String, String>();
-		while (it.hasNext()) {
-			// 店舗コード、店舗名の設定
-			StoreInfo st = it.next();
-			storeInfoMap.put(st.getStoreCode(), st.getStoreName());
-		}
-		
+		// TODO StreamAPIでMapにする
+//		Iterator<StoreInfo> it = storeInfoList.iterator();
+//		Map<String, String> storeInfoMap = new LinkedHashMap<String, String>();
+//		while (it.hasNext()) {
+//			// 店舗コード、店舗名の設定
+//			StoreInfo st = it.next();
+//			storeInfoMap.put(st.getStoreCode(), st.getStoreName());
+//		}
+
+		Map<String, String> storeInfoMap = storeInfoList.stream()
+				.collect(Collectors.toMap(StoreInfo::getStoreCode, StoreInfo::getStoreName, (u, v) -> v, LinkedHashMap::new));	// 店舗コード、店舗名
+
 		logger.info("getStoresInfo:店舗一覧情報取得　処理終了");
 		
 		return storeInfoMap;
