@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.orderManage.model.api.CategorieInfo;
 import com.orderManage.model.api.ProductAttributeInfo;
-import com.orderManage.model.api.ProductImageInfo;
 import com.orderManage.model.api.ProductsInfo;
 import com.orderManage.model.api.PurchaseOrdersInfo;
 import com.orderManage.model.api.PurchaseOrdersProductsInfo;
@@ -24,7 +23,6 @@ import com.orderManage.model.param.ParamEntryPurchaseOrderDeliveryStore;
 import com.orderManage.model.param.ParamEntryPurchaseOrderProduct;
 import com.orderManage.model.param.ParamEntryPurchaseOrderStore;
 import com.orderManage.model.param.ParamProductAttributeInfo;
-import com.orderManage.model.param.ParamProductImage;
 import com.orderManage.model.param.ParamProductInfo;
 import com.orderManage.model.param.ParamPurchaseOrderInfo;
 import com.orderManage.model.param.ParamPurchaseOrderProduct;
@@ -384,24 +382,24 @@ public class UtilTestService extends OrderManageService {
 		return stockInfo;
 	}
 	// 部門一覧取得
-	public List<CategorieInfo> getCategoriesInfo(SmarejiUser smarejiUser) {
-		
-		// 部門一覧を取得(API)
-		ParamCategorieInfo paramCategorieInfo = new ParamCategorieInfo();
-
-		// 検索パラメータ
-		// 上限設定
-		paramCategorieInfo.setLimit(10);
-//		// 部門コード
-//		paramCategorieInfo.setCategory_code("");
-//		// 階層レベル
-//		paramCategorieInfo.setLevel("");
-
-		List<CategorieInfo> stockInfo = smarejiApiAccess.getCategoriesInfo(smarejiUser.getContract().getId(), 
-				paramCategorieInfo);
-		
-		return stockInfo;
-	}
+//	public List<CategorieInfo> getCategoriesInfo(SmarejiUser smarejiUser) {
+//		
+//		// 部門一覧を取得(API)
+//		ParamCategorieInfo paramCategorieInfo = new ParamCategorieInfo();
+//
+//		// 検索パラメータ
+//		// 上限設定
+//		paramCategorieInfo.setLimit(10);
+////		// 部門コード
+////		paramCategorieInfo.setCategory_code("");
+////		// 階層レベル
+////		paramCategorieInfo.setLevel("");
+//
+//		List<CategorieInfo> stockInfo = smarejiApiAccess.getCategoriesInfo(smarejiUser.getContract().getId(), 
+//				paramCategorieInfo);
+//		
+//		return stockInfo;
+//	}
 	// 部門情報取得
 	public CategorieInfo getCategorieInfo(SmarejiUser smarejiUser) {
 		CategorieInfo categorieInfo = new CategorieInfo();
@@ -442,22 +440,22 @@ public class UtilTestService extends OrderManageService {
 	}
 	
 	// 商品画像一覧取得
-	public List<ProductImageInfo> getProductsImage(SmarejiUser smarejiUser) {
-		
-		// 商品画像一覧を取得(API)
-		ParamProductImage paramProductImage = new ParamProductImage();
-
-		// 検索パラメータ
-		// 上限設定
-		paramProductImage.setLimit(10);
-		// 商品ID
-		paramProductImage.setProduct_id("8000010");
-
-		List<ProductImageInfo> productImage = smarejiApiAccess.getProductsImage(smarejiUser.getContract().getId(), 
-				paramProductImage);
-		
-		return productImage;
-	}
+//	public List<ProductImageInfo> getProductsImage(SmarejiUser smarejiUser) {
+//		
+//		// 商品画像一覧を取得(API)
+//		ParamProductImage paramProductImage = new ParamProductImage();
+//
+//		// 検索パラメータ
+//		// 上限設定
+//		paramProductImage.setLimit(10);
+//		// 商品ID
+//		paramProductImage.setProduct_id("8000010");
+//
+//		List<ProductImageInfo> productImage = smarejiApiAccess.getProductsImage(smarejiUser.getContract().getId(), 
+//				paramProductImage);
+//		
+//		return productImage;
+//	}
 	
 	// 商品属性一覧取得
 	public List<ProductAttributeInfo> getAttributesInfo(SmarejiUser smarejiUser) {
