@@ -1,5 +1,6 @@
 package com.orderManage.controller;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,6 +40,7 @@ import com.orderManage.model.api.PurchaseOrdersInfo;
 import com.orderManage.model.api.StaffInfo;
 import com.orderManage.model.api.StoreInfo;
 import com.orderManage.model.api.UserAccessToken;
+import com.orderManage.model.session.OrderHistSessionInfo;
 import com.orderManage.model.session.OrderSessionInfo;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.service.CheckOrderConfirmService;
@@ -998,11 +1000,12 @@ public class OrderManageController {
 	 * 
 	 * @param model　パラメータ受け渡し制御Model
 	 * @return　発注確定画面
+	 * @throws ParseException 
 	 */
 	@RequestMapping("/orderConfirm_Order")
     public String orderConfirm_Order(@ModelAttribute @Validated OrderConfirmForm object, BindingResult bindingResult, 
     		@RequestHeader(value = "referer", required = false) final String referer,
-    		Model model) {
+    		Model model) throws ParseException {
 		
 		logger.info("controller:発注確定画面　登録処理_order start");
 		
@@ -1136,16 +1139,14 @@ public class OrderManageController {
         	/**** いったん発注履歴と同じプログラムを実装 ************************************************/   
         	OrderHistoryForm orderHistoryForm = new OrderHistoryForm();
     		// セッション情報取得
-    		OrderHistoryForm session = (OrderHistoryForm)smarejiSession
-    				.getAttribute("orderHistorySession");
+        	OrderHistSessionInfo session = (OrderHistSessionInfo)smarejiSession.
+    				getAttribute("s_OrderHistInfo");
 
     		// 絞り込み条件設定
     		orderHistoryForm = orderHistoryService.setCondition(orderHistoryForm,session);
     		// セッションに画面情報を格納
-    		smarejiSession.setAttribute("orderHistorySession", orderHistoryForm);
-    		
-    		// セッションに画面情報を格納
-    		smarejiSession.setAttribute("orderHistorySession", orderHistoryForm);
+    		session = orderHistoryService.setSession(orderHistoryForm,session);
+    		smarejiSession.setAttribute("s_OrderHistInfo", session);
 
     		// 仕入先一覧を取得(API使用）
     		Map<String, String> suppliersMap = new LinkedHashMap<String, String>();
@@ -1174,6 +1175,7 @@ public class OrderManageController {
     		// 画面に設定する
     		model.addAttribute("suppliers", suppliersMap);
     		model.addAttribute("orderHistoryForm", orderHistoryForm);
+    		model.addAttribute("shokihyojiFlg", "0");
     		/***********************************************************************************/
         	
     		// 遷移元セッションの削除
@@ -1192,23 +1194,49 @@ public class OrderManageController {
 	 * 
 	 * @param model　パラメータ受け渡し制御Model
 	 * @return　発注履歴画面
+	 * @throws ParseException 
 	 */
 	@RequestMapping("/orderHistory")
     public String orderHistory(Model model,
     		@ModelAttribute @Validated OrderHistoryForm orderHistoryForm,BindingResult bindingResult,
     		@RequestParam(required = false) String orderId,
-    		@RequestHeader(value = "referer", required = false) final String referer) {
+    		@RequestParam(required = false) String kensakuFlg,
+    		@RequestHeader(value = "referer", required = false) final String referer) throws ParseException {
+		
 		
 		// セッション情報取得
-		OrderHistoryForm session = (OrderHistoryForm)smarejiSession
-				.getAttribute("orderHistorySession");
+		OrderHistSessionInfo session = (OrderHistSessionInfo)smarejiSession.
+				getAttribute("s_OrderHistInfo");
 		
+		// 初期表示時処理
+//		if(Objects.isNull(session)) {
+		if(!(Objects.nonNull(kensakuFlg)&&kensakuFlg.equals("1"))) {
+			// 仕入先一覧を取得(API使用）
+			Map<String, String> suppliersMap = new LinkedHashMap<String, String>();
+			suppliersMap = orderHistoryService.getSupplierInfo(smarejiUser);
+			
+			// 絞り込み条件設定
+			orderHistoryForm = orderHistoryService.setCondition(orderHistoryForm,session);
+			
+			// セッションに画面情報を格納
+			session = orderHistoryService.setSession(orderHistoryForm,session);
+			smarejiSession.setAttribute("s_OrderHistInfo", session);
+			
+			// 画面に設定する
+			model.addAttribute("suppliers", suppliersMap);
+			model.addAttribute("orderHistoryForm", orderHistoryForm);
+			model.addAttribute("shokihyojiFlg", "1");
+	        return "orderHistory";
+		}
+		
+		// 削除処理
 		// 発注IDが連携された場合、削除
 		if(!Objects.isNull(orderId)&& orderId !="") {
 			// 発注削除（API使用）
 			orderHistoryService.deleteOrder(smarejiUser,orderId);
 		}
 		
+		// 検索条件チェック処理
 		// バリデートチェック
         if (bindingResult.hasErrors()) {
         	// エラーの場合
@@ -1219,11 +1247,14 @@ public class OrderManageController {
             model.addAttribute("validationError", errorList);
             return "orderHistory";
         }
+        
+        // 検索条件処理
 		// 絞り込み条件設定
 		orderHistoryForm = orderHistoryService.setCondition(orderHistoryForm,session);
-		// セッションに画面情報を格納
-		smarejiSession.setAttribute("orderHistorySession", orderHistoryForm);
 		
+		// セッションに画面情報を格納
+		session = orderHistoryService.setSession(orderHistoryForm,session);
+		smarejiSession.setAttribute("s_OrderHistInfo", session);
 		
 		// 仕入先一覧を取得(API使用）
 		Map<String, String> suppliersMap = new LinkedHashMap<String, String>();
@@ -1252,8 +1283,10 @@ public class OrderManageController {
 		// 画面に設定する
 		model.addAttribute("suppliers", suppliersMap);
 		model.addAttribute("orderHistoryForm", orderHistoryForm);
+		model.addAttribute("shokihyojiFlg", "0");
         return "orderHistory";
 	}
+
 
 	/**
 	 * 発注状況画面遷移時に制御するコントローラー

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.orderManage.controller.object.OrderHistoryForm;
@@ -26,9 +24,10 @@ import com.orderManage.model.param.ParamPurchaseOrderInfo;
 import com.orderManage.model.param.ParamPurchaseOrderProduct;
 import com.orderManage.model.param.ParamStaffInfo;
 import com.orderManage.model.param.ParamSupplierInfo;
+import com.orderManage.model.service.Pagination;
+import com.orderManage.model.session.OrderHistSessionInfo;
 import com.orderManage.model.session.SmarejiUser;
-import com.orderManage.util.SmarejiApiAccess;
-import com.orderManage.util.SmarejiApiAccessMock;
+import com.orderManage.util.DateUtil;
 
 /**
  * 発注履歴画面サービスクラス
@@ -38,20 +37,8 @@ import com.orderManage.util.SmarejiApiAccessMock;
  *
  */
 @Service
-public class OrderHistoryService {
+public class OrderHistoryService extends OrderManageService{
 
-	/* ログ設定 ※定義必須*/
-	@Autowired
-	OrderManageLoggingService logger;
-	
-	/* スマレジAPIアクセスクラス定義 ※定義必須*/
-	@Autowired
-	SmarejiApiAccess smarejiApiAccess;
-	
-	/* スマレジAPIアクセスクラス定義 ※定義必須*/
-	@Autowired
-	SmarejiApiAccessMock smarejiApiAccessMock;
-	
 	/* ステータス(1：すべて) */
 	private final String STATUS_ALL = "1";
 	
@@ -62,7 +49,7 @@ public class OrderHistoryService {
 //	private final String STATUS_TENTATIVE_ORDER = "5";
 
 	/* 1ページ表示数(デフォルト値50) */
-    private final int DEF_MAX_DISP_AMOUNT = 50;
+    private final int DEF_MAX_DISP_AMOUNT = 1000;
     
 	/* ページ番号(デフォルト値1) */
     private final int DEF_CUR_PAGE = 1;
@@ -133,7 +120,7 @@ public class OrderHistoryService {
 	 * @param session セッション情報
 	 * @return OrderHistoryForm 条件を設定した画面情報
 	 */
-	public OrderHistoryForm setCondition(OrderHistoryForm form, OrderHistoryForm session) {
+	public OrderHistoryForm setCondition(OrderHistoryForm form, OrderHistSessionInfo session) {
 		logger.info("setCondition:絞り込み条件設定　処理開始");
 
 		// 画面情報 > セッション > デフォルトの優先順位で値を設定する
@@ -160,7 +147,7 @@ public class OrderHistoryService {
 			if (Objects.isNull(session)){
 				form.setDateFrom("");
 			} else {
-				form.setDateFrom(session.getDateFrom());
+				form.setDateFrom(session.getOrderedDateFrom());
 			}
 		}
 
@@ -169,7 +156,7 @@ public class OrderHistoryService {
 			if (Objects.isNull(session)){
 				form.setDateTo("");
 			} else {
-				form.setDateTo(session.getDateTo());
+				form.setDateTo(session.getOrderedDateTo());
 			}
 		}
 		
@@ -178,7 +165,7 @@ public class OrderHistoryService {
 			if (Objects.isNull(session)){
 				form.setMaxDisplayAmount(DEF_MAX_DISP_AMOUNT);
 			} else {
-				form.setMaxDisplayAmount(session.getMaxDisplayAmount());
+				form.setMaxDisplayAmount(session.getPagination().getLimit());
 			}
 		}
 
@@ -187,9 +174,10 @@ public class OrderHistoryService {
 			if (Objects.isNull(session)){
 				form.setCurrentPage(DEF_CUR_PAGE);
 			} else {
-				form.setCurrentPage(session.getCurrentPage());
+				form.setCurrentPage(session.getPagination().getPage());
 			}
 		}
+		
 		
 		logger.info("setCondition:絞り込み条件設定　処理終了");
 		return form;
@@ -205,11 +193,12 @@ public class OrderHistoryService {
 	 * @param purchaseOrderInfoList 発注一覧候補リスト
 	 * @param orderHistoryForm 画面表示項目
 	 * @return OrderHistoryForm 画面表示項目
+	 * @throws ParseException 
 	 * @throws Exception 
 	 */
 	public OrderHistoryForm filter(SmarejiUser smarejiUser,
 			List<PurchaseOrdersInfo> purchaseOrderInfoList,
-			OrderHistoryForm orderHistoryForm) {
+			OrderHistoryForm orderHistoryForm) throws ParseException {
 		logger.info("filter:発注履歴絞り込み　処理開始");
 
 		// 絞り込み結果格納用のリストを作成
@@ -229,25 +218,19 @@ public class OrderHistoryService {
 		
 		//発注日FROM
 		if (Objects.nonNull(strDateFrom) && !strDateFrom.isEmpty()) {
-			try {
-				// 日付がyyyy-MM-ddの形である想定で、Date型に変換
-				dateFrom = new SimpleDateFormat("yyyy-MM-dd").parse(strDateFrom);
-				dateFromFlg = true;
-			} catch (ParseException e){
-				logger.error(strDateFrom + ":発注日（FROM)：日付型への変換でエラーが発生しました");
-			}
+
+			// 日付がyyyy-MM-ddの形である想定で、Date型に変換
+			//dateFrom = new SimpleDateFormat("yyyy-MM-dd").parse(strDateFrom);
+			dateFrom = DateUtil.ParseDate(strDateFrom,"yyyy-MM-dd");
+			dateFromFlg = true;
 		}
 		//発注日TO
 		if (Objects.nonNull(strDateTo) && !strDateTo.isEmpty()) {
-			try {
-				// 日付がyyyy-MM-ddの形である想定で、Date型に変換
-				dateTo = new SimpleDateFormat("yyyy-MM-dd").parse(strDateTo);
-				dateToFlg = true;
-			} catch (ParseException e){
-				logger.error(strDateTo + ":発注日（TO)：日付型への変換でエラーが発生しました");
-			}
+			// 日付がyyyy-MM-ddの形である想定で、Date型に変換
+			//dateTo = new SimpleDateFormat("yyyy-MM-dd").parse(strDateTo);
+			dateTo = DateUtil.ParseDate(strDateTo,"yyyy-MM-dd");
+			dateToFlg = true;
 		}
-
 		// 検索条件に合致する発注履歴を絞り込む
 		for(PurchaseOrdersInfo orderInfo:purchaseOrderInfoList) {
 			// 発注日FROMが設定されている場合
@@ -256,32 +239,24 @@ public class OrderHistoryService {
 				if(Objects.isNull(orderInfo.getOrderedDate())) {
 					continue;
 				}
-				try {
-					// 日付がyyyy-MM-ddの形である想定で、Date型に変換
-					orderedDate = new SimpleDateFormat("yyyy-MM-dd")
-							.parse(orderInfo.getOrderedDate());
-				} catch (ParseException e){
-					logger.error(orderInfo.getOrderedDate() + ":発注日：日付型への変換でエラーが発生しました");
-				}
+				// 日付がyyyy-MM-ddの形である想定で、Date型に変換
+				//orderedDate = new SimpleDateFormat("yyyy-MM-dd")
+				//		.parse(orderInfo.getOrderedDate());
+				orderedDate = DateUtil.ParseDate(orderInfo.getOrderedDate(),"yyyy-MM-dd");
 				// 発注日がdateFrom(検索条件)より前の日付の場合、検索条件を満たさないため次の発注情報へ
 				if (orderedDate.compareTo(dateFrom)<0) {
 					continue;
 				}
-				
 			}
-
 			// 発注日TOが設定されている場合
 			if (dateToFlg) {
 				Date orderedDate = null;
 				if(Objects.isNull(orderInfo.getOrderedDate())) {
 					continue;
 				}
-				try {
-					// 日付がyyyy-MM-ddの形である想定で、Date型に変換
-					orderedDate = new SimpleDateFormat("yyyy-MM-dd").parse(orderInfo.getOrderedDate());
-				} catch (ParseException e){
-					logger.error(orderInfo.getOrderedDate() + ":発注日：日付型への変換でエラーが発生しました");
-				}
+				// 日付がyyyy-MM-ddの形である想定で、Date型に変換
+				//orderedDate = new SimpleDateFormat("yyyy-MM-dd").parse(orderInfo.getOrderedDate());
+				orderedDate = DateUtil.ParseDate(orderInfo.getOrderedDate(),"yyyy-MM-dd");
 				// 発注日がdateTo(検索条件)よりあとの日付の場合、検索条件を満たさないため次の発注情報へ
 				if (orderedDate.compareTo(dateTo)>0) {
 					continue;
@@ -579,6 +554,32 @@ public class OrderHistoryService {
 		logger.info("deleteOrder:発注削除　処理終了");
 		
 		return ;
-	
 	}
+	
+	/**
+	 * セッション設定
+	 * 
+	 * 画面情報をセッションに格納する。
+	 * 
+	 * @param form 画面情報
+	 * @param session　セッション
+	 * @return OrderHistSessionInfo 
+	 */
+	public OrderHistSessionInfo setSession (OrderHistoryForm form, OrderHistSessionInfo session) {
+		
+		if(Objects.isNull(session)) {
+			session = new OrderHistSessionInfo();
+		}
+		session.setOrderedDateFrom(form.getDateFrom());
+		session.setOrderedDateTo(form.getDateTo());
+		session.setSupplierId(form.getSupplierId());
+		session.setStatus(form.getStatus());
+		Pagination pagination = new Pagination();
+		pagination.setLimit(form.getMaxDisplayAmount());
+		pagination.setPage(form.getCurrentPage());
+		session.setPagenation(pagination);
+		
+		return session;
+	}
+	
 }

@@ -3,6 +3,7 @@ import java.util.List;
 
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Pattern;
 /**
  * 発注履歴Form
  * 
@@ -17,8 +18,10 @@ public class OrderHistoryForm {
 	/* 仕入先店舗コード */
     private String supplierId;
 	/* 発注日From */
+    @Pattern(regexp = "(^\\d{4}-\\d{2}-\\d{2})?$", message = "発注日（FROM）が日付形式ではありません")
     private String DateFrom;
 	/* 発注日To */
+    @Pattern(regexp = "(^\\d{4}-\\d{2}-\\d{2})?$", message = "発注日（TO）が日付形式ではありません")
     private String DateTo;
 	/* ステータス */
     private String status;
@@ -37,8 +40,10 @@ public class OrderHistoryForm {
   * 
   * @return
   */
- @AssertTrue(message = "発注日Toは発注日From以降の日付を入力してください。")
- public boolean isValidDateTo() {
+    
+    
+    @AssertTrue(message = "発注日Toは発注日From以降の日付を入力してください。")
+    public boolean isValidDate() {
  	boolean result = true;
 
  	// ブランク以外の場合チェックを行う
@@ -49,7 +54,7 @@ public class OrderHistoryForm {
      	}
  	}
  	return result;
- }
+    }
  
  
 	public String getSupplierId() {

@@ -18,7 +18,7 @@ public class OrderHistSessionInfo {
 	/* ステータス(2:発注済、3:入荷検品中、9:全て（発注済み、仮発注）) */
 	private String status;
 	/* ページ情報 */
-	private Pagination pagenation;
+	private Pagination pagination;
 	
 	public String getOrderedDateFrom() {
 		return orderedDateFrom;
@@ -50,11 +50,11 @@ public class OrderHistSessionInfo {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	public Pagination getPagenation() {
-		return pagenation;
+	public Pagination getPagination() {
+		return pagination;
 	}
-	public void setPagenation(Pagination pagenation) {
-		this.pagenation = pagenation;
+	public void setPagenation(Pagination pagination) {
+		this.pagination = pagination;
 	}
 
 }

@@ -25,7 +25,8 @@
 	});
 	
 	var funcOrderInput = function() {
-		if (confirm("発注を取り消します。よろしいですか？")) {
+		var result = confirm('発注を取り消します。よろしいですか？');
+		if (result) {
 			document.form.submit();
 		} else {
 			return;
@@ -113,7 +114,11 @@
 				</tbody>
 			</table>
 			<div align="right">
- 				<p><input type="submit" class="btn btn-primary" value="絞り込む"></p>
+				<form>
+					<p><input type="hidden" name="kensakuFlg" value="1"></p>
+					<p><input type="submit" class="btn btn-primary" value="絞り込む"></p>
+				</form>
+ 				
 			</div>
 		</form>
 
@@ -137,6 +142,7 @@
 				<table class="table table-bordered">
 					<thead class="table-info">
 						<tr>
+							<th scope="col" class="align-middle text-center">発注ID</th>
 							<th scope="col" class="align-middle text-center">ステータス</th>
 							<th scope="col" class="align-middle text-center">発注日</th>
 							<th scope="col" class="align-middle text-center">仕入先</th>
@@ -148,6 +154,7 @@
 					</thead>
 					<tbody>
 						<tr th:each="order,stat :${orderHistoryForm.displayList}" >
+							<td align="right" th:text="${order.orderId}"class="align-middle"></td>
 							<td class="align-middle text-center">
 								<th:block th:if="${order.status} == '2'">
 									<div class="p-1 bg-primary-subtle">発注済</div>
@@ -184,16 +191,14 @@
 									<button type="button" class="btn btn-primary" disabled>　取消　</button>
 								</th:block>
 								</div>
-
 							</td>
-
 						</tr>
 					</tbody>
 				</table>
 			</div>
 			<div class="container">
 				<table>
-					<tr th:if="${#lists.isEmpty(orderHistoryForm.displayList)}" >
+					<tr th:if="${#lists.isEmpty(orderHistoryForm.displayList)&&shokihyojiFlg==0}" >
 						<td style="color:red;" th:text="検索結果がありません。"></td>
 					</tr>
 				</table>
