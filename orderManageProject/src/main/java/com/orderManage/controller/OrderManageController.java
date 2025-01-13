@@ -1306,7 +1306,7 @@ public class OrderManageController {
 		    
 		    //セッション情報取得
 		    OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession
-					.getAttribute("orderHistorySession");
+					.getAttribute("s_OrderHistInfo");
 		    
 		    String orderId1 = orderId;
 		  
@@ -1381,7 +1381,7 @@ public class OrderManageController {
 		
 		String orderId1 = orderId;
 		
-		 OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession.getAttribute("orderHistorySession");
+		 OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession.getAttribute("s_OrderHistInfo");
 		
 	    List<OrderHistorySubForm> display = session1.getDisplayList();
 	    
