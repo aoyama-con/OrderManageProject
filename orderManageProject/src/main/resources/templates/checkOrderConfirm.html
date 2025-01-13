@@ -74,6 +74,7 @@
 				<thead class="table-info">
 					<tr>
 						<th scope="col" class="align-middle text-center">ステータス</th>
+						<th scope="col" class="align-middle text-center">発注ID</th>
 						<th scope="col" class="align-middle text-center">発注日</th>
 						<th scope="col" class="align-middle text-center">仕入先</th>
 						<th scope="col" class="align-middle text-center">発注者</th>
@@ -88,6 +89,7 @@
 						<td class="align-middle text-center">
 							<div class="p-1 bg-warning">仮発注</div>
 						</td>
+						<td class="align-middle text-center" th:text="${order.orderId}"></td>
 						<td class="align-middle text-center" th:text="${order.orderedDate}"></td>
 						<td class="align-middle text-center" th:text="${order.supplierName}"></td>
 						<td class="align-middle text-center" th:text="${order.orderStaffName}"></td>
