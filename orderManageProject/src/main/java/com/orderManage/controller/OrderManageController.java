@@ -1201,6 +1201,8 @@ public class OrderManageController {
     		@ModelAttribute @Validated OrderHistoryForm orderHistoryForm,BindingResult bindingResult,
     		@RequestParam(required = false) String orderId,
     		@RequestParam(required = false) String kensakuFlg,
+    		@RequestParam(required = false) Integer page,
+    		@RequestParam(required = false) Integer size,
     		@RequestHeader(value = "referer", required = false) final String referer) throws ParseException {
 		
 		
@@ -1208,6 +1210,12 @@ public class OrderManageController {
 		OrderHistSessionInfo session = (OrderHistSessionInfo)smarejiSession.
 				getAttribute("s_OrderHistInfo");
 		
+		if(Objects.isNull(page)) {
+			page = 1;
+		}
+		if(Objects.isNull(size)) {
+			size = OrderManageController.pagesize_orderinput;
+		}
 		// 初期表示時処理
 //		if(Objects.isNull(session)) {
 		if(!(Objects.nonNull(kensakuFlg)&&kensakuFlg.equals("1"))) {
@@ -1226,6 +1234,10 @@ public class OrderManageController {
 			model.addAttribute("suppliers", suppliersMap);
 			model.addAttribute("orderHistoryForm", orderHistoryForm);
 			model.addAttribute("shokihyojiFlg", "1");
+
+			Page<OrderHistorySubForm> pageable = null;
+			model.addAttribute("page", pageable);
+			
 	        return "orderHistory";
 		}
 		
@@ -1274,11 +1286,24 @@ public class OrderManageController {
 		// 名称設定
 		// 仕入先名設定
 		orderHistoryService.setSupplierName(orderHistoryForm, suppliersMap);
+		
 		// スタッフ名設定
 		orderHistoryService.setStaffName(orderHistoryForm, staffInfoMap);
 		
 		// 発注対象商品取得（API使用）、発注点数・発注金額合計設定 (TODO 時間がかかるため修正を検討予定)
 		orderHistoryService.getPurchaseOrderProduct(smarejiUser,orderHistoryForm);
+		
+		// ページング
+		Page<OrderHistorySubForm> pageable =orderHistoryService
+				.paging(PageRequest.of(page - 1, size), orderHistoryForm);
+		
+		model.addAttribute("page", pageable);
+		
+		int totalPages = pageable.getTotalPages();
+		if(totalPages > 0) {
+			List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+			model.addAttribute("pageNumbers", pageNumbers);
+		}
 		
 		// 画面に設定する
 		model.addAttribute("suppliers", suppliersMap);

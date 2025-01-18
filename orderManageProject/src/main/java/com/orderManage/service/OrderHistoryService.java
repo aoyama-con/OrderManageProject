@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -12,6 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.orderManage.controller.object.OrderHistoryForm;
@@ -382,6 +387,7 @@ public class OrderHistoryService extends OrderManageService{
 		List <OrderHistorySubForm> orderList = form.getDisplayList();
 		
 		for (int i=0; i<orderList.size(); i++) {
+			
 			List<PurchaseOrdersProductsInfo> orderProductList = new ArrayList<PurchaseOrdersProductsInfo>();
 			
 			// 発注対象商品を取得(API)
@@ -411,10 +417,9 @@ public class OrderHistoryService extends OrderManageService{
 			costFormat.setMinimumFractionDigits(1);
 			DecimalFormat quantityFormat = new DecimalFormat("#,###");
 			orderList.get(i).setQuantity(quantityFormat.format(totalQuantity));
-			orderList.get(i).setTotalPrice("\\".concat(costFormat.format(totalCost)));
+			orderList.get(i).setTotalPrice("\\".concat(costFormat.format(totalCost)));			
 		}
 		form.setDisplayList(orderList);
-		
 		logger.info("getPurchaseOrderProduct:発注対象商品取得　処理終了");
 		return ;
 	
@@ -581,5 +586,33 @@ public class OrderHistoryService extends OrderManageService{
 		
 		return session;
 	}
+
+	/**
+	 * ページング処理
+	 * 
+	 * @param pageable 
+	 * @param form
+	 * @return
+	 */
+	public Page<OrderHistorySubForm> paging(Pageable pageable, OrderHistoryForm form) {
+
+		List<OrderHistorySubForm> purchaseOrderInfoList = form.getDisplayList();
+
+		int pageSize = pageable.getPageSize();
+		int currentPage = pageable.getPageNumber();
+		int startItem = currentPage * pageSize;
+
+		List<OrderHistorySubForm> list;
 	
+		if(purchaseOrderInfoList.size() < startItem) {
+			list = Collections.emptyList();
+		} else {
+			int toIndex = Math.min(startItem + pageSize , purchaseOrderInfoList.size());
+			list = purchaseOrderInfoList.subList(startItem, toIndex);
+		}
+		
+		Page<OrderHistorySubForm> purchaseOrdersInfoPage = new PageImpl<OrderHistorySubForm>(list, PageRequest.of(currentPage, pageSize),purchaseOrderInfoList.size());
+		return purchaseOrdersInfoPage;
+		
+	}
 }
