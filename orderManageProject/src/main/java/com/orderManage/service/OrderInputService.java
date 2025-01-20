@@ -51,9 +51,9 @@ public class OrderInputService extends OrderManageService {
 	 * @param smarejiUser スマレジユーザ情報
 	 * @return 仕入先一覧List
 	 */
-	public List<SuppliersInfo> getSupplierInfo(SmarejiUser smarejiUser) {
+	public List<SuppliersInfo> getSupplierInfoList(SmarejiUser smarejiUser) {
 		
-		logger.info("getSupplierInfo:仕入先一覧取得　処理開始");
+		logger.info("getSupplierInfoList:仕入先一覧取得　処理開始");
 		
 		List<SuppliersInfo> supplierInfoList = new ArrayList<SuppliersInfo>();
 		
@@ -81,7 +81,7 @@ public class OrderInputService extends OrderManageService {
 			supplierInfoList.addAll(list);
 		}
 		
-		logger.info("getSupplierInfo:仕入先一覧取得　処理終了");
+		logger.info("getSupplierInfoList:仕入先一覧取得　処理終了");
 		
 		return supplierInfoList;
 	}
@@ -97,9 +97,9 @@ public class OrderInputService extends OrderManageService {
 	 * @param productId 商品ID
 	 * @return 仕入先商品一覧List
 	 */
-	public List<SuppliersProductsInfo> getSuppliersProductsInfo(SmarejiUser smarejiUser, String supplierId, String categoryId, String productId) {
+	public List<SuppliersProductsInfo> getSuppliersProductsInfoList(SmarejiUser smarejiUser, String supplierId, String categoryId, String productId) {
 		
-		logger.info("getSuppliersProductsInfo:仕入先商品一覧取得　処理開始");
+		logger.info("getSuppliersProductsInfoList:仕入先商品一覧取得　処理開始");
 		
 		List<SuppliersProductsInfo> suppliersProductsInfoList = new ArrayList<SuppliersProductsInfo>();
 		
@@ -135,7 +135,7 @@ public class OrderInputService extends OrderManageService {
 			suppliersProductsInfoList.addAll(list);
 		}
 		
-		logger.info("getSuppliersProductsInfo:仕入先商品一覧取得　処理終了");
+		logger.info("getSuppliersProductsInfoList:仕入先商品一覧取得　処理終了");
 		
 		return suppliersProductsInfoList;
 	}
@@ -152,9 +152,9 @@ public class OrderInputService extends OrderManageService {
 	 * @param supplierProductNo 品番
 	 * @return 商品一覧Map
 	 */
-	public Map<String, ProductsInfo> getProductsInfo(SmarejiUser smarejiUser, String categoryId, String productCode, String groupCode, String supplierProductNo) {
+	public Map<String, ProductsInfo> getProductsInfoMap(SmarejiUser smarejiUser, String categoryId, String productCode, String groupCode, String supplierProductNo) {
 		
-		logger.info("getProductsInfo:商品一覧取得　処理開始");
+		logger.info("getProductsInfoMap:商品一覧取得　処理開始");
 		
 		List<ProductsInfo> productsInfoList = new ArrayList<ProductsInfo>();
 		
@@ -214,7 +214,7 @@ public class OrderInputService extends OrderManageService {
 		Map<String, ProductsInfo> productsInfoMap = productsInfoList.stream()
 				.collect(Collectors.toMap(ProductsInfo::getProductId, u -> u, (u, v) -> v, LinkedHashMap::new));	// 商品ID、商品情報Map
 
-		logger.info("getProductsInfo:商品一覧取得　処理終了");
+		logger.info("getProductsInfoMap:商品一覧取得　処理終了");
 		
 		return productsInfoMap;
 	}
@@ -245,12 +245,12 @@ public class OrderInputService extends OrderManageService {
 		logger.info("部門一覧取得件数：" + categoriesMap.size());
 
 		// 商品一覧取得
-		Map<String, ProductsInfo> productsInfoMap= getProductsInfo(smarejiUser, object.getCategoryId(), object.getProductCode(), object.getGroupCode(), object.getSupplierProductNo());
+		Map<String, ProductsInfo> productsInfoMap= getProductsInfoMap(smarejiUser, object.getCategoryId(), object.getProductCode(), object.getGroupCode(), object.getSupplierProductNo());
 
 		logger.info("商品一覧取得件数：" + productsInfoMap.size());
 
 		// 仕入先一覧取得
-		List<SuppliersInfo> supplierList = getSupplierInfo(smarejiUser);
+		List<SuppliersInfo> supplierList = getSupplierInfoList(smarejiUser);
 
 		logger.info("仕入先一覧取得件数：" + supplierList.size());
 
@@ -260,7 +260,7 @@ public class OrderInputService extends OrderManageService {
 			SuppliersInfo supplier = supplierIt.next();
 
 			// 仕入先商品一覧取得
-			List<SuppliersProductsInfo> suppliersProductsList = getSuppliersProductsInfo(smarejiUser, supplier.getSupplierId(), "", object.getProductId());
+			List<SuppliersProductsInfo> suppliersProductsList = getSuppliersProductsInfoList(smarejiUser, supplier.getSupplierId(), "", object.getProductId());
 
 			logger.info("仕入先商品一覧取得件数：" + suppliersProductsList.size());
 			
