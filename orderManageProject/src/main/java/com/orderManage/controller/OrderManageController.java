@@ -1230,6 +1230,9 @@ public class OrderManageController {
 			session = orderHistoryService.setSession(orderHistoryForm,session);
 			smarejiSession.setAttribute("s_OrderHistInfo", session);
 			
+			// 20250120 画面表示情報を別セッションに格納(中川　発注状況で使用しているため格納しておく)
+			smarejiSession.setAttribute("s_OrderHistInfoDisplay", orderHistoryForm);
+
 			// 画面に設定する
 			model.addAttribute("suppliers", suppliersMap);
 			model.addAttribute("orderHistoryForm", orderHistoryForm);
@@ -1305,6 +1308,9 @@ public class OrderManageController {
 			model.addAttribute("pageNumbers", pageNumbers);
 		}
 		
+		// 20250120 画面表示情報を別セッションに格納(中川　発注状況で使用しているため格納しておく)
+		smarejiSession.setAttribute("s_OrderHistInfoDisplay", orderHistoryForm);
+
 		// 画面に設定する
 		model.addAttribute("suppliers", suppliersMap);
 		model.addAttribute("orderHistoryForm", orderHistoryForm);
@@ -1329,12 +1335,14 @@ public class OrderManageController {
 		
 		    logger.info("発注状況画面表示");
 		    
-		    //セッション情報取得
-		    OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession
-					.getAttribute("s_OrderHistInfo");
+		    //セッション情報取得 20250120　セッション格納情報が変更（発注履歴）
+//		    OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession
+//					.getAttribute("s_OrderHistInfo");
+		    OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession.getAttribute("s_OrderHistInfoDisplay");
 		    
 		    String orderId1 = orderId;
-		  
+	
+		    // セッション格納情報が変更
 		    List<OrderHistorySubForm> display = session1.getDisplayList();
 		    
 		    OrderHistorySubForm displayTrue = new OrderHistorySubForm();
@@ -1394,6 +1402,16 @@ public class OrderManageController {
 					
 	}
 	
+	/**
+	 * 発注状況画面ページング処理
+	 * 
+	 * @param referer
+	 * @param orderId
+	 * @param page
+	 * @param size
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/checkOrderStatus_page")
 	public String checkOrderStatus_page(
     		@RequestHeader(value = "referer", required = false) final String referer,
@@ -1401,12 +1419,12 @@ public class OrderManageController {
 	        @RequestParam("page") int page,
 			@RequestParam("size") int size,
 			Model model) {	
-		
-	   
-		
+
 		String orderId1 = orderId;
-		
-		 OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession.getAttribute("s_OrderHistInfo");
+
+	    //セッション情報取得 20250120　セッション格納情報が変更（発注履歴）
+//		OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession.getAttribute("s_OrderHistInfo");
+	    OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession.getAttribute("s_OrderHistInfoDisplay");
 		
 	    List<OrderHistorySubForm> display = session1.getDisplayList();
 	    
