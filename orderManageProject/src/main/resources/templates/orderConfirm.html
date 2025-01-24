@@ -17,14 +17,20 @@
 <script type="text/javascript" th:src="@{/js/modal.js}"></script>
 <script th:src="@{/js/common.js}"></script>
 
-<script>
+<script th:inline="javascript">
 	function func(type) {
 		document.form.type.value = type;
+		var referer = /*[[${orderConfirmForm.referer}]]*/;
 		if (type == "0") {
 			document.form.submit();
 		} else if (type == "1") {
-			$('#form').attr('action', '/orderManageProject/checkOrderConfirm');
-			document.form.submit();
+			if (referer == "checkOrderConfirm") {
+				$('#form').attr('action', '/orderManageProject/checkOrderConfirm');
+				document.form.submit();
+			} else {
+				$('#form').attr('action', '/orderManageProject/orderHistory');
+				document.form.submit();
+			}
 		}
 	}
 </script>

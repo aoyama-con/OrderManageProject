@@ -32,6 +32,9 @@ public class OrderConfirmForm implements Serializable {
 
     /** 処理種別 */
     private String type;
+    
+    /** リファラー */
+    private String referer;
 
     /**
      * 
@@ -87,6 +90,12 @@ public class OrderConfirmForm implements Serializable {
 	}
 	public void setOrderingPoint_(String[] orderingPoint_) {
 		this.orderingPoint_ = orderingPoint_;
+	}
+	public String getReferer() {
+		return referer;
+	}
+	public void setReferer(String referer) {
+		this.referer = referer;
 	}
 
 }
