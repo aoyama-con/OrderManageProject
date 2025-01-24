@@ -1014,28 +1014,31 @@ public class OrderManageController {
 		OrderConfirmForm form = new OrderConfirmForm();
 		List<OrderConfirmSubForm> updateList = new ArrayList<OrderConfirmSubForm>();
 
-		// バリデートチェック
-        if (bindingResult.hasErrors()) {
-        	// エラーの場合
-            List<String> errorList = new ArrayList<String>();
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                errorList.add(error.getDefaultMessage());
-            }
-            model.addAttribute("validationError", errorList);
-            //object.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));	// TODO objectの使い回しは微妙？
-            model.addAttribute("orderConfirmForm", object);
-
-    		// ページング処理でNULLだと落ちるので空のオブジェクト
-            form.setDisplayList(new ArrayList<OrderConfirmSubForm>());
-
-             return "orderConfirm";
-        }
-
         // セッションから発注情報を取得
         form = (OrderConfirmForm)smarejiSession.getAttribute("s_OrderDisplayInfo");
 //        // セッションから店舗情報を取得
 //     	StoreInfo storeInfo = (StoreInfo) smarejiSession.getAttribute("s_StoresInfo");
-        
+
+		// バリデートチェック
+        if (bindingResult.hasErrors()) {
+        	// エラーの場合
+        	List<String> errorList = new ArrayList<String>();
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                errorList.add(error.getDefaultMessage());
+            }
+            model.addAttribute("validationError", errorList);
+
+//    		// ページング処理でNULLだと落ちるので空のオブジェクト
+//            form.setDisplayList(new ArrayList<OrderConfirmSubForm>());
+			// 発注IDの引き渡し
+			model.addAttribute("orderId", form.getOrderId());
+
+			// 画面に返す
+			model.addAttribute("orderConfirmForm", form);
+
+            return "orderConfirm";
+        }
+
 		//　発注点数更新
         int i = 0;
         for (OrderConfirmSubForm orderConfirmSubForm : form.getDisplayList()) {
