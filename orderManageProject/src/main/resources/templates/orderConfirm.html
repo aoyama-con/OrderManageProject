@@ -33,6 +33,12 @@
 			}
 		}
 	}
+	
+	$(function(){
+		$('#logout').click(function(){
+			logout('ログアウトします。よろしいですか？');
+		});		
+	});
 </script>
 
 <head>
@@ -48,7 +54,6 @@
 				<input type="button" id ="logout" class="btn btn-primary" value="ログアウト">
 			</form>
 		</div>
-
 		<div align="center">
 			<h2>発注確定</h2>
 		</div>
