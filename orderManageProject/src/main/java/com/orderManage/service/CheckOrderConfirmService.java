@@ -5,8 +5,6 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +19,6 @@ import com.orderManage.controller.object.CheckOrderConfirmForm;
 import com.orderManage.controller.object.CheckOrderConfirmSubForm;
 import com.orderManage.model.api.OrderProducts;
 import com.orderManage.model.api.PurchaseOrdersInfo;
-import com.orderManage.model.api.SuppliersInfo;
-import com.orderManage.model.param.ParamSupplierInfo;
 import com.orderManage.model.session.SmarejiUser;
 import com.orderManage.util.SmarejiApiAccess;
 import com.orderManage.util.SmarejiApiAccessMock;
@@ -49,45 +45,6 @@ public class CheckOrderConfirmService extends OrderManageService {
 	@Autowired
 	SmarejiApiAccessMock smarejiApiAccessMock;
 
-	/**
-	 * 仕入先情報を取得
-	 * 
-	 * 仕入先一覧取得APIを使用して仕入先コード・仕入先名を取得する
-	 * 
-	 * @param smarejiUser スマレジユーザ情報
-	 * @return Map 仕入先コード・仕入先名
-	 */
-	public Map<String, String> getSupplierInfo(SmarejiUser smarejiUser) {
-		
-		logger.info("getSupplierInfo:仕入先情報取得　処理開始");
-		
-		List<SuppliersInfo> supplierInfoList = new ArrayList<SuppliersInfo>();
-		
-		// 仕入先一覧取得パラメータを設定
-		ParamSupplierInfo param = new ParamSupplierInfo();
-
-		// 取得項目
-		List<String> getParam = new ArrayList<String>();
-		getParam.add("supplierId");
-		getParam.add("supplierName");
-		param.setFields(getParam);
-		
-		// 仕入先一覧を取得(API)
-		supplierInfoList = smarejiApiAccess.getSuppliersInfo(smarejiUser.getContract().getId(), param);
-		
-		Iterator<SuppliersInfo> it = supplierInfoList.iterator();
-		Map<String, String> supplierInfoMap = new LinkedHashMap<String, String>();
-		while (it.hasNext()) {
-			// 仕入先コード、仕入先名の設定
-			SuppliersInfo sup = it.next();
-			supplierInfoMap.put(sup.getSupplierId(), sup.getSupplierName());
-		}
-		
-		logger.info("getSupplierInfo:仕入先情報取得　処理終了");
-		
-		return supplierInfoMap;
-	}
-	
 	/**
 	 * 発注確認画面初期表示情報を取得
 	 * 
