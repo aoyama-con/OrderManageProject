@@ -940,7 +940,6 @@ public class OrderManageController {
     		@RequestHeader(value = "referer", required = false) final String referer,
     		Model model) {
 
-		/** TODO 発注確認 or 発注確定　どちらから来たか判定して処理を行う必要がある **/
 		// 画面遷移情報が設定されていない場合、セッションに画面制御情報を設定(初回のみ)
 		if (Objects.isNull(smarejiSession.getAttribute("s_OrderConfirm_Referer"))) {
 			smarejiSession.setAttribute("s_OrderConfirm_Referer", referer);
@@ -949,8 +948,7 @@ public class OrderManageController {
 		// 遷移元を取得
 		String transition_src = (String) smarejiSession.getAttribute("s_OrderConfirm_Referer");
 		
-		// 遷移先判定処理/** TODO 発注確認 or 発注確定　どちらから来たか判定して処理を行う必要がある **/
-//		if (referer.contains("checkOrderConfirm") || referer.contains("orderConfirm_Order")) {
+		// 遷移先判定処理
 		if (transition_src.contains("checkOrderConfirm")) {
 			// 発注確認画面からの遷移
 			// 画面表示情報をセッションから削除
@@ -964,6 +962,7 @@ public class OrderManageController {
 
 			// セッションに画面内容を設定(発注IDを追加で設定)
 			form.setOrderId(orderId);
+			form.setReferer("checkOrderConfirm");
 			smarejiSession.setAttribute("s_OrderDisplayInfo", form);
 			
 			// 発注IDの引き渡し
@@ -972,7 +971,6 @@ public class OrderManageController {
 			// 画面に返す
 			model.addAttribute("orderConfirmForm", form);
 
-//		} else if (referer.contains("orderHistory")) {
 		} else if (transition_src.contains("orderHistory")) {	
 			// 発注履歴画面からの遷移
 			// 画面表示情報取得
@@ -980,6 +978,7 @@ public class OrderManageController {
 
 			// セッションに画面内容を設定(発注IDを追加で設定)
 			form.setOrderId(orderId);
+			form.setReferer("orderHistory");
 			smarejiSession.setAttribute("s_OrderDisplayInfo", form);
 			
 			// 発注IDの引き渡し
@@ -1013,31 +1012,33 @@ public class OrderManageController {
 		String transition_src = (String) smarejiSession.getAttribute("s_OrderConfirm_Referer");
 
 		OrderConfirmForm form = new OrderConfirmForm();
-		OrderConfirmForm updateForm = new OrderConfirmForm();
 		List<OrderConfirmSubForm> updateList = new ArrayList<OrderConfirmSubForm>();
-
-		// バリデートチェック
-        if (bindingResult.hasErrors()) {
-        	// エラーの場合
-            List<String> errorList = new ArrayList<String>();
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                errorList.add(error.getDefaultMessage());
-            }
-            model.addAttribute("validationError", errorList);
-            //object.setCategoryInfos((LinkedHashMap<String, String>)smarejiSession.getAttribute("categoryInfos"));	// TODO objectの使い回しは微妙？
-            model.addAttribute("orderConfirmForm", object);
-
-    		// ページング処理でNULLだと落ちるので空のオブジェクト
-            form.setDisplayList(new ArrayList<OrderConfirmSubForm>());
-
-             return "orderConfirm";
-        }
 
         // セッションから発注情報を取得
         form = (OrderConfirmForm)smarejiSession.getAttribute("s_OrderDisplayInfo");
 //        // セッションから店舗情報を取得
 //     	StoreInfo storeInfo = (StoreInfo) smarejiSession.getAttribute("s_StoresInfo");
-        
+
+		// バリデートチェック
+        if (bindingResult.hasErrors()) {
+        	// エラーの場合
+        	List<String> errorList = new ArrayList<String>();
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                errorList.add(error.getDefaultMessage());
+            }
+            model.addAttribute("validationError", errorList);
+
+//    		// ページング処理でNULLだと落ちるので空のオブジェクト
+//            form.setDisplayList(new ArrayList<OrderConfirmSubForm>());
+			// 発注IDの引き渡し
+			model.addAttribute("orderId", form.getOrderId());
+
+			// 画面に返す
+			model.addAttribute("orderConfirmForm", form);
+
+            return "orderConfirm";
+        }
+
 		//　発注点数更新
         int i = 0;
         for (OrderConfirmSubForm orderConfirmSubForm : form.getDisplayList()) {
@@ -1062,9 +1063,7 @@ public class OrderManageController {
       
         logger.info("発注確定処理完了");
         
-        /** TODO 発注確認 or 発注確定　どちらから来たか判定して処理を行う必要がある **/  
 		// 遷移先判定処理
-//        if (referer.contains("orderConfirm")) {
         if (transition_src.contains("checkOrderConfirm")) {
         	
             // 発注確認画面の画面表示情報を取得
@@ -1132,55 +1131,39 @@ public class OrderManageController {
         		logger.info("controller:発注確定画面　登録処理_order end");
         		return "orderHistory";
         	}
-//        } else if (referer.contains("orderHistory")) {
         } else if (transition_src.contains("orderHistory")) {
-        	// 発注履歴画面から遷移してきた場合、発注履歴画面に遷移　TODO
+        	// 発注履歴画面から遷移してきた場合、発注履歴画面に遷移
  
-        	/**** いったん発注履歴と同じプログラムを実装 ************************************************/   
-        	OrderHistoryForm orderHistoryForm = new OrderHistoryForm();
+        	/**** 発注履歴 初期表示 ************************************************/   
     		// セッション情報取得
-        	OrderHistSessionInfo session = (OrderHistSessionInfo)smarejiSession.
-    				getAttribute("s_OrderHistInfo");
+    		OrderHistSessionInfo session = (OrderHistSessionInfo)smarejiSession.getAttribute("s_OrderHistInfo");
+			// 仕入先一覧を取得(API使用）
+			Map<String, String> suppliersMap = new LinkedHashMap<String, String>();
+			suppliersMap = orderHistoryService.getSupplierInfo(smarejiUser);
+			
+			// 絞り込み条件設定
+			OrderHistoryForm orderHistoryForm = new OrderHistoryForm();
+			orderHistoryForm = orderHistoryService.setCondition(orderHistoryForm,session);
+			
+			// セッションに画面情報を格納
+			session = orderHistoryService.setSession(orderHistoryForm,session);
+			smarejiSession.setAttribute("s_OrderHistInfo", session);
+			
+			// 20250120 画面表示情報を別セッションに格納(中川　発注状況で使用しているため格納しておく)
+			smarejiSession.setAttribute("s_OrderHistInfoDisplay", orderHistoryForm);
 
-    		// 絞り込み条件設定
-    		orderHistoryForm = orderHistoryService.setCondition(orderHistoryForm,session);
-    		// セッションに画面情報を格納
-    		session = orderHistoryService.setSession(orderHistoryForm,session);
-    		smarejiSession.setAttribute("s_OrderHistInfo", session);
+			// 画面に設定する
+			model.addAttribute("suppliers", suppliersMap);
+			model.addAttribute("orderHistoryForm", orderHistoryForm);
+			model.addAttribute("shokihyojiFlg", "1");
 
-    		// 仕入先一覧を取得(API使用）
-    		Map<String, String> suppliersMap = new LinkedHashMap<String, String>();
-    		suppliersMap = orderHistoryService.getSupplierInfo(smarejiUser);
-    		
-    		// スタッフ一覧取得(API使用）
-    		Map<String, String> staffInfoMap = new LinkedHashMap<String, String>();
-    		staffInfoMap = orderHistoryService.getStaffInfo(smarejiUser);
-    		
-    		// 発注一覧取得処理(API使用）
-    		List<PurchaseOrdersInfo> purchaseOrderInfoList =orderHistoryService
-    				.getPurchaseOrderInfoList(smarejiUser,orderHistoryForm);
-
-    		// 絞り込み処理
-    		orderHistoryService.filter(smarejiUser,purchaseOrderInfoList,orderHistoryForm);
-
-    		// 名称設定
-    		// 仕入先名設定
-    		orderHistoryService.setSupplierName(orderHistoryForm, suppliersMap);
-    		// スタッフ名設定
-    		orderHistoryService.setStaffName(orderHistoryForm, staffInfoMap);
-    		
-    		// 発注対象商品取得（API使用）、発注点数・発注金額合計設定 (TODO 時間がかかるため修正を検討予定)
-    		orderHistoryService.getPurchaseOrderProduct(smarejiUser,orderHistoryForm);
-    		
-    		// 画面に設定する
-    		model.addAttribute("suppliers", suppliersMap);
-    		model.addAttribute("orderHistoryForm", orderHistoryForm);
-    		model.addAttribute("shokihyojiFlg", "0");
+			Page<OrderHistorySubForm> pageable = null;
+			model.addAttribute("page", pageable);
     		/***********************************************************************************/
-        	
+
     		// 遷移元セッションの削除
     		smarejiSession.removeAttribute("s_OrderConfirm_Referer");
-    		
+
         	logger.info("controller:発注確定画面　登録処理_order end");
         	return "orderHistory";
         } else {
@@ -1230,6 +1213,9 @@ public class OrderManageController {
 			session = orderHistoryService.setSession(orderHistoryForm,session);
 			smarejiSession.setAttribute("s_OrderHistInfo", session);
 			
+			// 20250120 画面表示情報を別セッションに格納(中川　発注状況で使用しているため格納しておく)
+			smarejiSession.setAttribute("s_OrderHistInfoDisplay", orderHistoryForm);
+
 			// 画面に設定する
 			model.addAttribute("suppliers", suppliersMap);
 			model.addAttribute("orderHistoryForm", orderHistoryForm);
@@ -1305,6 +1291,9 @@ public class OrderManageController {
 			model.addAttribute("pageNumbers", pageNumbers);
 		}
 		
+		// 20250120 画面表示情報を別セッションに格納(中川　発注状況で使用しているため格納しておく)
+		smarejiSession.setAttribute("s_OrderHistInfoDisplay", orderHistoryForm);
+
 		// 画面に設定する
 		model.addAttribute("suppliers", suppliersMap);
 		model.addAttribute("orderHistoryForm", orderHistoryForm);
@@ -1329,12 +1318,14 @@ public class OrderManageController {
 		
 		    logger.info("発注状況画面表示");
 		    
-		    //セッション情報取得
-		    OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession
-					.getAttribute("s_OrderHistInfo");
+		    //セッション情報取得 20250120　セッション格納情報が変更（発注履歴）
+//		    OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession
+//					.getAttribute("s_OrderHistInfo");
+		    OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession.getAttribute("s_OrderHistInfoDisplay");
 		    
 		    String orderId1 = orderId;
-		  
+	
+		    // セッション格納情報が変更
 		    List<OrderHistorySubForm> display = session1.getDisplayList();
 		    
 		    OrderHistorySubForm displayTrue = new OrderHistorySubForm();
@@ -1394,6 +1385,16 @@ public class OrderManageController {
 					
 	}
 	
+	/**
+	 * 発注状況画面ページング処理
+	 * 
+	 * @param referer
+	 * @param orderId
+	 * @param page
+	 * @param size
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/checkOrderStatus_page")
 	public String checkOrderStatus_page(
     		@RequestHeader(value = "referer", required = false) final String referer,
@@ -1401,12 +1402,12 @@ public class OrderManageController {
 	        @RequestParam("page") int page,
 			@RequestParam("size") int size,
 			Model model) {	
-		
-	   
-		
+
 		String orderId1 = orderId;
-		
-		 OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession.getAttribute("s_OrderHistInfo");
+
+	    //セッション情報取得 20250120　セッション格納情報が変更（発注履歴）
+//		OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession.getAttribute("s_OrderHistInfo");
+	    OrderHistoryForm session1 = (OrderHistoryForm)smarejiSession.getAttribute("s_OrderHistInfoDisplay");
 		
 	    List<OrderHistorySubForm> display = session1.getDisplayList();
 	    
